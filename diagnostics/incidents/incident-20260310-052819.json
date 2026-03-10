@@ -1,0 +1,43 @@
+{
+  "actualBehavior" : "",
+  "breadcrumbs" : [
+    {
+      "category" : "navigation",
+      "message" : "Opened demo root",
+      "timestamp" : "2026-03-10T12:27:51Z"
+    },
+    {
+      "category" : "action",
+      "message" : "Tapped increment, counter=1",
+      "timestamp" : "2026-03-10T12:27:55Z"
+    },
+    {
+      "category" : "action",
+      "message" : "Tapped increment, counter=2",
+      "timestamp" : "2026-03-10T12:27:56Z"
+    },
+    {
+      "category" : "action",
+      "message" : "Tapped reset, previous=2, expected=0",
+      "timestamp" : "2026-03-10T12:28:02Z"
+    },
+    {
+      "category" : "bug",
+      "message" : "Bug observed: reset actual=1",
+      "timestamp" : "2026-03-10T12:28:02Z"
+    }
+  ],
+  "expectedBehavior" : "",
+  "id" : "incident-20260310-052819",
+  "metadata" : {
+    "appVersion" : "1.0.0",
+    "buildNumber" : "1",
+    "deviceModel" : "iPhone",
+    "osVersion" : "26.2",
+    "screenName" : "DemoHome",
+    "timestamp" : "2026-03-10T12:28:19Z"
+  },
+  "reporterNotes" : "",
+  "screenshotFilename" : "incident-20260310-052819-screenshot.jpg",
+  "title" : "Increment error test"
+}

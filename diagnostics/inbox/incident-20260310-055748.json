@@ -1,0 +1,38 @@
+{
+  "actualBehavior" : "After tapping Apply Coupon (Buggy), total is $25.00 instead of $20.00.",
+  "breadcrumbs" : [
+    {
+      "category" : "navigation",
+      "message" : "Opened demo root",
+      "timestamp" : "2026-03-10T12:57:34Z"
+    },
+    {
+      "category" : "action",
+      "message" : "Tapped apply coupon, subtotalCents=2500, discountPercent=20",
+      "timestamp" : "2026-03-10T12:57:37Z"
+    },
+    {
+      "category" : "pipeline",
+      "message" : "CheckoutUseCase result: discountCents=0, totalCents=2500",
+      "timestamp" : "2026-03-10T12:57:37Z"
+    },
+    {
+      "category" : "bug",
+      "message" : "Bug observed: expectedTotalCents=2000, actualTotalCents=2500",
+      "timestamp" : "2026-03-10T12:57:37Z"
+    }
+  ],
+  "expectedBehavior" : "Applying 20% off to $25.00 should produce $20.00 total.",
+  "id" : "incident-20260310-055748",
+  "metadata" : {
+    "appVersion" : "1.0.0",
+    "buildNumber" : "1",
+    "deviceModel" : "iPhone",
+    "osVersion" : "26.2",
+    "screenName" : "DemoHome",
+    "timestamp" : "2026-03-10T12:57:48Z"
+  },
+  "reporterNotes" : "Repro: Home -> Apply Coupon (Buggy).",
+  "screenshotFilename" : "incident-20260310-055748-screenshot.jpg",
+  "title" : "Coupon discount not applied"
+}

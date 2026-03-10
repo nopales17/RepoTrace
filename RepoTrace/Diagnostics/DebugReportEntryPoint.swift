@@ -11,7 +11,7 @@ private struct DebugReportEntryPointModifier: ViewModifier {
                     Button {
                         isPresentingDebugReport = true
                     } label: {
-                        Image(systemName: "ladybug")
+                        Text("Report Bug")
                     }
                     .accessibilityLabel("Open Debug Report")
                 }

@@ -78,3 +78,11 @@ RepoTrace/
 ├─ examples/
 └─ ios/
    └─ RepoTraceDemo/
+```
+
+## Current progress (March 10, 2026)
+
+- Implemented the in-app diagnostics primitives used by RepoTrace (`BreadcrumbStore`, debug report drafting, incident writer, and debug report UI entry point).
+- The repository now supports a full local loop from repro breadcrumbs to structured incident artifacts under `diagnostics/`.
+- Added scripts for incident workflow support, including creating and pulling simulator incidents.
+- `RepoTraceDemo` is a fixture app used to exercise and validate the debugging workflow, not the core product itself.

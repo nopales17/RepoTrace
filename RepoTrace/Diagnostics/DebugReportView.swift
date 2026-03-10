@@ -6,10 +6,10 @@ struct DebugReportView: View {
     @State private var expectedBehavior = ""
     @State private var actualBehavior = ""
     @State private var reporterNotes = ""
-    @State private var screenName = "UnknownScreen"
+    @State private var screenName = "DemoHome"
 
-    @State private var exportURL: URL?
-    @State private var showExporter = false
+    @State private var savedIncidentURL: URL?
+    @State private var exportFile: ExportFile?
     @State private var errorMessage: String?
 
     var body: some View {
@@ -24,7 +24,7 @@ struct DebugReportView: View {
                 }
 
                 Section {
-                    Button("Export Incident") {
+                    Button("Save Incident JSON") {
                         do {
                             let screenshot = UIApplication.shared.topMostViewController?.view.snapshotImage()
                             let url = try IncidentWriter.write(
@@ -35,10 +35,29 @@ struct DebugReportView: View {
                                 screenName: screenName,
                                 screenshot: screenshot
                             )
-                            exportURL = url
-                            showExporter = true
+                            savedIncidentURL = url
+                            errorMessage = nil
                         } catch {
                             errorMessage = error.localizedDescription
+                        }
+                    }
+                }
+
+                if let savedIncidentURL {
+                    Section("Saved") {
+                        Text("JSON path")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Text(savedIncidentURL.path)
+                            .font(.caption)
+                            .textSelection(.enabled)
+
+                        Button("Copy JSON Path") {
+                            UIPasteboard.general.string = savedIncidentURL.path
+                        }
+
+                        Button("Share JSON") {
+                            exportFile = ExportFile(url: savedIncidentURL)
                         }
                     }
                 }
@@ -50,13 +69,41 @@ struct DebugReportView: View {
                 }
             }
             .navigationTitle("Report Bug")
-            .sheet(isPresented: $showExporter) {
-                if let exportURL {
-                    ShareSheet(items: [exportURL])
-                }
+            .onAppear {
+                applyPendingDraftIfNeeded()
+            }
+            .sheet(item: $exportFile) { exportFile in
+                ShareSheet(items: [exportFile.url])
             }
         }
     }
+
+    private func applyPendingDraftIfNeeded() {
+        guard let draft = DebugReportDraftStore.shared.consume() else {
+            return
+        }
+
+        if title.isEmpty {
+            title = draft.title
+        }
+        if expectedBehavior.isEmpty {
+            expectedBehavior = draft.expectedBehavior
+        }
+        if actualBehavior.isEmpty {
+            actualBehavior = draft.actualBehavior
+        }
+        if reporterNotes.isEmpty {
+            reporterNotes = draft.reporterNotes
+        }
+        if screenName.isEmpty || screenName == "DemoHome" {
+            screenName = draft.screenName
+        }
+    }
+}
+
+private struct ExportFile: Identifiable {
+    let id = UUID()
+    let url: URL
 }
 
 struct ShareSheet: UIViewControllerRepresentable {
