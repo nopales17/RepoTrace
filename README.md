@@ -1,81 +1,80 @@
-# RepoPulse 
+# RepoTrace
 
-Persistent debugging memory for iOS apps: structured incident capture, claim tracking, and Codex-ready search frontier narrowing.
+**Persistent debugging traces for evolving codebases.**
 
-## What this is
+RepoTrace is a repo-local debugging memory system for iOS apps and Codex-style development workflows.
 
-RepoPulse is an experiment in making app debugging more stateful.
+It captures structured bug incidents from a running app, stores reusable debugging claims directly in the repository, and helps future debugging sessions start from a smaller, more relevant search frontier instead of reconstructing the same repo context from scratch.
 
-Instead of repeatedly telling an agent or developer that “the app is broken” and forcing them to reconstruct the repo from scratch, RepoPulse captures a bug incident in a structured way, stores reusable debugging claims over time, and helps narrow the active search frontier for future investigation.
+## Why this exists
 
-The idea is simple:
+A lot of debugging time is not spent fixing the bug itself.
 
-- capture high-signal runtime context from the app
-- preserve durable debugging facts in the repo
-- avoid re-deriving the same structure every time
-- give Codex a smaller, more relevant starting point
+It is spent reconstructing enough local understanding to begin fixing it:
 
-## Why
+- what subsystem likely owns this behavior
+- what path this action takes through the app
+- what was already checked before
+- which branches were already ruled out
+- what stable assumptions this repo depends on
 
-A lot of debugging effort is not spent fixing the bug itself. It is spent reconstructing enough local understanding to begin fixing it.
+That reconstruction cost repeats across incidents and across commits.
 
-For an evolving app, this reconstruction tax happens over and over:
-
-- what screen owns this behavior?
-- what service path does this action use?
-- what was already checked before?
-- what subsystem is most likely implicated?
-- which branches were already falsified?
-
-RepoPulse exists to turn some of that repeated inference into persistent repo-local state.
+RepoTrace is an experiment in preserving the smallest reusable debugging structure that survives long enough to matter.
 
 ## Core idea
 
-The workflow is:
+RepoTrace turns debugging into a persistent loop:
 
-1. the app emits a structured incident
-2. the repo stores that incident
-3. durable claims are tracked over time
-4. Codex reads incidents + claims before broad repo exploration
-5. the search frontier stays smaller and more relevant
+**incident → trace → claims → narrower frontier**
 
-This is not a crash reporter or a full observability platform.
+Instead of starting every investigation with a vague prompt like “my app doesn’t work,” the repo accumulates structured state over time:
 
-It is a lightweight diagnostics layer aimed at reducing repeated inference in repo-specific debugging workflows.
+- incident reports
+- reusable claims
+- falsified branches
+- subsystem hints
+- commit-aware debugging memory
 
-## Current scope
+The goal is not to store everything.
 
-This repo is intentionally minimal.
+The goal is to store the **minimum reusable structure** that reduces repeated inference.
 
-Initial goals:
+## What RepoTrace is
 
-- in-app incident capture for iOS
-- screenshot export
-- metadata capture
-- breadcrumb logging
-- repo-local incident files
-- persistent `claims.json`
-- Codex workflow guidance through `AGENTS.md`
+RepoTrace is:
 
-Not in scope right now:
+- a repo-local diagnostics layer
+- a structured incident capture workflow
+- a persistent claim store for debugging
+- a way to give Codex a better starting state
 
-- backend infrastructure
-- dashboards
-- multi-user collaboration
-- autonomous fix generation
-- large graph infrastructure
-- enterprise observability features
+## What RepoTrace is not
 
-## Repository structure
+RepoTrace is not:
+
+- a crash reporting platform
+- a full observability system
+- a backend-heavy SaaS
+- a generic AI wrapper
+- a replacement for deterministic tooling
+
+The intended use is:
+
+- collect high-signal incident context
+- preserve reusable debugging facts
+- narrow the active search frontier
+- let Codex or a developer do more targeted work
+
+## Repository layout
 
 ```text
-.
+RepoTrace/
 ├─ AGENTS.md
 ├─ diagnostics/
-│  ├─ incidents/
 │  ├─ claims.json
-│  └─ README.md
+│  └─ incidents/
 ├─ scripts/
-│  └─ new_incident.py
-└─ YourApp/
-   └─ Diagnostics/
+├─ examples/
+└─ ios/
+   └─ RepoTraceDemo/
