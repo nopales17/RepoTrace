@@ -1,4 +1,17 @@
 {
-  "claims": [],
-  "last_updated": null
+  "claims": [
+    {
+      "id": "diag-mainactor-incident-writer",
+      "status": "supported",
+      "subsystem": "diagnostics-export",
+      "statement": "Incident export must run on MainActor because BreadcrumbStore is MainActor-isolated.",
+      "files": [
+        "RepoTrace/Diagnostics/BreadcrumbStore.swift",
+        "RepoTrace/Diagnostics/IncidentWriter.swift"
+      ],
+      "checked_at": "2026-03-10"
+    }
+  ],
+  "last_updated": "2026-03-10",
+  "schema_version": 1
 }

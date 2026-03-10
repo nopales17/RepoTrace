@@ -2,6 +2,7 @@ import Foundation
 import UIKit
 
 enum IncidentWriter {
+    @MainActor
     static func write(
         title: String,
         expectedBehavior: String,

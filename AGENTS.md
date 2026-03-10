@@ -24,3 +24,19 @@ When fixing a bug:
 - First identify likely files and checks.
 - Then implement the smallest fix.
 - Then explain which claim was confirmed or falsified.
+
+## RepoTrace workflow rules
+
+For debugging tasks:
+1. Read `diagnostics/incidents/` first if an incident is present.
+2. Read `diagnostics/claims.json` before broad repo exploration.
+3. Separate:
+   - observations
+   - claims
+   - checks
+   - falsified branches
+4. Keep the search frontier small.
+5. Prefer deterministic checks over broad speculative reading.
+6. Only add a claim to `claims.json` if it is likely reusable across future incidents.
+7. If no `.xcodeproj`/`.xcworkspace` is present, run a deterministic iOS typecheck with:
+   `xcrun --sdk iphonesimulator swiftc -target arm64-apple-ios17.0-simulator -typecheck RepoTrace/Diagnostics/*.swift`
