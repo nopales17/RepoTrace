@@ -1,0 +1,48 @@
+{
+  "actualBehavior" : "UI shows coupon SAVE20, but total is $25.00.",
+  "breadcrumbs" : [
+    {
+      "category" : "navigation",
+      "message" : "Opened demo root",
+      "timestamp" : "2026-03-10T13:11:40Z"
+    },
+    {
+      "category" : "action",
+      "message" : "Tapped apply coupon, uiCoupon=SAVE20, subtotalCents=2500",
+      "timestamp" : "2026-03-10T13:11:41Z"
+    },
+    {
+      "category" : "context",
+      "message" : "Context store updated: couponCode=SAVE20",
+      "timestamp" : "2026-03-10T13:11:41Z"
+    },
+    {
+      "category" : "pipeline",
+      "message" : "Pricing policy used: couponCode=nil, discountPercent=0",
+      "timestamp" : "2026-03-10T13:11:41Z"
+    },
+    {
+      "category" : "pipeline",
+      "message" : "Engine result: discountCents=0, totalCents=2500",
+      "timestamp" : "2026-03-10T13:11:41Z"
+    },
+    {
+      "category" : "bug",
+      "message" : "Bug observed: class=stale-policy-context, expectedTotalCents=2000, actualTotalCents=2500",
+      "timestamp" : "2026-03-10T13:11:41Z"
+    }
+  ],
+  "expectedBehavior" : "After applying SAVE20, $25.00 should become $20.00.",
+  "id" : "incident-20260310-061145",
+  "metadata" : {
+    "appVersion" : "1.0.0",
+    "buildNumber" : "1",
+    "deviceModel" : "iPhone",
+    "osVersion" : "26.2",
+    "screenName" : "DemoHome",
+    "timestamp" : "2026-03-10T13:11:45Z"
+  },
+  "reporterNotes" : "Classification=stale-policy-context. ContextCoupon=SAVE20, PolicyCoupon=nil, PolicyDiscount=0%.",
+  "screenshotFilename" : "incident-20260310-061145-screenshot.jpg",
+  "title" : "Coupon appears applied but total is unchanged"
+}
