@@ -16,7 +16,8 @@ struct CheckoutScenario {
 
 struct CheckoutQuote {
     let subtotalCents: Int
-    let contextCouponCode: String?
+    let pendingCouponCode: String?
+    let appliedCouponCode: String?
     let policyCouponCode: String?
     let policyDiscountPercent: Int
     let discountCents: Int
@@ -24,14 +25,25 @@ struct CheckoutQuote {
 }
 
 struct CheckoutContext {
-    let couponCode: String?
+    let pendingCouponCode: String?
+    let appliedCouponCode: String?
 }
 
 final class CheckoutContextStore {
-    private(set) var current = CheckoutContext(couponCode: nil)
+    private(set) var current = CheckoutContext(pendingCouponCode: nil, appliedCouponCode: nil)
 
-    func applyCoupon(_ couponCode: String) {
-        current = CheckoutContext(couponCode: couponCode)
+    func selectCoupon(_ couponCode: String) {
+        current = CheckoutContext(
+            pendingCouponCode: couponCode,
+            appliedCouponCode: current.appliedCouponCode
+        )
+    }
+
+    func applyPendingCoupon() {
+        current = CheckoutContext(
+            pendingCouponCode: current.pendingCouponCode,
+            appliedCouponCode: current.pendingCouponCode
+        )
     }
 }
 
@@ -42,22 +54,23 @@ struct PricingPolicy {
 
 struct PricingPolicyRepository {
     private let contextStore: CheckoutContextStore
-    private let cachedContext: CheckoutContext
 
     init(contextStore: CheckoutContextStore) {
         self.contextStore = contextStore
-        self.cachedContext = contextStore.current
     }
 
     func activePolicy() -> PricingPolicy {
-        // Intentional bug: stale context snapshot is used instead of live context.
-        let couponCode = cachedContext.couponCode
+        let couponCode = contextStore.current.appliedCouponCode
         let discountPercent = couponCode == "SAVE20" ? 20 : 0
         return PricingPolicy(couponCode: couponCode, discountPercent: discountPercent)
     }
 
-    func liveContextCouponCode() -> String? {
-        contextStore.current.couponCode
+    func livePendingCouponCode() -> String? {
+        contextStore.current.pendingCouponCode
+    }
+
+    func liveAppliedCouponCode() -> String? {
+        contextStore.current.appliedCouponCode
     }
 }
 
@@ -76,7 +89,8 @@ struct CheckoutUseCase {
 
         return CheckoutQuote(
             subtotalCents: subtotalCents,
-            contextCouponCode: policyRepository.liveContextCouponCode(),
+            pendingCouponCode: policyRepository.livePendingCouponCode(),
+            appliedCouponCode: policyRepository.liveAppliedCouponCode(),
             policyCouponCode: policy.couponCode,
             policyDiscountPercent: policy.discountPercent,
             discountCents: discountCents,

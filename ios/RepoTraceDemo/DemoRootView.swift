@@ -55,17 +55,16 @@ struct DemoRootView: View {
     }
 
     private func runCheckoutBugScenario() {
-        displayedCouponCode = scenario.couponCode
+        contextStore.selectCoupon(scenario.couponCode)
+        displayedCouponCode = contextStore.current.pendingCouponCode
 
         BreadcrumbStore.shared.add(
             "Tapped apply coupon, uiCoupon=\(displayedCouponCode ?? "none"), subtotalCents=\(scenario.subtotalCents)",
             category: "action"
         )
 
-        contextStore.applyCoupon(scenario.couponCode)
-
         BreadcrumbStore.shared.add(
-            "Context store updated: couponCode=\(contextStore.current.couponCode ?? "nil")",
+            "Coupon selection updated: pendingCoupon=\(contextStore.current.pendingCouponCode ?? "nil"), appliedCoupon=\(contextStore.current.appliedCouponCode ?? "nil")",
             category: "context"
         )
 
@@ -82,6 +81,21 @@ struct DemoRootView: View {
             category: "pipeline"
         )
 
+        BreadcrumbStore.shared.add(
+            "Triage UI check: expectedUiCoupon=\(scenario.couponCode), displayedCoupon=\(displayedCouponCode ?? "none")",
+            category: "triage"
+        )
+
+        BreadcrumbStore.shared.add(
+            "Triage math check: policyDiscountPercent=\(quote.policyDiscountPercent), expectedDiscountPercent=\(scenario.expectedDiscountPercent), expectedDiscountCents=\(scenario.expectedDiscountCents), actualDiscountCents=\(quote.discountCents)",
+            category: "triage"
+        )
+
+        BreadcrumbStore.shared.add(
+            "Triage policy check: pendingCoupon=\(quote.pendingCouponCode ?? "nil"), appliedCoupon=\(quote.appliedCouponCode ?? "nil"), policyCoupon=\(quote.policyCouponCode ?? "nil")",
+            category: "triage"
+        )
+
         let classification = classifyBug(from: quote)
         bugClassification = classification
 
@@ -96,7 +110,7 @@ struct DemoRootView: View {
                     title: "Coupon appears applied but total is unchanged",
                     expectedBehavior: "After applying \(scenario.couponCode), \(dollars(scenario.subtotalCents)) should become \(dollars(scenario.expectedTotalCents)).",
                     actualBehavior: "UI shows coupon \(displayedCouponCode ?? "none"), but total is \(dollars(quote.totalCents)).",
-                    reporterNotes: "Classification=\(classification). ContextCoupon=\(quote.contextCouponCode ?? "nil"), PolicyCoupon=\(quote.policyCouponCode ?? "nil"), PolicyDiscount=\(quote.policyDiscountPercent)%.",
+                    reporterNotes: "Classification=\(classification). PendingCoupon=\(quote.pendingCouponCode ?? "nil"), AppliedCoupon=\(quote.appliedCouponCode ?? "nil"), PolicyCoupon=\(quote.policyCouponCode ?? "nil"), PolicyDiscount=\(quote.policyDiscountPercent)%.",
                     screenName: "DemoHome"
                 )
             )
@@ -113,9 +127,10 @@ struct DemoRootView: View {
             return "pricing-math"
         }
 
-        if quote.contextCouponCode == scenario.couponCode &&
+        if quote.pendingCouponCode == scenario.couponCode &&
+            quote.appliedCouponCode != scenario.couponCode &&
             quote.policyCouponCode != scenario.couponCode {
-            return "stale-policy-context"
+            return "source-of-truth-policy-application"
         }
 
         return "unknown"

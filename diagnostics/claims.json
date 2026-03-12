@@ -134,16 +134,27 @@
     },
     {
       "id": "demo-stale-policy-context-bug",
-      "status": "supported",
+      "status": "falsified",
       "subsystem": "demo-bug-harness",
-      "statement": "Current demo bug: UI and context store show coupon applied, but PricingPolicyRepository uses a cached context snapshot from init, so CheckoutUseCase prices with stale policy.",
+      "statement": "Superseded: demo bug no longer uses stale cached context in policy repository.",
       "files": [
         "ios/RepoTraceDemo/CheckoutPricing.swift",
         "ios/RepoTraceDemo/DemoRootView.swift"
       ],
-      "checked_at": "2026-03-10"
+      "checked_at": "2026-03-11"
+    },
+    {
+      "id": "demo-pending-vs-applied-coupon-divergence-bug",
+      "status": "supported",
+      "subsystem": "demo-bug-harness",
+      "statement": "Current demo bug: Home action updates pending coupon selection used by UI, but pricing policy reads authoritative applied coupon, so SAVE20 appears selected while total remains $25.00.",
+      "files": [
+        "ios/RepoTraceDemo/CheckoutPricing.swift",
+        "ios/RepoTraceDemo/DemoRootView.swift"
+      ],
+      "checked_at": "2026-03-11"
     }
   ],
-  "last_updated": "2026-03-10",
+  "last_updated": "2026-03-11",
   "schema_version": 1
 }
