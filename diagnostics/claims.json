@@ -145,9 +145,20 @@
     },
     {
       "id": "demo-pending-vs-applied-coupon-divergence-bug",
+      "status": "falsified",
+      "subsystem": "demo-bug-harness",
+      "statement": "Superseded: demo bug no longer uses coupon-total divergence as the active motif example.",
+      "files": [
+        "ios/RepoTraceDemo/CheckoutPricing.swift",
+        "ios/RepoTraceDemo/DemoRootView.swift"
+      ],
+      "checked_at": "2026-03-11"
+    },
+    {
+      "id": "demo-pending-vs-applied-delivery-promise-divergence-bug",
       "status": "supported",
       "subsystem": "demo-bug-harness",
-      "statement": "Current demo bug: Home action updates pending coupon selection used by UI, but pricing policy reads authoritative applied coupon, so SAVE20 appears selected while total remains $25.00.",
+      "statement": "Current demo bug: Home action updates pending delivery speed used by UI, but fulfillment policy reads authoritative applied speed, so EXPRESS appears selected while promised delivery remains standard.",
       "files": [
         "ios/RepoTraceDemo/CheckoutPricing.swift",
         "ios/RepoTraceDemo/DemoRootView.swift"

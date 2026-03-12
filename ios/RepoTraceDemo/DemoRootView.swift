@@ -1,18 +1,18 @@
 import SwiftUI
 
 struct DemoRootView: View {
-    private let scenario = CheckoutScenario(subtotalCents: 2_500, couponCode: "SAVE20", expectedDiscountPercent: 20)
-    private let contextStore: CheckoutContextStore
-    private let checkoutUseCase: CheckoutUseCase
+    private let scenario = DeliveryScenario(standardLeadDays: 3, speedCode: "EXPRESS", expectedLeadDays: 1)
+    private let contextStore: DeliveryContextStore
+    private let deliveryPromiseUseCase: DeliveryPromiseUseCase
 
-    @State private var displayedCouponCode: String?
-    @State private var latestQuote: CheckoutQuote?
+    @State private var displayedSpeedCode: String?
+    @State private var latestQuote: DeliveryQuote?
     @State private var bugClassification: String?
 
     init() {
-        let store = CheckoutContextStore()
+        let store = DeliveryContextStore()
         self.contextStore = store
-        self.checkoutUseCase = CheckoutUseCase(policyRepository: PricingPolicyRepository(contextStore: store))
+        self.deliveryPromiseUseCase = DeliveryPromiseUseCase(policyRepository: FulfillmentPolicyRepository(contextStore: store))
     }
 
     var body: some View {
@@ -22,16 +22,16 @@ struct DemoRootView: View {
                     .font(.title2)
                     .fontWeight(.semibold)
 
-                Text("Fake bug: UI shows SAVE20 applied, but total remains wrong.")
+                Text("Fake bug: UI shows EXPRESS selected, but promise remains standard.")
                     .multilineTextAlignment(.center)
 
-                Text("Subtotal: \(dollars(scenario.subtotalCents))")
-                Text("Expected total with \(scenario.couponCode): \(dollars(scenario.expectedTotalCents))")
-                Text("Coupon shown in UI: \(displayedCouponCode ?? "none")")
+                Text("Standard delivery promise: \(daysLabel(scenario.standardLeadDays))")
+                Text("Expected with \(scenario.speedCode): \(daysLabel(scenario.expectedLeadDays))")
+                Text("Speed shown in UI: \(displayedSpeedCode ?? "none")")
 
                 if let latestQuote {
-                    Text("Actual total: \(dollars(latestQuote.totalCents))")
-                        .foregroundColor(latestQuote.totalCents == scenario.expectedTotalCents ? .green : .red)
+                    Text("Actual promised delivery: \(daysLabel(latestQuote.promisedLeadDays))")
+                        .foregroundColor(latestQuote.promisedLeadDays == scenario.expectedLeadDays ? .green : .red)
                 }
 
                 if let bugClassification {
@@ -40,8 +40,8 @@ struct DemoRootView: View {
                         .foregroundColor(.secondary)
                 }
 
-                Button("Apply SAVE20 (Buggy)") {
-                    runCheckoutBugScenario()
+                Button("Select EXPRESS (Buggy)") {
+                    runDeliveryBugScenario()
                 }
                 .buttonStyle(.borderedProminent)
             }
@@ -54,89 +54,93 @@ struct DemoRootView: View {
         }
     }
 
-    private func runCheckoutBugScenario() {
-        contextStore.selectCoupon(scenario.couponCode)
-        displayedCouponCode = contextStore.current.pendingCouponCode
+    private func runDeliveryBugScenario() {
+        contextStore.selectSpeed(scenario.speedCode)
+        displayedSpeedCode = contextStore.current.pendingSpeedCode
 
         BreadcrumbStore.shared.add(
-            "Tapped apply coupon, uiCoupon=\(displayedCouponCode ?? "none"), subtotalCents=\(scenario.subtotalCents)",
+            "Tapped select speed, uiSpeed=\(displayedSpeedCode ?? "none"), standardLeadDays=\(scenario.standardLeadDays)",
             category: "action"
         )
 
         BreadcrumbStore.shared.add(
-            "Coupon selection updated: pendingCoupon=\(contextStore.current.pendingCouponCode ?? "nil"), appliedCoupon=\(contextStore.current.appliedCouponCode ?? "nil")",
+            "Delivery selection updated: pendingSpeed=\(contextStore.current.pendingSpeedCode ?? "nil"), appliedSpeed=\(contextStore.current.appliedSpeedCode ?? "nil")",
             category: "context"
         )
 
-        let quote = checkoutUseCase.makeQuote(subtotalCents: scenario.subtotalCents)
+        let quote = deliveryPromiseUseCase.makeQuote(standardLeadDays: scenario.standardLeadDays)
         latestQuote = quote
 
         BreadcrumbStore.shared.add(
-            "Pricing policy used: couponCode=\(quote.policyCouponCode ?? "nil"), discountPercent=\(quote.policyDiscountPercent)",
+            "Fulfillment policy used: speedCode=\(quote.policySpeedCode ?? "nil"), leadDays=\(quote.policyLeadDays)",
             category: "pipeline"
         )
 
         BreadcrumbStore.shared.add(
-            "Engine result: discountCents=\(quote.discountCents), totalCents=\(quote.totalCents)",
+            "Promise engine result: promisedLeadDays=\(quote.promisedLeadDays)",
             category: "pipeline"
         )
 
         BreadcrumbStore.shared.add(
-            "Triage UI check: expectedUiCoupon=\(scenario.couponCode), displayedCoupon=\(displayedCouponCode ?? "none")",
+            "Triage UI check: expectedUiSpeed=\(scenario.speedCode), displayedSpeed=\(displayedSpeedCode ?? "none")",
             category: "triage"
         )
 
         BreadcrumbStore.shared.add(
-            "Triage math check: policyDiscountPercent=\(quote.policyDiscountPercent), expectedDiscountPercent=\(scenario.expectedDiscountPercent), expectedDiscountCents=\(scenario.expectedDiscountCents), actualDiscountCents=\(quote.discountCents)",
+            "Triage arithmetic check: policyLeadDays=\(quote.policyLeadDays), expectedLeadDays=\(scenario.expectedLeadDays), expectedPromisedLeadDays=\(scenario.expectedLeadDays), actualPromisedLeadDays=\(quote.promisedLeadDays)",
             category: "triage"
         )
 
         BreadcrumbStore.shared.add(
-            "Triage policy check: pendingCoupon=\(quote.pendingCouponCode ?? "nil"), appliedCoupon=\(quote.appliedCouponCode ?? "nil"), policyCoupon=\(quote.policyCouponCode ?? "nil")",
+            "Triage source-of-truth check: pendingSpeed=\(quote.pendingSpeedCode ?? "nil"), appliedSpeed=\(quote.appliedSpeedCode ?? "nil"), policySpeed=\(quote.policySpeedCode ?? "nil")",
             category: "triage"
         )
 
         let classification = classifyBug(from: quote)
         bugClassification = classification
 
-        if quote.totalCents != scenario.expectedTotalCents {
+        if quote.promisedLeadDays != scenario.expectedLeadDays {
             BreadcrumbStore.shared.add(
-                "Bug observed: class=\(classification), expectedTotalCents=\(scenario.expectedTotalCents), actualTotalCents=\(quote.totalCents)",
+                "Bug observed: class=\(classification), expectedLeadDays=\(scenario.expectedLeadDays), actualLeadDays=\(quote.promisedLeadDays)",
                 category: "bug"
             )
 
             DebugReportDraftStore.shared.stage(
                 DebugReportDraft(
-                    title: "Coupon appears applied but total is unchanged",
-                    expectedBehavior: "After applying \(scenario.couponCode), \(dollars(scenario.subtotalCents)) should become \(dollars(scenario.expectedTotalCents)).",
-                    actualBehavior: "UI shows coupon \(displayedCouponCode ?? "none"), but total is \(dollars(quote.totalCents)).",
-                    reporterNotes: "Classification=\(classification). PendingCoupon=\(quote.pendingCouponCode ?? "nil"), AppliedCoupon=\(quote.appliedCouponCode ?? "nil"), PolicyCoupon=\(quote.policyCouponCode ?? "nil"), PolicyDiscount=\(quote.policyDiscountPercent)%.",
+                    title: "Express appears selected but promise remains standard",
+                    expectedBehavior: "After selecting \(scenario.speedCode), promised delivery should change from \(daysLabel(scenario.standardLeadDays)) to \(daysLabel(scenario.expectedLeadDays)).",
+                    actualBehavior: "UI shows speed \(displayedSpeedCode ?? "none"), but promised delivery is \(daysLabel(quote.promisedLeadDays)).",
+                    reporterNotes: "Classification=\(classification). PendingSpeed=\(quote.pendingSpeedCode ?? "nil"), AppliedSpeed=\(quote.appliedSpeedCode ?? "nil"), PolicySpeed=\(quote.policySpeedCode ?? "nil"), PolicyLeadDays=\(quote.policyLeadDays).",
                     screenName: "DemoHome"
                 )
             )
         }
     }
 
-    private func classifyBug(from quote: CheckoutQuote) -> String {
-        if displayedCouponCode != scenario.couponCode {
+    private func classifyBug(from quote: DeliveryQuote) -> String {
+        if displayedSpeedCode != scenario.speedCode {
             return "ui-only"
         }
 
-        if quote.policyDiscountPercent == scenario.expectedDiscountPercent &&
-            quote.discountCents != scenario.expectedDiscountCents {
-            return "pricing-math"
+        if quote.policyLeadDays == scenario.expectedLeadDays &&
+            quote.promisedLeadDays != scenario.expectedLeadDays {
+            return "arithmetic-logic"
         }
 
-        if quote.pendingCouponCode == scenario.couponCode &&
-            quote.appliedCouponCode != scenario.couponCode &&
-            quote.policyCouponCode != scenario.couponCode {
-            return "source-of-truth-policy-application"
+        if quote.pendingSpeedCode == scenario.speedCode &&
+            quote.appliedSpeedCode != scenario.speedCode &&
+            quote.policySpeedCode != scenario.speedCode {
+            return "source-of-truth-divergence"
         }
 
         return "unknown"
     }
 
-    private func dollars(_ cents: Int) -> String {
-        String(format: "$%.2f", Double(cents) / 100.0)
+    private func daysLabel(_ days: Int) -> String {
+        if days == 1 {
+            return "1 day"
+        }
+
+        return "\(days) days"
     }
 }

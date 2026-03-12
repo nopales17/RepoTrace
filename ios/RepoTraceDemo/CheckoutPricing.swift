@@ -1,117 +1,109 @@
 import Foundation
 
-struct CheckoutScenario {
-    let subtotalCents: Int
-    let couponCode: String
-    let expectedDiscountPercent: Int
-
-    var expectedDiscountCents: Int {
-        (subtotalCents * expectedDiscountPercent) / 100
-    }
-
-    var expectedTotalCents: Int {
-        subtotalCents - expectedDiscountCents
-    }
+struct DeliveryScenario {
+    let standardLeadDays: Int
+    let speedCode: String
+    let expectedLeadDays: Int
 }
 
-struct CheckoutQuote {
-    let subtotalCents: Int
-    let pendingCouponCode: String?
-    let appliedCouponCode: String?
-    let policyCouponCode: String?
-    let policyDiscountPercent: Int
-    let discountCents: Int
-    let totalCents: Int
+struct DeliveryQuote {
+    let standardLeadDays: Int
+    let pendingSpeedCode: String?
+    let appliedSpeedCode: String?
+    let policySpeedCode: String?
+    let policyLeadDays: Int
+    let promisedLeadDays: Int
 }
 
-struct CheckoutContext {
-    let pendingCouponCode: String?
-    let appliedCouponCode: String?
+struct DeliveryContext {
+    let pendingSpeedCode: String?
+    let appliedSpeedCode: String?
 }
 
-final class CheckoutContextStore {
-    private(set) var current = CheckoutContext(pendingCouponCode: nil, appliedCouponCode: nil)
+final class DeliveryContextStore {
+    private(set) var current = DeliveryContext(pendingSpeedCode: nil, appliedSpeedCode: nil)
 
-    func selectCoupon(_ couponCode: String) {
-        current = CheckoutContext(
-            pendingCouponCode: couponCode,
-            appliedCouponCode: current.appliedCouponCode
+    func selectSpeed(_ speedCode: String) {
+        current = DeliveryContext(
+            pendingSpeedCode: speedCode,
+            appliedSpeedCode: current.appliedSpeedCode
         )
     }
 
-    func applyPendingCoupon() {
-        current = CheckoutContext(
-            pendingCouponCode: current.pendingCouponCode,
-            appliedCouponCode: current.pendingCouponCode
+    func applyPendingSpeed() {
+        current = DeliveryContext(
+            pendingSpeedCode: current.pendingSpeedCode,
+            appliedSpeedCode: current.pendingSpeedCode
         )
     }
 }
 
-struct PricingPolicy {
-    let couponCode: String?
-    let discountPercent: Int
+struct FulfillmentPolicy {
+    let speedCode: String?
+    let leadDays: Int
 }
 
-struct PricingPolicyRepository {
-    private let contextStore: CheckoutContextStore
+struct FulfillmentPolicyRepository {
+    private let contextStore: DeliveryContextStore
 
-    init(contextStore: CheckoutContextStore) {
+    init(contextStore: DeliveryContextStore) {
         self.contextStore = contextStore
     }
 
-    func activePolicy() -> PricingPolicy {
-        let couponCode = contextStore.current.appliedCouponCode
-        let discountPercent = couponCode == "SAVE20" ? 20 : 0
-        return PricingPolicy(couponCode: couponCode, discountPercent: discountPercent)
+    func activePolicy(standardLeadDays: Int) -> FulfillmentPolicy {
+        let speedCode = contextStore.current.appliedSpeedCode
+        let leadDays = speedCode == "EXPRESS" ? 1 : standardLeadDays
+        return FulfillmentPolicy(speedCode: speedCode, leadDays: leadDays)
     }
 
-    func livePendingCouponCode() -> String? {
-        contextStore.current.pendingCouponCode
+    func livePendingSpeedCode() -> String? {
+        contextStore.current.pendingSpeedCode
     }
 
-    func liveAppliedCouponCode() -> String? {
-        contextStore.current.appliedCouponCode
+    func liveAppliedSpeedCode() -> String? {
+        contextStore.current.appliedSpeedCode
     }
 }
 
-struct CheckoutUseCase {
-    private let pricingEngine = PricingEngine()
-    private let policyRepository: PricingPolicyRepository
+struct DeliveryPromiseUseCase {
+    private let promiseEngine = PromiseEngine()
+    private let policyRepository: FulfillmentPolicyRepository
 
-    init(policyRepository: PricingPolicyRepository) {
+    init(policyRepository: FulfillmentPolicyRepository) {
         self.policyRepository = policyRepository
     }
 
-    func makeQuote(subtotalCents: Int) -> CheckoutQuote {
-        let policy = policyRepository.activePolicy()
-        let discountCents = pricingEngine.discountCents(subtotalCents: subtotalCents, discountPercent: policy.discountPercent)
-        let totalCents = subtotalCents - discountCents
+    func makeQuote(standardLeadDays: Int) -> DeliveryQuote {
+        let policy = policyRepository.activePolicy(standardLeadDays: standardLeadDays)
+        let promisedLeadDays = promiseEngine.promisedLeadDays(
+            standardLeadDays: standardLeadDays,
+            policyLeadDays: policy.leadDays
+        )
 
-        return CheckoutQuote(
-            subtotalCents: subtotalCents,
-            pendingCouponCode: policyRepository.livePendingCouponCode(),
-            appliedCouponCode: policyRepository.liveAppliedCouponCode(),
-            policyCouponCode: policy.couponCode,
-            policyDiscountPercent: policy.discountPercent,
-            discountCents: discountCents,
-            totalCents: totalCents
+        return DeliveryQuote(
+            standardLeadDays: standardLeadDays,
+            pendingSpeedCode: policyRepository.livePendingSpeedCode(),
+            appliedSpeedCode: policyRepository.liveAppliedSpeedCode(),
+            policySpeedCode: policy.speedCode,
+            policyLeadDays: policy.leadDays,
+            promisedLeadDays: promisedLeadDays
         )
     }
 }
 
-struct PricingEngine {
-    private let discountCalculator = DiscountCalculator()
+struct PromiseEngine {
+    private let promiseCalculator = PromiseCalculator()
 
-    func discountCents(subtotalCents: Int, discountPercent: Int) -> Int {
-        discountCalculator.discountAmount(
-            subtotalCents: subtotalCents,
-            discountPercent: discountPercent
+    func promisedLeadDays(standardLeadDays: Int, policyLeadDays: Int) -> Int {
+        promiseCalculator.promisedLeadDays(
+            standardLeadDays: standardLeadDays,
+            policyLeadDays: policyLeadDays
         )
     }
 }
 
-struct DiscountCalculator {
-    func discountAmount(subtotalCents: Int, discountPercent: Int) -> Int {
-        (subtotalCents * discountPercent) / 100
+struct PromiseCalculator {
+    func promisedLeadDays(standardLeadDays: Int, policyLeadDays: Int) -> Int {
+        min(standardLeadDays, policyLeadDays)
     }
 }

@@ -1,0 +1,63 @@
+{
+  "actualBehavior" : "UI shows speed EXPRESS, but promised delivery is 3 days.",
+  "breadcrumbs" : [
+    {
+      "category" : "navigation",
+      "message" : "Opened demo root",
+      "timestamp" : "2026-03-12T05:49:06Z"
+    },
+    {
+      "category" : "action",
+      "message" : "Tapped select speed, uiSpeed=EXPRESS, standardLeadDays=3",
+      "timestamp" : "2026-03-12T05:50:12Z"
+    },
+    {
+      "category" : "context",
+      "message" : "Delivery selection updated: pendingSpeed=EXPRESS, appliedSpeed=nil",
+      "timestamp" : "2026-03-12T05:50:12Z"
+    },
+    {
+      "category" : "pipeline",
+      "message" : "Fulfillment policy used: speedCode=nil, leadDays=3",
+      "timestamp" : "2026-03-12T05:50:12Z"
+    },
+    {
+      "category" : "pipeline",
+      "message" : "Promise engine result: promisedLeadDays=3",
+      "timestamp" : "2026-03-12T05:50:12Z"
+    },
+    {
+      "category" : "triage",
+      "message" : "Triage UI check: expectedUiSpeed=EXPRESS, displayedSpeed=EXPRESS",
+      "timestamp" : "2026-03-12T05:50:12Z"
+    },
+    {
+      "category" : "triage",
+      "message" : "Triage arithmetic check: policyLeadDays=3, expectedLeadDays=1, expectedPromisedLeadDays=1, actualPromisedLeadDays=3",
+      "timestamp" : "2026-03-12T05:50:12Z"
+    },
+    {
+      "category" : "triage",
+      "message" : "Triage source-of-truth check: pendingSpeed=EXPRESS, appliedSpeed=nil, policySpeed=nil",
+      "timestamp" : "2026-03-12T05:50:12Z"
+    },
+    {
+      "category" : "bug",
+      "message" : "Bug observed: class=source-of-truth-divergence, expectedLeadDays=1, actualLeadDays=3",
+      "timestamp" : "2026-03-12T05:50:12Z"
+    }
+  ],
+  "expectedBehavior" : "After selecting EXPRESS, promised delivery should change from 3 days to 1 day.",
+  "id" : "incident-20260311-225017",
+  "metadata" : {
+    "appVersion" : "1.0.0",
+    "buildNumber" : "1",
+    "deviceModel" : "iPhone",
+    "osVersion" : "26.2",
+    "screenName" : "DemoHome",
+    "timestamp" : "2026-03-12T05:50:17Z"
+  },
+  "reporterNotes" : "Classification=source-of-truth-divergence. PendingSpeed=EXPRESS, AppliedSpeed=nil, PolicySpeed=nil, PolicyLeadDays=3.",
+  "screenshotFilename" : "incident-20260311-225017-screenshot.jpg",
+  "title" : "Express appears selected but promise remains standard"
+}
