@@ -12,6 +12,7 @@
 		3076FE11D7B83B9CF7D3063D /* CheckoutPricing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 302DE61ACF49931D1D40FC83 /* CheckoutPricing.swift */; };
 		56653AE5BD16900C63AFD9DD /* DebugReportEntryPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDF573513A224C324D2A40A3 /* DebugReportEntryPoint.swift */; };
 		901CEC98F9D40DF7A3FD4099 /* DiagnosticModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B30E9B90DE8D4D78CCC4FA /* DiagnosticModels.swift */; };
+		AC4A15D9BD43643DFD47A3DD /* PlaylistQueueing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 233681D2D7E92CDBB7E9F456 /* PlaylistQueueing.swift */; };
 		BCC778EA27CB7AF0CE7148DE /* DemoRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92AE25B4993B48143A6AB36E /* DemoRootView.swift */; };
 		C8EC1C22D6F32E2361860FFB /* BreadcrumbStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2582F1238AEFF5E941648B5 /* BreadcrumbStore.swift */; };
 		D68160D310FECE007266D27C /* RepoTraceDemoApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F6A9E861A15F00917754303 /* RepoTraceDemoApp.swift */; };
@@ -20,6 +21,7 @@
 
 /* Begin PBXFileReference section */
 		1692361B138528C727C2BD9F /* RepoTraceDemo.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = RepoTraceDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		233681D2D7E92CDBB7E9F456 /* PlaylistQueueing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaylistQueueing.swift; sourceTree = "<group>"; };
 		302DE61ACF49931D1D40FC83 /* CheckoutPricing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckoutPricing.swift; sourceTree = "<group>"; };
 		36B30E9B90DE8D4D78CCC4FA /* DiagnosticModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiagnosticModels.swift; sourceTree = "<group>"; };
 		89588BF128CEF5E45C1D5B60 /* DebugReportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugReportView.swift; sourceTree = "<group>"; };
@@ -45,6 +47,7 @@
 			children = (
 				302DE61ACF49931D1D40FC83 /* CheckoutPricing.swift */,
 				92AE25B4993B48143A6AB36E /* DemoRootView.swift */,
+				233681D2D7E92CDBB7E9F456 /* PlaylistQueueing.swift */,
 				8F6A9E861A15F00917754303 /* RepoTraceDemoApp.swift */,
 			);
 			path = RepoTraceDemo;
@@ -151,6 +154,7 @@
 				BCC778EA27CB7AF0CE7148DE /* DemoRootView.swift in Sources */,
 				901CEC98F9D40DF7A3FD4099 /* DiagnosticModels.swift in Sources */,
 				19FE97605A1C4B35B089EC6E /* IncidentWriter.swift in Sources */,
+				AC4A15D9BD43643DFD47A3DD /* PlaylistQueueing.swift in Sources */,
 				D68160D310FECE007266D27C /* RepoTraceDemoApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -1,23 +1,23 @@
 import SwiftUI
 
 struct DemoRootView: View {
-    private let scenario = NotificationScenario(
-        baselineDispatchCount: 2,
-        preferenceKey: "SECURITY_ALERTS",
-        preferenceLabel: "Security Alerts",
-        expectedDispatchCount: 2
+    private let scenario = PlaylistQueueScenario(
+        libraryTrackCount: 4,
+        collectionCode: "ROAD_TRIP_MIX",
+        collectionLabel: "Road Trip Mix",
+        expectedQueuedTrackCount: 4
     )
-    private let preferenceStore: NotificationPreferenceStore
-    private let dispatchUseCase: NotificationDispatchUseCase
+    private let queueStore: PlaylistQueueStore
+    private let queuePreviewUseCase: PlaylistQueuePreviewUseCase
 
-    @State private var displayedPreferenceKey: String?
-    @State private var latestQuote: NotificationDispatchQuote?
+    @State private var displayedCollectionCode: String?
+    @State private var latestPreview: PlaylistQueuePreview?
 
     init() {
-        let store = NotificationPreferenceStore()
-        self.preferenceStore = store
-        self.dispatchUseCase = NotificationDispatchUseCase(
-            policyRepository: NotificationDispatchPolicyRepository(preferenceStore: store)
+        let store = PlaylistQueueStore()
+        self.queueStore = store
+        self.queuePreviewUseCase = PlaylistQueuePreviewUseCase(
+            queueRulebook: PlaylistQueueRulebook(queueStore: store)
         )
     }
 
@@ -28,20 +28,20 @@ struct DemoRootView: View {
                     .font(.title2)
                     .fontWeight(.semibold)
 
-                Text("Notification preference preview")
+                Text("Offline queue preview")
                     .multilineTextAlignment(.center)
 
-                Text("Base dispatch batch: \(alertsLabel(scenario.baselineDispatchCount))")
-                Text("Expected with \(scenario.preferenceLabel): \(alertsLabel(scenario.expectedDispatchCount))")
-                Text("Preference shown in UI: \(labelForPreference(displayedPreferenceKey))")
+                Text("Library candidates: \(tracksLabel(scenario.libraryTrackCount))")
+                Text("Expected with \(scenario.collectionLabel): \(tracksLabel(scenario.expectedQueuedTrackCount))")
+                Text("Collection shown in UI: \(labelForCollection(displayedCollectionCode))")
 
-                if let latestQuote {
-                    Text("Actual dispatch preview: \(alertsLabel(latestQuote.dispatchedCount))")
-                        .foregroundColor(latestQuote.dispatchedCount == scenario.expectedDispatchCount ? .green : .red)
+                if let latestPreview {
+                    Text("Actual queue preview: \(tracksLabel(latestPreview.queuedTrackCount))")
+                        .foregroundColor(latestPreview.queuedTrackCount == scenario.expectedQueuedTrackCount ? .green : .red)
                 }
 
-                Button("Select Security Alerts") {
-                    runNotificationPreferenceScenario()
+                Button("Pick Road Trip Mix") {
+                    runPlaylistQueueScenario()
                 }
                 .buttonStyle(.borderedProminent)
             }
@@ -54,103 +54,82 @@ struct DemoRootView: View {
         }
     }
 
-    private func runNotificationPreferenceScenario() {
-        preferenceStore.selectPreference(scenario.preferenceKey)
-        displayedPreferenceKey = preferenceStore.current.selectedPreferenceKey
+    private func runPlaylistQueueScenario() {
+        queueStore.chooseCollection(scenario.collectionCode)
+        displayedCollectionCode = queueStore.current.screenCollectionCode
 
         BreadcrumbStore.shared.add(
-            "Tapped select preference, uiPreference=\(displayedPreferenceKey ?? "none"), baselineDispatchCount=\(scenario.baselineDispatchCount)",
+            "Tapped pick collection, uiCollection=\(displayedCollectionCode ?? "none"), libraryTrackCount=\(scenario.libraryTrackCount)",
             category: "action"
         )
 
         BreadcrumbStore.shared.add(
-            "Preference selection updated: selectedPreference=\(preferenceStore.current.selectedPreferenceKey ?? "nil"), activePreference=\(preferenceStore.current.activePreferenceKey ?? "nil")",
+            "Collection snapshot: screenCollection=\(queueStore.current.screenCollectionCode ?? "nil"), runtimeCollection=\(queueStore.current.runtimeCollectionCode ?? "nil")",
             category: "context"
         )
 
-        let quote = dispatchUseCase.makePreview(baselineDispatchCount: scenario.baselineDispatchCount)
-        latestQuote = quote
+        let preview = queuePreviewUseCase.makePreview(libraryTrackCount: scenario.libraryTrackCount)
+        latestPreview = preview
 
         BreadcrumbStore.shared.add(
-            "Dispatch policy used: preferenceKey=\(quote.policyPreferenceKey ?? "nil"), allowedCount=\(quote.policyAllowedCount)",
+            "Queue rule used: collectionCode=\(preview.ruleCollectionCode ?? "nil"), queuedTrackCount=\(preview.ruleQueuedTrackCount)",
             category: "pipeline"
         )
 
         BreadcrumbStore.shared.add(
-            "Dispatch engine result: dispatchedCount=\(quote.dispatchedCount)",
+            "Queue engine result: queuedTrackCount=\(preview.queuedTrackCount)",
             category: "pipeline"
         )
 
         BreadcrumbStore.shared.add(
-            "Triage UI check: expectedUiPreference=\(scenario.preferenceKey), displayedPreference=\(displayedPreferenceKey ?? "none")",
-            category: "triage"
+            "Observed UI state: expectedCollection=\(scenario.collectionCode), displayedCollection=\(displayedCollectionCode ?? "none")",
+            category: "observation"
         )
 
         BreadcrumbStore.shared.add(
-            "Triage arithmetic check: policyAllowedCount=\(quote.policyAllowedCount), expectedDispatchCount=\(scenario.expectedDispatchCount), actualDispatchCount=\(quote.dispatchedCount)",
-            category: "triage"
+            "Observed preview values: ruleQueuedTrackCount=\(preview.ruleQueuedTrackCount), expectedQueuedTrackCount=\(scenario.expectedQueuedTrackCount), actualQueuedTrackCount=\(preview.queuedTrackCount)",
+            category: "observation"
         )
 
         BreadcrumbStore.shared.add(
-            "Triage source-of-truth check: selectedPreference=\(quote.selectedPreferenceKey ?? "nil"), activePreference=\(quote.activePreferenceKey ?? "nil"), policyPreference=\(quote.policyPreferenceKey ?? "nil")",
-            category: "triage"
+            "Observed state values: screenCollection=\(preview.screenCollectionCode ?? "nil"), runtimeCollection=\(preview.runtimeCollectionCode ?? "nil"), ruleCollection=\(preview.ruleCollectionCode ?? "nil")",
+            category: "observation"
         )
 
-        let classification = classifyBug(from: quote)
-
-        if quote.dispatchedCount != scenario.expectedDispatchCount {
+        if preview.queuedTrackCount != scenario.expectedQueuedTrackCount {
             BreadcrumbStore.shared.add(
-                "Preview mismatch: expectedDispatchCount=\(scenario.expectedDispatchCount), actualDispatchCount=\(quote.dispatchedCount)",
+                "Queue preview mismatch: expectedQueuedTrackCount=\(scenario.expectedQueuedTrackCount), actualQueuedTrackCount=\(preview.queuedTrackCount)",
                 category: "bug"
             )
 
             DebugReportDraftStore.shared.stage(
                 DebugReportDraft(
-                    title: "Preference appears selected but dispatch preview is unchanged",
-                    expectedBehavior: "After selecting \(scenario.preferenceLabel), dispatch preview should show \(alertsLabel(scenario.expectedDispatchCount)).",
-                    actualBehavior: "UI shows preference \(labelForPreference(displayedPreferenceKey)), but dispatch preview is \(alertsLabel(quote.dispatchedCount)).",
-                    reporterNotes: "Classification=\(classification). SelectedPreference=\(quote.selectedPreferenceKey ?? "nil"), ActivePreference=\(quote.activePreferenceKey ?? "nil"), PolicyPreference=\(quote.policyPreferenceKey ?? "nil"), PolicyAllowedCount=\(quote.policyAllowedCount).",
-                    screenName: "DemoHome"
+                    title: "Collection appears picked but queue preview is unchanged",
+                    expectedBehavior: "After picking \(scenario.collectionLabel), queue preview should show \(tracksLabel(scenario.expectedQueuedTrackCount)).",
+                    actualBehavior: "UI shows collection \(labelForCollection(displayedCollectionCode)), but queue preview is \(tracksLabel(preview.queuedTrackCount)).",
+                    reporterNotes: "ScreenCollection=\(preview.screenCollectionCode ?? "nil"), RuntimeCollection=\(preview.runtimeCollectionCode ?? "nil"), RuleCollection=\(preview.ruleCollectionCode ?? "nil"), RuleQueuedTrackCount=\(preview.ruleQueuedTrackCount).",
+                    screenName: "DownloadHome"
                 )
             )
         }
     }
 
-    private func classifyBug(from quote: NotificationDispatchQuote) -> String {
-        if displayedPreferenceKey != scenario.preferenceKey {
-            return "ui-only"
-        }
-
-        if quote.policyAllowedCount == scenario.expectedDispatchCount &&
-            quote.dispatchedCount != scenario.expectedDispatchCount {
-            return "arithmetic-logic"
-        }
-
-        if quote.selectedPreferenceKey == scenario.preferenceKey &&
-            quote.activePreferenceKey != scenario.preferenceKey &&
-            quote.policyPreferenceKey != scenario.preferenceKey {
-            return "source-of-truth-divergence"
-        }
-
-        return "unknown"
-    }
-
-    private func alertsLabel(_ count: Int) -> String {
+    private func tracksLabel(_ count: Int) -> String {
         if count == 1 {
-            return "1 alert"
+            return "1 track"
         }
 
-        return "\(count) alerts"
+        return "\(count) tracks"
     }
 
-    private func labelForPreference(_ key: String?) -> String {
-        switch key {
-        case scenario.preferenceKey:
-            return scenario.preferenceLabel
+    private func labelForCollection(_ code: String?) -> String {
+        switch code {
+        case scenario.collectionCode:
+            return scenario.collectionLabel
         case nil:
             return "none"
         default:
-            return key ?? "none"
+            return code ?? "none"
         }
     }
 }

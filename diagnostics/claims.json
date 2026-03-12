@@ -169,7 +169,7 @@
       "id": "demo-source-of-truth-state-promotion-motif",
       "status": "supported",
       "subsystem": "demo-bug-harness",
-      "statement": "Motif: UI reads pending/selected state while execution reads authoritative/applied state; if pending is not promoted to applied, the interface appears updated but business outcome remains unchanged.",
+      "statement": "Motif: presentation can reflect a tentative state channel while execution consumes a committed state channel; when the promotion/commit step is skipped, the UI appears updated but computed outcomes remain unchanged.",
       "files": [
         "ios/RepoTraceDemo/CheckoutPricing.swift",
         "ios/RepoTraceDemo/DemoRootView.swift"
