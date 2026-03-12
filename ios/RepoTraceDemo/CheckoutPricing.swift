@@ -1,109 +1,110 @@
 import Foundation
 
-struct DeliveryScenario {
-    let standardLeadDays: Int
-    let speedCode: String
-    let expectedLeadDays: Int
+struct NotificationScenario {
+    let baselineDispatchCount: Int
+    let preferenceKey: String
+    let preferenceLabel: String
+    let expectedDispatchCount: Int
 }
 
-struct DeliveryQuote {
-    let standardLeadDays: Int
-    let pendingSpeedCode: String?
-    let appliedSpeedCode: String?
-    let policySpeedCode: String?
-    let policyLeadDays: Int
-    let promisedLeadDays: Int
+struct NotificationDispatchQuote {
+    let baselineDispatchCount: Int
+    let selectedPreferenceKey: String?
+    let activePreferenceKey: String?
+    let policyPreferenceKey: String?
+    let policyAllowedCount: Int
+    let dispatchedCount: Int
 }
 
-struct DeliveryContext {
-    let pendingSpeedCode: String?
-    let appliedSpeedCode: String?
+struct NotificationPreferenceContext {
+    let selectedPreferenceKey: String?
+    let activePreferenceKey: String?
 }
 
-final class DeliveryContextStore {
-    private(set) var current = DeliveryContext(pendingSpeedCode: nil, appliedSpeedCode: nil)
+final class NotificationPreferenceStore {
+    private(set) var current = NotificationPreferenceContext(selectedPreferenceKey: nil, activePreferenceKey: nil)
 
-    func selectSpeed(_ speedCode: String) {
-        current = DeliveryContext(
-            pendingSpeedCode: speedCode,
-            appliedSpeedCode: current.appliedSpeedCode
+    func selectPreference(_ preferenceKey: String) {
+        current = NotificationPreferenceContext(
+            selectedPreferenceKey: preferenceKey,
+            activePreferenceKey: current.activePreferenceKey
         )
     }
 
-    func applyPendingSpeed() {
-        current = DeliveryContext(
-            pendingSpeedCode: current.pendingSpeedCode,
-            appliedSpeedCode: current.pendingSpeedCode
+    func activateSelectedPreference() {
+        current = NotificationPreferenceContext(
+            selectedPreferenceKey: current.selectedPreferenceKey,
+            activePreferenceKey: current.selectedPreferenceKey
         )
     }
 }
 
-struct FulfillmentPolicy {
-    let speedCode: String?
-    let leadDays: Int
+struct NotificationDispatchPolicy {
+    let preferenceKey: String?
+    let allowedCount: Int
 }
 
-struct FulfillmentPolicyRepository {
-    private let contextStore: DeliveryContextStore
+struct NotificationDispatchPolicyRepository {
+    private let preferenceStore: NotificationPreferenceStore
 
-    init(contextStore: DeliveryContextStore) {
-        self.contextStore = contextStore
+    init(preferenceStore: NotificationPreferenceStore) {
+        self.preferenceStore = preferenceStore
     }
 
-    func activePolicy(standardLeadDays: Int) -> FulfillmentPolicy {
-        let speedCode = contextStore.current.appliedSpeedCode
-        let leadDays = speedCode == "EXPRESS" ? 1 : standardLeadDays
-        return FulfillmentPolicy(speedCode: speedCode, leadDays: leadDays)
+    func activePolicy(baselineDispatchCount: Int) -> NotificationDispatchPolicy {
+        let preferenceKey = preferenceStore.current.activePreferenceKey
+        let allowedCount = preferenceKey == "SECURITY_ALERTS" ? baselineDispatchCount : 0
+        return NotificationDispatchPolicy(preferenceKey: preferenceKey, allowedCount: allowedCount)
     }
 
-    func livePendingSpeedCode() -> String? {
-        contextStore.current.pendingSpeedCode
+    func liveSelectedPreferenceKey() -> String? {
+        preferenceStore.current.selectedPreferenceKey
     }
 
-    func liveAppliedSpeedCode() -> String? {
-        contextStore.current.appliedSpeedCode
+    func liveActivePreferenceKey() -> String? {
+        preferenceStore.current.activePreferenceKey
     }
 }
 
-struct DeliveryPromiseUseCase {
-    private let promiseEngine = PromiseEngine()
-    private let policyRepository: FulfillmentPolicyRepository
+struct NotificationDispatchUseCase {
+    private let dispatchEngine = NotificationDispatchEngine()
+    private let policyRepository: NotificationDispatchPolicyRepository
 
-    init(policyRepository: FulfillmentPolicyRepository) {
+    init(policyRepository: NotificationDispatchPolicyRepository) {
         self.policyRepository = policyRepository
     }
 
-    func makeQuote(standardLeadDays: Int) -> DeliveryQuote {
-        let policy = policyRepository.activePolicy(standardLeadDays: standardLeadDays)
-        let promisedLeadDays = promiseEngine.promisedLeadDays(
-            standardLeadDays: standardLeadDays,
-            policyLeadDays: policy.leadDays
+    func makePreview(baselineDispatchCount: Int) -> NotificationDispatchQuote {
+        let policy = policyRepository.activePolicy(baselineDispatchCount: baselineDispatchCount)
+        let dispatchedCount = dispatchEngine.dispatchedCount(
+            baselineDispatchCount: baselineDispatchCount,
+            policyAllowedCount: policy.allowedCount
         )
 
-        return DeliveryQuote(
-            standardLeadDays: standardLeadDays,
-            pendingSpeedCode: policyRepository.livePendingSpeedCode(),
-            appliedSpeedCode: policyRepository.liveAppliedSpeedCode(),
-            policySpeedCode: policy.speedCode,
-            policyLeadDays: policy.leadDays,
-            promisedLeadDays: promisedLeadDays
-        )
-    }
-}
-
-struct PromiseEngine {
-    private let promiseCalculator = PromiseCalculator()
-
-    func promisedLeadDays(standardLeadDays: Int, policyLeadDays: Int) -> Int {
-        promiseCalculator.promisedLeadDays(
-            standardLeadDays: standardLeadDays,
-            policyLeadDays: policyLeadDays
+        return NotificationDispatchQuote(
+            baselineDispatchCount: baselineDispatchCount,
+            selectedPreferenceKey: policyRepository.liveSelectedPreferenceKey(),
+            activePreferenceKey: policyRepository.liveActivePreferenceKey(),
+            policyPreferenceKey: policy.preferenceKey,
+            policyAllowedCount: policy.allowedCount,
+            dispatchedCount: dispatchedCount
         )
     }
 }
 
-struct PromiseCalculator {
-    func promisedLeadDays(standardLeadDays: Int, policyLeadDays: Int) -> Int {
-        min(standardLeadDays, policyLeadDays)
+struct NotificationDispatchEngine {
+    private let dispatchCalculator = NotificationDispatchCalculator()
+
+    func dispatchedCount(baselineDispatchCount: Int, policyAllowedCount: Int) -> Int {
+        dispatchCalculator.dispatchedCount(
+            baselineDispatchCount: baselineDispatchCount,
+            policyAllowedCount: policyAllowedCount
+        )
+    }
+}
+
+struct NotificationDispatchCalculator {
+    func dispatchedCount(baselineDispatchCount: Int, policyAllowedCount: Int) -> Int {
+        min(baselineDispatchCount, policyAllowedCount)
     }
 }

@@ -1,18 +1,24 @@
 import SwiftUI
 
 struct DemoRootView: View {
-    private let scenario = DeliveryScenario(standardLeadDays: 3, speedCode: "EXPRESS", expectedLeadDays: 1)
-    private let contextStore: DeliveryContextStore
-    private let deliveryPromiseUseCase: DeliveryPromiseUseCase
+    private let scenario = NotificationScenario(
+        baselineDispatchCount: 2,
+        preferenceKey: "SECURITY_ALERTS",
+        preferenceLabel: "Security Alerts",
+        expectedDispatchCount: 2
+    )
+    private let preferenceStore: NotificationPreferenceStore
+    private let dispatchUseCase: NotificationDispatchUseCase
 
-    @State private var displayedSpeedCode: String?
-    @State private var latestQuote: DeliveryQuote?
-    @State private var bugClassification: String?
+    @State private var displayedPreferenceKey: String?
+    @State private var latestQuote: NotificationDispatchQuote?
 
     init() {
-        let store = DeliveryContextStore()
-        self.contextStore = store
-        self.deliveryPromiseUseCase = DeliveryPromiseUseCase(policyRepository: FulfillmentPolicyRepository(contextStore: store))
+        let store = NotificationPreferenceStore()
+        self.preferenceStore = store
+        self.dispatchUseCase = NotificationDispatchUseCase(
+            policyRepository: NotificationDispatchPolicyRepository(preferenceStore: store)
+        )
     }
 
     var body: some View {
@@ -22,26 +28,20 @@ struct DemoRootView: View {
                     .font(.title2)
                     .fontWeight(.semibold)
 
-                Text("Fake bug: UI shows EXPRESS selected, but promise remains standard.")
+                Text("Notification preference preview")
                     .multilineTextAlignment(.center)
 
-                Text("Standard delivery promise: \(daysLabel(scenario.standardLeadDays))")
-                Text("Expected with \(scenario.speedCode): \(daysLabel(scenario.expectedLeadDays))")
-                Text("Speed shown in UI: \(displayedSpeedCode ?? "none")")
+                Text("Base dispatch batch: \(alertsLabel(scenario.baselineDispatchCount))")
+                Text("Expected with \(scenario.preferenceLabel): \(alertsLabel(scenario.expectedDispatchCount))")
+                Text("Preference shown in UI: \(labelForPreference(displayedPreferenceKey))")
 
                 if let latestQuote {
-                    Text("Actual promised delivery: \(daysLabel(latestQuote.promisedLeadDays))")
-                        .foregroundColor(latestQuote.promisedLeadDays == scenario.expectedLeadDays ? .green : .red)
+                    Text("Actual dispatch preview: \(alertsLabel(latestQuote.dispatchedCount))")
+                        .foregroundColor(latestQuote.dispatchedCount == scenario.expectedDispatchCount ? .green : .red)
                 }
 
-                if let bugClassification {
-                    Text("Bug classification: \(bugClassification)")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-                }
-
-                Button("Select EXPRESS (Buggy)") {
-                    runDeliveryBugScenario()
+                Button("Select Security Alerts") {
+                    runNotificationPreferenceScenario()
                 }
                 .buttonStyle(.borderedProminent)
             }
@@ -54,93 +54,103 @@ struct DemoRootView: View {
         }
     }
 
-    private func runDeliveryBugScenario() {
-        contextStore.selectSpeed(scenario.speedCode)
-        displayedSpeedCode = contextStore.current.pendingSpeedCode
+    private func runNotificationPreferenceScenario() {
+        preferenceStore.selectPreference(scenario.preferenceKey)
+        displayedPreferenceKey = preferenceStore.current.selectedPreferenceKey
 
         BreadcrumbStore.shared.add(
-            "Tapped select speed, uiSpeed=\(displayedSpeedCode ?? "none"), standardLeadDays=\(scenario.standardLeadDays)",
+            "Tapped select preference, uiPreference=\(displayedPreferenceKey ?? "none"), baselineDispatchCount=\(scenario.baselineDispatchCount)",
             category: "action"
         )
 
         BreadcrumbStore.shared.add(
-            "Delivery selection updated: pendingSpeed=\(contextStore.current.pendingSpeedCode ?? "nil"), appliedSpeed=\(contextStore.current.appliedSpeedCode ?? "nil")",
+            "Preference selection updated: selectedPreference=\(preferenceStore.current.selectedPreferenceKey ?? "nil"), activePreference=\(preferenceStore.current.activePreferenceKey ?? "nil")",
             category: "context"
         )
 
-        let quote = deliveryPromiseUseCase.makeQuote(standardLeadDays: scenario.standardLeadDays)
+        let quote = dispatchUseCase.makePreview(baselineDispatchCount: scenario.baselineDispatchCount)
         latestQuote = quote
 
         BreadcrumbStore.shared.add(
-            "Fulfillment policy used: speedCode=\(quote.policySpeedCode ?? "nil"), leadDays=\(quote.policyLeadDays)",
+            "Dispatch policy used: preferenceKey=\(quote.policyPreferenceKey ?? "nil"), allowedCount=\(quote.policyAllowedCount)",
             category: "pipeline"
         )
 
         BreadcrumbStore.shared.add(
-            "Promise engine result: promisedLeadDays=\(quote.promisedLeadDays)",
+            "Dispatch engine result: dispatchedCount=\(quote.dispatchedCount)",
             category: "pipeline"
         )
 
         BreadcrumbStore.shared.add(
-            "Triage UI check: expectedUiSpeed=\(scenario.speedCode), displayedSpeed=\(displayedSpeedCode ?? "none")",
+            "Triage UI check: expectedUiPreference=\(scenario.preferenceKey), displayedPreference=\(displayedPreferenceKey ?? "none")",
             category: "triage"
         )
 
         BreadcrumbStore.shared.add(
-            "Triage arithmetic check: policyLeadDays=\(quote.policyLeadDays), expectedLeadDays=\(scenario.expectedLeadDays), expectedPromisedLeadDays=\(scenario.expectedLeadDays), actualPromisedLeadDays=\(quote.promisedLeadDays)",
+            "Triage arithmetic check: policyAllowedCount=\(quote.policyAllowedCount), expectedDispatchCount=\(scenario.expectedDispatchCount), actualDispatchCount=\(quote.dispatchedCount)",
             category: "triage"
         )
 
         BreadcrumbStore.shared.add(
-            "Triage source-of-truth check: pendingSpeed=\(quote.pendingSpeedCode ?? "nil"), appliedSpeed=\(quote.appliedSpeedCode ?? "nil"), policySpeed=\(quote.policySpeedCode ?? "nil")",
+            "Triage source-of-truth check: selectedPreference=\(quote.selectedPreferenceKey ?? "nil"), activePreference=\(quote.activePreferenceKey ?? "nil"), policyPreference=\(quote.policyPreferenceKey ?? "nil")",
             category: "triage"
         )
 
         let classification = classifyBug(from: quote)
-        bugClassification = classification
 
-        if quote.promisedLeadDays != scenario.expectedLeadDays {
+        if quote.dispatchedCount != scenario.expectedDispatchCount {
             BreadcrumbStore.shared.add(
-                "Bug observed: class=\(classification), expectedLeadDays=\(scenario.expectedLeadDays), actualLeadDays=\(quote.promisedLeadDays)",
+                "Preview mismatch: expectedDispatchCount=\(scenario.expectedDispatchCount), actualDispatchCount=\(quote.dispatchedCount)",
                 category: "bug"
             )
 
             DebugReportDraftStore.shared.stage(
                 DebugReportDraft(
-                    title: "Express appears selected but promise remains standard",
-                    expectedBehavior: "After selecting \(scenario.speedCode), promised delivery should change from \(daysLabel(scenario.standardLeadDays)) to \(daysLabel(scenario.expectedLeadDays)).",
-                    actualBehavior: "UI shows speed \(displayedSpeedCode ?? "none"), but promised delivery is \(daysLabel(quote.promisedLeadDays)).",
-                    reporterNotes: "Classification=\(classification). PendingSpeed=\(quote.pendingSpeedCode ?? "nil"), AppliedSpeed=\(quote.appliedSpeedCode ?? "nil"), PolicySpeed=\(quote.policySpeedCode ?? "nil"), PolicyLeadDays=\(quote.policyLeadDays).",
+                    title: "Preference appears selected but dispatch preview is unchanged",
+                    expectedBehavior: "After selecting \(scenario.preferenceLabel), dispatch preview should show \(alertsLabel(scenario.expectedDispatchCount)).",
+                    actualBehavior: "UI shows preference \(labelForPreference(displayedPreferenceKey)), but dispatch preview is \(alertsLabel(quote.dispatchedCount)).",
+                    reporterNotes: "Classification=\(classification). SelectedPreference=\(quote.selectedPreferenceKey ?? "nil"), ActivePreference=\(quote.activePreferenceKey ?? "nil"), PolicyPreference=\(quote.policyPreferenceKey ?? "nil"), PolicyAllowedCount=\(quote.policyAllowedCount).",
                     screenName: "DemoHome"
                 )
             )
         }
     }
 
-    private func classifyBug(from quote: DeliveryQuote) -> String {
-        if displayedSpeedCode != scenario.speedCode {
+    private func classifyBug(from quote: NotificationDispatchQuote) -> String {
+        if displayedPreferenceKey != scenario.preferenceKey {
             return "ui-only"
         }
 
-        if quote.policyLeadDays == scenario.expectedLeadDays &&
-            quote.promisedLeadDays != scenario.expectedLeadDays {
+        if quote.policyAllowedCount == scenario.expectedDispatchCount &&
+            quote.dispatchedCount != scenario.expectedDispatchCount {
             return "arithmetic-logic"
         }
 
-        if quote.pendingSpeedCode == scenario.speedCode &&
-            quote.appliedSpeedCode != scenario.speedCode &&
-            quote.policySpeedCode != scenario.speedCode {
+        if quote.selectedPreferenceKey == scenario.preferenceKey &&
+            quote.activePreferenceKey != scenario.preferenceKey &&
+            quote.policyPreferenceKey != scenario.preferenceKey {
             return "source-of-truth-divergence"
         }
 
         return "unknown"
     }
 
-    private func daysLabel(_ days: Int) -> String {
-        if days == 1 {
-            return "1 day"
+    private func alertsLabel(_ count: Int) -> String {
+        if count == 1 {
+            return "1 alert"
         }
 
-        return "\(days) days"
+        return "\(count) alerts"
+    }
+
+    private func labelForPreference(_ key: String?) -> String {
+        switch key {
+        case scenario.preferenceKey:
+            return scenario.preferenceLabel
+        case nil:
+            return "none"
+        default:
+            return key ?? "none"
+        }
     }
 }

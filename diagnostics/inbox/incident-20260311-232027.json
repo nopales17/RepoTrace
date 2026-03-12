@@ -1,0 +1,63 @@
+{
+  "actualBehavior" : "UI shows preference Security Alerts, but dispatch preview is 0 alerts.",
+  "breadcrumbs" : [
+    {
+      "category" : "navigation",
+      "message" : "Opened demo root",
+      "timestamp" : "2026-03-12T06:20:21Z"
+    },
+    {
+      "category" : "action",
+      "message" : "Tapped select preference, uiPreference=SECURITY_ALERTS, baselineDispatchCount=2",
+      "timestamp" : "2026-03-12T06:20:23Z"
+    },
+    {
+      "category" : "context",
+      "message" : "Preference selection updated: selectedPreference=SECURITY_ALERTS, activePreference=nil",
+      "timestamp" : "2026-03-12T06:20:23Z"
+    },
+    {
+      "category" : "pipeline",
+      "message" : "Dispatch policy used: preferenceKey=nil, allowedCount=0",
+      "timestamp" : "2026-03-12T06:20:23Z"
+    },
+    {
+      "category" : "pipeline",
+      "message" : "Dispatch engine result: dispatchedCount=0",
+      "timestamp" : "2026-03-12T06:20:23Z"
+    },
+    {
+      "category" : "triage",
+      "message" : "Triage UI check: expectedUiPreference=SECURITY_ALERTS, displayedPreference=SECURITY_ALERTS",
+      "timestamp" : "2026-03-12T06:20:23Z"
+    },
+    {
+      "category" : "triage",
+      "message" : "Triage arithmetic check: policyAllowedCount=0, expectedDispatchCount=2, actualDispatchCount=0",
+      "timestamp" : "2026-03-12T06:20:23Z"
+    },
+    {
+      "category" : "triage",
+      "message" : "Triage source-of-truth check: selectedPreference=SECURITY_ALERTS, activePreference=nil, policyPreference=nil",
+      "timestamp" : "2026-03-12T06:20:23Z"
+    },
+    {
+      "category" : "bug",
+      "message" : "Preview mismatch: expectedDispatchCount=2, actualDispatchCount=0",
+      "timestamp" : "2026-03-12T06:20:23Z"
+    }
+  ],
+  "expectedBehavior" : "After selecting Security Alerts, dispatch preview should show 2 alerts.",
+  "id" : "incident-20260311-232027",
+  "metadata" : {
+    "appVersion" : "1.0.0",
+    "buildNumber" : "1",
+    "deviceModel" : "iPhone",
+    "osVersion" : "26.2",
+    "screenName" : "DemoHome",
+    "timestamp" : "2026-03-12T06:20:27Z"
+  },
+  "reporterNotes" : "Classification=source-of-truth-divergence. SelectedPreference=SECURITY_ALERTS, ActivePreference=nil, PolicyPreference=nil, PolicyAllowedCount=0.",
+  "screenshotFilename" : "incident-20260311-232027-screenshot.jpg",
+  "title" : "Preference appears selected but dispatch preview is unchanged"
+}

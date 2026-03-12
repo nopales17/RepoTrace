@@ -156,16 +156,27 @@
     },
     {
       "id": "demo-pending-vs-applied-delivery-promise-divergence-bug",
-      "status": "supported",
+      "status": "falsified",
       "subsystem": "demo-bug-harness",
-      "statement": "Current demo bug: Home action updates pending delivery speed used by UI, but fulfillment policy reads authoritative applied speed, so EXPRESS appears selected while promised delivery remains standard.",
+      "statement": "Superseded: demo bug no longer uses delivery-promise divergence as the active motif surface.",
       "files": [
         "ios/RepoTraceDemo/CheckoutPricing.swift",
         "ios/RepoTraceDemo/DemoRootView.swift"
       ],
-      "checked_at": "2026-03-11"
+      "checked_at": "2026-03-12"
+    },
+    {
+      "id": "demo-source-of-truth-state-promotion-motif",
+      "status": "supported",
+      "subsystem": "demo-bug-harness",
+      "statement": "Motif: UI reads pending/selected state while execution reads authoritative/applied state; if pending is not promoted to applied, the interface appears updated but business outcome remains unchanged.",
+      "files": [
+        "ios/RepoTraceDemo/CheckoutPricing.swift",
+        "ios/RepoTraceDemo/DemoRootView.swift"
+      ],
+      "checked_at": "2026-03-12"
     }
   ],
-  "last_updated": "2026-03-11",
+  "last_updated": "2026-03-12",
   "schema_version": 1
 }
