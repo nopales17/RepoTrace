@@ -28,6 +28,10 @@ RepoTrace turns debugging into a persistent loop:
 
 **incident → trace → claims → narrower frontier**
 
+With retrieval triage enabled, the loop is now:
+
+**incident → retrieval verdict → triage mode → targeted search**
+
 Instead of starting every investigation with a vague prompt like “my app doesn’t work,” the repo accumulates structured state over time:
 
 - incident reports
@@ -73,6 +77,7 @@ RepoTrace/
 ├─ AGENTS.md
 ├─ diagnostics/
 │  ├─ claims.json
+│  ├─ triage_policy.json
 │  └─ incidents/
 ├─ scripts/
 ├─ examples/
@@ -86,3 +91,4 @@ RepoTrace/
 - The repository now supports a full local loop from repro breadcrumbs to structured incident artifacts under `diagnostics/`.
 - Added scripts for incident workflow support, including creating and pulling simulator incidents.
 - `RepoTraceDemo` is a fixture app used to exercise and validate the debugging workflow, not the core product itself.
+- Added a minimal machine-readable triage policy at `diagnostics/triage_policy.json` so retrieval verdicts (`motif_match`, `motif_non_match`, `ambiguous`) map to scoped next actions.

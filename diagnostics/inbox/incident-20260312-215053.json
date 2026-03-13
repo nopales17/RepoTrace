@@ -1,0 +1,68 @@
+{
+  "actualBehavior" : "UI shows collection Road Trip Mix, but queue preview is 0 tracks.",
+  "breadcrumbs" : [
+    {
+      "category" : "navigation",
+      "message" : "Opened demo root",
+      "timestamp" : "2026-03-13T04:50:50Z"
+    },
+    {
+      "category" : "action",
+      "message" : "Tapped pick collection, uiCollection=ROAD_TRIP_MIX, libraryTrackCount=4",
+      "timestamp" : "2026-03-13T04:50:50Z"
+    },
+    {
+      "category" : "context",
+      "message" : "Collection snapshot: screenCollection=ROAD_TRIP_MIX, runtimeCollection=ROAD_TRIP_MIX",
+      "timestamp" : "2026-03-13T04:50:50Z"
+    },
+    {
+      "category" : "pipeline",
+      "message" : "Queue rule used: collectionCode=nil, queuedTrackCount=0",
+      "timestamp" : "2026-03-13T04:50:50Z"
+    },
+    {
+      "category" : "pipeline",
+      "message" : "Queue engine result: queuedTrackCount=0",
+      "timestamp" : "2026-03-13T04:50:50Z"
+    },
+    {
+      "category" : "observation",
+      "message" : "Observed UI state: expectedCollection=ROAD_TRIP_MIX, displayedCollection=ROAD_TRIP_MIX",
+      "timestamp" : "2026-03-13T04:50:50Z"
+    },
+    {
+      "category" : "observation",
+      "message" : "Observed preview values: ruleQueuedTrackCount=0, expectedQueuedTrackCount=4, actualQueuedTrackCount=0",
+      "timestamp" : "2026-03-13T04:50:50Z"
+    },
+    {
+      "category" : "observation",
+      "message" : "Observed state values: screenCollection=ROAD_TRIP_MIX, runtimeCollection=ROAD_TRIP_MIX, ruleCollection=nil",
+      "timestamp" : "2026-03-13T04:50:50Z"
+    },
+    {
+      "category" : "bug",
+      "message" : "Queue preview mismatch: expectedQueuedTrackCount=4, actualQueuedTrackCount=0",
+      "timestamp" : "2026-03-13T04:50:50Z"
+    },
+    {
+      "category" : "pipeline",
+      "message" : "Queue rule lookup: runtimeInputKey=ROAD_TRIP_MIX, lookupKey=ROAD_TRIP_MIX, lookupHit=false",
+      "timestamp" : "2026-03-13T04:50:50Z"
+    }
+  ],
+  "expectedBehavior" : "After picking Road Trip Mix, queue preview should show 4 tracks.",
+  "id" : "incident-20260312-215053",
+  "metadata" : {
+    "appVersion" : "1.0.0",
+    "buildNumber" : "1",
+    "deviceModel" : "iPhone",
+    "osVersion" : "26.2",
+    "screenName" : "DownloadHome",
+    "timestamp" : "2026-03-13T04:50:53Z"
+  },
+  "reporterNotes" : "ScreenCollection=ROAD_TRIP_MIX, RuntimeCollection=ROAD_TRIP_MIX, RuleCollection=nil, RuleQueuedTrackCount=0.",
+  "screenshotFilename" : "incident-20260312-215053-screenshot.jpg",
+  "title" : "Collection appears picked but queue preview is unchanged"
+}
