@@ -1,94 +1,110 @@
 # RepoTrace
 
-**Persistent debugging traces for evolving codebases.**
+**Persistent debugging memory for evolving codebases.**
 
-RepoTrace is a repo-local debugging memory system for iOS apps and Codex-style development workflows.
+RepoTrace is a repo-local debugging layer for iOS apps and Codex-style workflows.
 
-It captures structured bug incidents from a running app, stores reusable debugging claims directly in the repository, and helps future debugging sessions start from a smaller, more relevant search frontier instead of reconstructing the same repo context from scratch.
+It captures structured incidents from a running app, stores reusable debugging claims and motif-level priors in the repository, and helps future debugging sessions start from a smaller, more relevant search frontier instead of repeatedly reconstructing repo context from scratch.
 
-## Why this exists
+## Why
 
 A lot of debugging time is not spent fixing the bug itself.
 
-It is spent reconstructing enough local understanding to begin fixing it:
+It is spent reconstructing enough local understanding to begin:
 
-- what subsystem likely owns this behavior
-- what path this action takes through the app
-- what was already checked before
+- what subsystem likely owns the behavior
+- what state or contract is actually authoritative
 - which branches were already ruled out
-- what stable assumptions this repo depends on
+- what this repo has broken like before
+- what the smallest next discriminating check should be
 
-That reconstruction cost repeats across incidents and across commits.
+RepoTrace is an experiment in preserving the **minimum reusable debugging structure** that makes future investigation cheaper.
 
-RepoTrace is an experiment in preserving the smallest reusable debugging structure that survives long enough to matter.
+## Core loop
 
-## Core idea
-
-RepoTrace turns debugging into a persistent loop:
+RepoTrace started as:
 
 **incident → trace → claims → narrower frontier**
 
-With retrieval triage enabled, the loop is now:
+It now supports a more explicit loop:
 
 **incident → retrieval verdict → triage mode → targeted search**
 
-Instead of starting every investigation with a vague prompt like “my app doesn’t work,” the repo accumulates structured state over time:
+## What RepoTrace stores
 
-- incident reports
-- reusable claims
-- falsified branches
-- subsystem hints
-- commit-aware debugging memory
+RepoTrace currently persists four main artifacts:
 
-The goal is not to store everything.
+- **incidents** — structured bug reports captured from the app
+- **claims** — reusable debugging facts and motif-level priors
+- **retrieval results** — per-incident classification outputs
+- **triage policy** — a small control layer mapping retrieval verdicts to the next debugging action
 
-The goal is to store the **minimum reusable structure** that reduces repeated inference.
+## What it does
 
-## What RepoTrace is
+RepoTrace helps a debugging agent or developer:
 
-RepoTrace is:
+- capture high-signal incident context
+- retrieve likely recurring bug motifs
+- distinguish match / non-match / ambiguous cases
+- request the smallest missing evidence when needed
+- avoid broad repo wandering too early
 
-- a repo-local diagnostics layer
-- a structured incident capture workflow
-- a persistent claim store for debugging
-- a way to give Codex a better starting state
-
-## What RepoTrace is not
+## What it is not
 
 RepoTrace is not:
 
 - a crash reporting platform
-- a full observability system
+- a full observability suite
 - a backend-heavy SaaS
 - a generic AI wrapper
-- a replacement for deterministic tooling
-
-The intended use is:
-
-- collect high-signal incident context
-- preserve reusable debugging facts
-- narrow the active search frontier
-- let Codex or a developer do more targeted work
+- a replacement for deterministic debugging tools
 
 ## Repository layout
 
-```text
 RepoTrace/
-├─ AGENTS.md
-├─ diagnostics/
-│  ├─ claims.json
-│  ├─ triage_policy.json
-│  └─ incidents/
-├─ scripts/
-├─ examples/
-└─ ios/
-   └─ RepoTraceDemo/
-```
+├── AGENTS.md
+├── diagnostics/
+│   ├── claims.json
+│   ├── triage_policy.json
+│   ├── README.md
+│   ├── incidents/
+│   ├── inbox/
+│   └── retrieval_results/
+├── RepoTrace/
+│   └── Diagnostics/
+│       ├── BreadcrumbStore.swift
+│       ├── DebugReportDraftStore.swift
+│       ├── DebugReportEntryPoint.swift
+│       ├── DebugReportView.swift
+│       ├── DiagnosticModels.swift
+│       └── IncidentWriter.swift
+├── ios/
+│   └── RepoTraceDemo/
+│       ├── DemoRootView.swift
+│       ├── PlaylistQueueing.swift
+│       ├── CheckoutPricing.swift
+│       └── RepoTraceDemoApp.swift
+├── scripts/
+│   ├── new_incident.py
+│   ├── pull_simulator_incident.py
+│   └── save_retrieval_result.py
+├── LICENSE
+└── README.md
+## Current status
 
-## Current progress (March 10, 2026)
+Early research prototype.
 
-- Implemented the in-app diagnostics primitives used by RepoTrace (`BreadcrumbStore`, debug report drafting, incident writer, and debug report UI entry point).
-- The repository now supports a full local loop from repro breadcrumbs to structured incident artifacts under `diagnostics/`.
-- Added scripts for incident workflow support, including creating and pulling simulator incidents.
-- `RepoTraceDemo` is a fixture app used to exercise and validate the debugging workflow, not the core product itself.
-- Added a minimal machine-readable triage policy at `diagnostics/triage_policy.json` so retrieval verdicts (`motif_match`, `motif_non_match`, `ambiguous`) map to scoped next actions.
+So far, RepoTrace has been used to validate:
+
+- structured incident capture
+- repo-local claim storage
+- motif transfer across different bug surfaces
+- motif retrieval under refactor/name drift
+- retrieval verdicts of:
+  - `motif_match`
+  - `motif_non_match`
+  - `ambiguous`
+- ambiguity resolution through one targeted discriminating check
+- triage-policy-driven next actions
+
+In other words, RepoTrace is no longer just a bug-report archive. It is starting to function as a lightweight **causal retrieval and debugging-control layer**.
