@@ -1,0 +1,24 @@
+{
+  "incident_id": "incident-20260312-220604",
+  "source_incident": "diagnostics/incidents/incident-20260312-220604.md",
+  "generated_at": "2026-03-12T22:00:00-08:00",
+  "evidence": {
+    "expected": "After picking Road Trip Mix, queue preview should show 4 tracks.",
+    "actual": "UI shows collection Road Trip Mix, but queue preview is 0 tracks.",
+    "notes": "ScreenCollection=ROAD_TRIP_MIX, RuntimeCollection=ROAD_TRIP_MIX, RuleCollection=nil, RuleQueuedTrackCount=0.",
+    "key_breadcrumbs": [
+      "Collection snapshot: screenCollection=ROAD_TRIP_MIX, runtimeCollection=ROAD_TRIP_MIX",
+      "Queue rule used: collectionCode=nil, queuedTrackCount=0",
+      "Queue rule lookup: runtimeInputKey=ROAD_TRIP_MIX, lookupKey=ROAD_TRIP_MIX, lookupHit=false"
+    ]
+  },
+  "retrieval": {
+    "candidate_subsystems": [
+      "queue-rule-lookup/mapping",
+      "queue-rule-input-normalization"
+    ],
+    "verdict": "motif_non_match",
+    "confidence": 0.9,
+    "rationale": "Incident evidence shows screen and runtime collection are already aligned (both ROAD_TRIP_MIX), while rule lookup misses and produces collectionCode=nil. This points to lookup/mapping/normalization failure rather than tentative-to-committed state promotion divergence."
+  }
+}

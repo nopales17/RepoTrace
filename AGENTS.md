@@ -15,7 +15,8 @@ Primary debugging workflow:
 6. When a claim is disproven, mark it as falsified instead of repeating it.
 7. When a new durable repo-specific debugging fact is discovered, update `diagnostics/claims.json`.
 8. Before broad code search, produce a retrieval result from incident evidence.
-9. Apply `diagnostics/triage_policy.json` to choose the next action mode.
+9. Save the retrieval result to `diagnostics/retrieval_results/<incident-id>.json`.
+10. Apply `diagnostics/triage_policy.json` to choose the next action mode.
 
 Output style:
 - Be explicit about top candidate subsystems.
@@ -43,5 +44,6 @@ For debugging tasks:
 7. If no `.xcodeproj`/`.xcworkspace` is present, run a deterministic iOS typecheck with:
    `xcrun --sdk iphonesimulator swiftc -target arm64-apple-ios17.0-simulator -typecheck RepoTrace/Diagnostics/*.swift`
 8. Produce a retrieval result object from incident evidence before broad code search.
-9. Apply `diagnostics/triage_policy.json` using the retrieval verdict.
-10. Execute only the next action mode selected by the policy.
+9. Save that retrieval result under `diagnostics/retrieval_results/<incident-id>.json`.
+10. Apply `diagnostics/triage_policy.json` using the retrieval verdict.
+11. Execute only the next action mode selected by the policy.
