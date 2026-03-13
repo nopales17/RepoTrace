@@ -86,7 +86,8 @@
       "files": [
         "ios/RepoTraceDemo/DemoRootView.swift"
       ],
-      "checked_at": "2026-03-10"
+      "checked_at": "2026-03-10",
+      "retrieval_priority": "deprioritized"
     },
     {
       "id": "report-form-expected-actual-default-empty",
@@ -130,7 +131,8 @@
         "ios/RepoTraceDemo/CheckoutPricing.swift",
         "ios/RepoTraceDemo/DemoRootView.swift"
       ],
-      "checked_at": "2026-03-10"
+      "checked_at": "2026-03-10",
+      "retrieval_priority": "deprioritized"
     },
     {
       "id": "demo-stale-policy-context-bug",
@@ -141,7 +143,8 @@
         "ios/RepoTraceDemo/CheckoutPricing.swift",
         "ios/RepoTraceDemo/DemoRootView.swift"
       ],
-      "checked_at": "2026-03-11"
+      "checked_at": "2026-03-11",
+      "retrieval_priority": "deprioritized"
     },
     {
       "id": "demo-pending-vs-applied-coupon-divergence-bug",
@@ -152,7 +155,9 @@
         "ios/RepoTraceDemo/CheckoutPricing.swift",
         "ios/RepoTraceDemo/DemoRootView.swift"
       ],
-      "checked_at": "2026-03-11"
+      "checked_at": "2026-03-11",
+      "motif_id": "motif-source-of-truth-state-promotion-divergence",
+      "retrieval_priority": "example"
     },
     {
       "id": "demo-pending-vs-applied-delivery-promise-divergence-bug",
@@ -163,7 +168,9 @@
         "ios/RepoTraceDemo/CheckoutPricing.swift",
         "ios/RepoTraceDemo/DemoRootView.swift"
       ],
-      "checked_at": "2026-03-12"
+      "checked_at": "2026-03-12",
+      "motif_id": "motif-source-of-truth-state-promotion-divergence",
+      "retrieval_priority": "example"
     },
     {
       "id": "demo-source-of-truth-state-promotion-motif",
@@ -174,7 +181,22 @@
         "ios/RepoTraceDemo/CheckoutPricing.swift",
         "ios/RepoTraceDemo/DemoRootView.swift"
       ],
-      "checked_at": "2026-03-12"
+      "checked_at": "2026-03-12",
+      "motif_id": "motif-source-of-truth-state-promotion-divergence",
+      "retrieval_priority": "example"
+    },
+    {
+      "id": "motif-source-of-truth-state-promotion-divergence",
+      "status": "supported",
+      "subsystem": "demo-bug-harness",
+      "statement": "Canonical motif: UI/presentation state updates a tentative selection channel while execution/policy/rule evaluation reads a committed runtime channel; if promotion is skipped, the UI appears updated but computed outcomes remain unchanged.",
+      "files": [
+        "ios/RepoTraceDemo/DemoRootView.swift",
+        "ios/RepoTraceDemo/CheckoutPricing.swift",
+        "ios/RepoTraceDemo/PlaylistQueueing.swift"
+      ],
+      "checked_at": "2026-03-12",
+      "retrieval_priority": "primary"
     }
   ],
   "last_updated": "2026-03-12",

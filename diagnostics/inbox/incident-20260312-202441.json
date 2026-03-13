@@ -1,0 +1,63 @@
+{
+  "actualBehavior" : "UI shows quality Compressed, but estimate is 400 MB.",
+  "breadcrumbs" : [
+    {
+      "category" : "navigation",
+      "message" : "Opened demo root",
+      "timestamp" : "2026-03-13T03:24:17Z"
+    },
+    {
+      "category" : "action",
+      "message" : "Tapped select quality, uiQuality=COMPRESSED, baselineEstimateMB=400",
+      "timestamp" : "2026-03-13T03:24:37Z"
+    },
+    {
+      "category" : "context",
+      "message" : "Quality snapshot: screenQuality=COMPRESSED, runtimeQuality=nil",
+      "timestamp" : "2026-03-13T03:24:37Z"
+    },
+    {
+      "category" : "pipeline",
+      "message" : "Estimation policy used: qualityCode=nil, estimatedMB=400",
+      "timestamp" : "2026-03-13T03:24:37Z"
+    },
+    {
+      "category" : "pipeline",
+      "message" : "Estimator result: estimatedMB=400",
+      "timestamp" : "2026-03-13T03:24:37Z"
+    },
+    {
+      "category" : "observation",
+      "message" : "Observed UI values: expectedQuality=COMPRESSED, displayedQuality=COMPRESSED",
+      "timestamp" : "2026-03-13T03:24:37Z"
+    },
+    {
+      "category" : "observation",
+      "message" : "Observed estimate values: policyEstimatedMB=400, expectedEstimateMB=200, actualEstimateMB=400",
+      "timestamp" : "2026-03-13T03:24:37Z"
+    },
+    {
+      "category" : "observation",
+      "message" : "Observed state values: screenQuality=COMPRESSED, runtimeQuality=nil, policyQuality=nil",
+      "timestamp" : "2026-03-13T03:24:37Z"
+    },
+    {
+      "category" : "bug",
+      "message" : "Estimate mismatch: expectedEstimateMB=200, actualEstimateMB=400",
+      "timestamp" : "2026-03-13T03:24:37Z"
+    }
+  ],
+  "expectedBehavior" : "After selecting Compressed, estimate should be 200 MB.",
+  "id" : "incident-20260312-202441",
+  "metadata" : {
+    "appVersion" : "1.0.0",
+    "buildNumber" : "1",
+    "deviceModel" : "iPhone",
+    "osVersion" : "26.2",
+    "screenName" : "DownloadHome",
+    "timestamp" : "2026-03-13T03:24:41Z"
+  },
+  "reporterNotes" : "ScreenQuality=COMPRESSED, RuntimeQuality=nil, PolicyQuality=nil, PolicyEstimatedMB=400.",
+  "screenshotFilename" : "incident-20260312-202441-screenshot.jpg",
+  "title" : "Quality appears selected but estimate is unchanged"
+}

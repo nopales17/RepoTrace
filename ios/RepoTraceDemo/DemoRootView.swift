@@ -56,6 +56,7 @@ struct DemoRootView: View {
 
     private func runPlaylistQueueScenario() {
         queueStore.chooseCollection(scenario.collectionCode)
+        queueStore.promoteRuntimeCollection()
         displayedCollectionCode = queueStore.current.screenCollectionCode
 
         BreadcrumbStore.shared.add(
@@ -72,7 +73,7 @@ struct DemoRootView: View {
         latestPreview = preview
 
         BreadcrumbStore.shared.add(
-            "Queue rule used: collectionCode=\(preview.ruleCollectionCode ?? "nil"), queuedTrackCount=\(preview.ruleQueuedTrackCount)",
+            "Queue rule used: collectionCode=\(preview.ruleCollectionCode ?? "nil"), matchKey=\(preview.ruleMatchKey), queuedTrackCount=\(preview.ruleQueuedTrackCount)",
             category: "pipeline"
         )
 
@@ -87,7 +88,7 @@ struct DemoRootView: View {
         )
 
         BreadcrumbStore.shared.add(
-            "Observed preview values: ruleQueuedTrackCount=\(preview.ruleQueuedTrackCount), expectedQueuedTrackCount=\(scenario.expectedQueuedTrackCount), actualQueuedTrackCount=\(preview.queuedTrackCount)",
+            "Observed preview values: ruleMatchKey=\(preview.ruleMatchKey), ruleQueuedTrackCount=\(preview.ruleQueuedTrackCount), expectedQueuedTrackCount=\(scenario.expectedQueuedTrackCount), actualQueuedTrackCount=\(preview.queuedTrackCount)",
             category: "observation"
         )
 
@@ -107,7 +108,7 @@ struct DemoRootView: View {
                     title: "Collection appears picked but queue preview is unchanged",
                     expectedBehavior: "After picking \(scenario.collectionLabel), queue preview should show \(tracksLabel(scenario.expectedQueuedTrackCount)).",
                     actualBehavior: "UI shows collection \(labelForCollection(displayedCollectionCode)), but queue preview is \(tracksLabel(preview.queuedTrackCount)).",
-                    reporterNotes: "ScreenCollection=\(preview.screenCollectionCode ?? "nil"), RuntimeCollection=\(preview.runtimeCollectionCode ?? "nil"), RuleCollection=\(preview.ruleCollectionCode ?? "nil"), RuleQueuedTrackCount=\(preview.ruleQueuedTrackCount).",
+                    reporterNotes: "ScreenCollection=\(preview.screenCollectionCode ?? "nil"), RuntimeCollection=\(preview.runtimeCollectionCode ?? "nil"), RuleCollection=\(preview.ruleCollectionCode ?? "nil"), RuleMatchKey=\(preview.ruleMatchKey), RuleQueuedTrackCount=\(preview.ruleQueuedTrackCount).",
                     screenName: "DownloadHome"
                 )
             )
