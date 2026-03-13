@@ -12,7 +12,6 @@ struct PlaylistQueuePreview {
     let screenCollectionCode: String?
     let runtimeCollectionCode: String?
     let ruleCollectionCode: String?
-    let ruleMatchKey: String
     let ruleQueuedTrackCount: Int
     let queuedTrackCount: Int
 }
@@ -42,12 +41,11 @@ final class PlaylistQueueStore {
 
 struct PlaylistQueueRule {
     let collectionCode: String?
-    let matchKey: String
     let queuedTrackCount: Int
 }
 
 struct PlaylistQueueRulebook {
-    private static let roadTripRuleKey = "ROADTRIP_MIX"
+    private static let supportedCollections: Set<String> = ["ROADTRIP_MIX"]
     private let queueStore: PlaylistQueueStore
 
     init(queueStore: PlaylistQueueStore) {
@@ -55,11 +53,12 @@ struct PlaylistQueueRulebook {
     }
 
     func resolve(libraryTrackCount: Int) -> PlaylistQueueRule {
-        let collectionCode = queueStore.current.runtimeCollectionCode
-        let queuedTrackCount = collectionCode == Self.roadTripRuleKey ? libraryTrackCount : 0
+        let runtimeCollectionCode = queueStore.current.runtimeCollectionCode
+        let collectionCode = runtimeCollectionCode
+            .flatMap { Self.supportedCollections.contains($0) ? $0 : nil }
+        let queuedTrackCount = collectionCode == "ROAD_TRIP_MIX" ? libraryTrackCount : 0
         return PlaylistQueueRule(
             collectionCode: collectionCode,
-            matchKey: Self.roadTripRuleKey,
             queuedTrackCount: queuedTrackCount
         )
     }
@@ -93,7 +92,6 @@ struct PlaylistQueuePreviewUseCase {
             screenCollectionCode: queueRulebook.liveScreenCollectionCode(),
             runtimeCollectionCode: queueRulebook.liveRuntimeCollectionCode(),
             ruleCollectionCode: rule.collectionCode,
-            ruleMatchKey: rule.matchKey,
             ruleQueuedTrackCount: rule.queuedTrackCount,
             queuedTrackCount: queuedTrackCount
         )
