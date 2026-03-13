@@ -54,8 +54,17 @@ struct PlaylistQueueRulebook {
 
     func resolve(libraryTrackCount: Int) -> PlaylistQueueRule {
         let runtimeCollectionCode = queueStore.current.runtimeCollectionCode
-        let collectionCode = runtimeCollectionCode
-            .flatMap { Self.supportedCollections.contains($0) ? $0 : nil }
+        let lookupKey = runtimeCollectionCode
+        let lookupHit = lookupKey.map(Self.supportedCollections.contains) ?? false
+        let collectionCode = lookupHit ? lookupKey : nil
+
+        Task { @MainActor in
+            BreadcrumbStore.shared.add(
+                "Queue rule lookup: runtimeInputKey=\(runtimeCollectionCode ?? "nil"), lookupKey=\(lookupKey ?? "nil"), lookupHit=\(lookupHit)",
+                category: "pipeline"
+            )
+        }
+
         let queuedTrackCount = collectionCode == "ROAD_TRIP_MIX" ? libraryTrackCount : 0
         return PlaylistQueueRule(
             collectionCode: collectionCode,
