@@ -61,6 +61,7 @@ RepoTrace is not:
 
 ## Repository layout
 
+```text
 RepoTrace/
 ├── AGENTS.md
 ├── diagnostics/
@@ -90,6 +91,8 @@ RepoTrace/
 │   └── save_retrieval_result.py
 ├── LICENSE
 └── README.md
+```
+
 ## Current status
 
 Early research prototype.
