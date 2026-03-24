@@ -2,7 +2,7 @@ import json
 import re
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterable, TypedDict
 
 
 def utc_now_iso() -> str:
@@ -23,6 +23,168 @@ def _as_list(value: Any) -> list[Any]:
     if isinstance(value, list):
         return value
     return []
+
+
+class NormalizedAttempt(TypedDict):
+    attempt_id: str
+    verdict: str
+    candidate_count: int
+    has_discriminating_check: bool
+    contradiction_items: list[str]
+    source_shape: str
+
+
+def load_experiment_profiles_v1(profiles_dir: Path, required_profile_ids: Iterable[str]) -> list[dict[str, Any]]:
+    required_ids = sorted({_to_text(profile_id).strip() for profile_id in required_profile_ids if _to_text(profile_id).strip()})
+    if not required_ids:
+        raise ValueError("required_profile_ids must include at least one profile id")
+    if not profiles_dir.exists():
+        raise ValueError(f"profiles directory does not exist: {profiles_dir}")
+
+    deduped_by_profile_id: dict[str, dict[str, Any]] = {}
+    for path in sorted(profiles_dir.glob("*.json")):
+        payload = json.loads(path.read_text())
+        if not isinstance(payload, dict):
+            raise ValueError(f"profile manifest must be an object: {path}")
+
+        required_keys = ("schema_version", "produced_by", "profile_id", "name", "status", "fixture_refs")
+        missing = [key for key in required_keys if key not in payload]
+        if missing:
+            raise ValueError(f"{path} missing required keys: {', '.join(missing)}")
+        if payload.get("schema_version") != "ExperimentProfile.v1":
+            raise ValueError(f"{path} schema_version must be ExperimentProfile.v1")
+
+        profile_id = _to_text(payload.get("profile_id")).strip()
+        if not profile_id:
+            raise ValueError(f"{path} profile_id must be non-empty")
+        if profile_id in deduped_by_profile_id:
+            continue
+
+        status = _to_text(payload.get("status")).strip()
+        if status not in {"active", "inactive"}:
+            raise ValueError(f"{path} status must be active or inactive")
+
+        fixture_refs = payload.get("fixture_refs")
+        if not isinstance(fixture_refs, list):
+            raise ValueError(f"{path} fixture_refs must be an array")
+
+        normalized = dict(payload)
+        normalized["fixture_refs"] = [_to_text(item).strip() for item in fixture_refs if _to_text(item).strip()]
+        normalized["scoping_mode"] = _to_text(payload.get("scoping_mode")).strip() or "none"
+        normalized["promise_id"] = payload.get("promise_id")
+        normalized["slice_key"] = payload.get("slice_key")
+        deduped_by_profile_id[profile_id] = normalized
+
+    missing_required = [profile_id for profile_id in required_ids if profile_id not in deduped_by_profile_id]
+    if missing_required:
+        raise ValueError(f"missing required profiles: {', '.join(missing_required)}")
+
+    return sorted(deduped_by_profile_id.values(), key=lambda profile: _to_text(profile.get("profile_id")))
+
+
+def _collect_contradiction_items_from_legacy(retrieval: dict[str, Any]) -> list[str]:
+    contradictions: list[str] = []
+    for candidate in _as_list(retrieval.get("candidates")):
+        if not isinstance(candidate, dict):
+            continue
+        for item in _as_list(candidate.get("contradicting_evidence")):
+            text = _to_text(item).strip()
+            if text and not text.lower().startswith("none"):
+                contradictions.append(text)
+    return contradictions
+
+
+def _collect_contradiction_items_from_v1(payload: dict[str, Any]) -> list[str]:
+    contradictions: list[str] = []
+    for item in _as_list(payload.get("contradiction_items")):
+        text = _to_text(item).strip()
+        if text and not text.lower().startswith("none"):
+            contradictions.append(text)
+    if contradictions:
+        return contradictions
+
+    for link in _as_list(payload.get("evidence_links")):
+        text = _to_text(link).strip()
+        if text.startswith("legacy:contradicting_evidence:"):
+            detail = text.split("legacy:contradicting_evidence:", 1)[1].strip()
+            if detail and not detail.lower().startswith("none"):
+                contradictions.append(detail)
+    return contradictions
+
+
+def normalize_retrieval_attempt(raw_attempt: dict[str, Any]) -> NormalizedAttempt:
+    if not isinstance(raw_attempt, dict):
+        return {
+            "attempt_id": "attempt:invalid-shape",
+            "verdict": "ambiguous",
+            "candidate_count": 0,
+            "has_discriminating_check": False,
+            "contradiction_items": [],
+            "source_shape": "invalid",
+        }
+
+    if raw_attempt.get("schema_version") == "RetrievalAttempt.v1":
+        attempt_id = _first_non_empty(
+            [
+                _to_text(raw_attempt.get("retrieval_attempt_id")),
+                _to_text(raw_attempt.get("attempt_id")),
+                f"{_to_text(raw_attempt.get('incident_id'))}:{_to_text(raw_attempt.get('run_id'))}",
+            ]
+        ) or "attempt:v1-unknown"
+        candidate_subsystems = [_to_text(item).strip() for item in _as_list(raw_attempt.get("candidate_subsystems")) if _to_text(item).strip()]
+        return {
+            "attempt_id": attempt_id,
+            "verdict": _to_text(raw_attempt.get("verdict")) or "ambiguous",
+            "candidate_count": len(candidate_subsystems),
+            "has_discriminating_check": bool(_to_text(raw_attempt.get("next_discriminating_check")).strip()),
+            "contradiction_items": _collect_contradiction_items_from_v1(raw_attempt),
+            "source_shape": "retrieval_attempt_v1",
+        }
+
+    retrieval = raw_attempt.get("retrieval")
+    if isinstance(retrieval, dict):
+        candidate_subsystems = retrieval.get("candidate_subsystems")
+        if not isinstance(candidate_subsystems, list):
+            candidate_subsystems = retrieval.get("subsystem_candidates")
+        candidate_list = [_to_text(item).strip() for item in _as_list(candidate_subsystems) if _to_text(item).strip()]
+        has_discriminating_check = any(
+            _to_text(candidate.get("next_discriminating_check")).strip()
+            for candidate in _as_list(retrieval.get("candidates"))
+            if isinstance(candidate, dict)
+        )
+        legacy_attempt_id = _first_non_empty(
+            [
+                _to_text(raw_attempt.get("attempt_id")),
+                _to_text(raw_attempt.get("retrieval_attempt_id")),
+                f"{_to_text(raw_attempt.get('incident_id'))}:{_to_text(raw_attempt.get('generated_at'))}",
+                _to_text(raw_attempt.get("incident_id")),
+            ]
+        ) or "attempt:legacy-unknown"
+        return {
+            "attempt_id": legacy_attempt_id,
+            "verdict": _to_text(retrieval.get("verdict")) or "ambiguous",
+            "candidate_count": len(candidate_list),
+            "has_discriminating_check": has_discriminating_check,
+            "contradiction_items": _collect_contradiction_items_from_legacy(retrieval),
+            "source_shape": "legacy_retrieval_result",
+        }
+
+    candidate_subsystems = [_to_text(item).strip() for item in _as_list(raw_attempt.get("candidate_subsystems")) if _to_text(item).strip()]
+    fallback_attempt_id = _first_non_empty(
+        [
+            _to_text(raw_attempt.get("attempt_id")),
+            _to_text(raw_attempt.get("retrieval_attempt_id")),
+            _to_text(raw_attempt.get("incident_id")),
+        ]
+    ) or "attempt:unknown-shape"
+    return {
+        "attempt_id": fallback_attempt_id,
+        "verdict": _to_text(raw_attempt.get("verdict")) or "ambiguous",
+        "candidate_count": len(candidate_subsystems),
+        "has_discriminating_check": bool(_to_text(raw_attempt.get("next_discriminating_check")).strip()),
+        "contradiction_items": _collect_contradiction_items_from_v1(raw_attempt),
+        "source_shape": "attempt_like",
+    }
 
 
 WITNESS_TYPES = {

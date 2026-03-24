@@ -1,0 +1,15 @@
+{
+  "schema_version": "ExperimentProfile.v1",
+  "produced_by": "scripts/eval_harness.py",
+  "profile_id": "layered_plus_witnesses",
+  "name": "Layered Plus Witnesses",
+  "status": "active",
+  "fixture_refs": [
+    "repotrace-current-incident",
+    "nutriplanner-collapse-case"
+  ],
+  "notes": "Uses full retrieval lineage plus witness-layer pruning semantics.",
+  "scoping_mode": "none",
+  "promise_id": null,
+  "slice_key": null
+}

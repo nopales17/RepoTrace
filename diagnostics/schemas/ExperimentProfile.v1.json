@@ -43,6 +43,25 @@
     },
     "notes": {
       "type": "string"
+    },
+    "scoping_mode": {
+      "type": "string",
+      "enum": [
+        "none",
+        "promise_manual"
+      ]
+    },
+    "promise_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "slice_key": {
+      "type": [
+        "string",
+        "null"
+      ]
     }
   },
   "additionalProperties": true

@@ -123,6 +123,7 @@ def default_targets() -> list[Path]:
 
     targets.extend(sorted(Path("eval/fixtures").glob("*.yaml")))
     targets.extend(sorted(Path("eval/fixtures").glob("*.yml")))
+    targets.extend(sorted(Path("eval/profiles").glob("*.json")))
     return targets
 
 
@@ -328,6 +329,11 @@ def validate_special_cases(path: Path, payload: dict[str, Any]) -> list[str]:
         source = payload.get("source")
         if not isinstance(source, dict):
             errors.append("DurableMemory.v1 source must be an object")
+
+    if schema_version == "ExperimentProfile.v1":
+        scoping_mode = payload.get("scoping_mode")
+        if scoping_mode is not None and scoping_mode not in {"none", "promise_manual"}:
+            errors.append("ExperimentProfile.v1 scoping_mode must be none or promise_manual")
 
     if path.name == "research_state.yaml" and schema_version != "ResearchState.v1":
         errors.append("research_state.yaml must have schema_version ResearchState.v1")

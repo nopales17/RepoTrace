@@ -1,0 +1,17 @@
+schema_version: FixtureManifest.v1
+produced_by: scripts/eval_harness.py
+fixture_id: repotrace-current-incident
+source_repo: repotrace
+source_repo_path: .
+source_branch: feat/eval-harness
+incident_id: incident-20260312-220604
+incident_artifact_path: diagnostics/incidents/incident-20260312-220604.md
+incident_evidence_path: diagnostics/inbox/incident-20260312-220604.json
+retrieval_artifact_path: diagnostics/retrieval_results/incident-20260312-220604.json
+reference_commits:
+why_this_case_matters: >-
+  Uses the current RepoTrace incident to compare profile behavior on the same
+  fixture evidence without changing legacy artifacts.
+scoping_mode: none
+promise_id:
+slice_key:

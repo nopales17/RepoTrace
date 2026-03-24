@@ -1,0 +1,15 @@
+{
+  "schema_version": "ExperimentProfile.v1",
+  "produced_by": "scripts/eval_harness.py",
+  "profile_id": "layered_storage_only",
+  "name": "Layered Storage Only",
+  "status": "active",
+  "fixture_refs": [
+    "repotrace-current-incident",
+    "nutriplanner-collapse-case"
+  ],
+  "notes": "Uses full retrieval lineage snapshots without witness pruning.",
+  "scoping_mode": "none",
+  "promise_id": null,
+  "slice_key": null
+}
