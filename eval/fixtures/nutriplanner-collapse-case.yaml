@@ -14,3 +14,8 @@ reference_commits:
 why_this_case_matters: >-
   Incident evidence remained stable while retrieval interpretation changed across
   commits, proving evidence and investigation lineage must be modeled separately.
+promise_registry_path: diagnostics/memory/promise_registry.json
+promise_frame_checkpoint_path: diagnostics/session/promise_frames/incident-20260313-235921/frame-nutriplanner-collapse-20260324T101900Z.json
+promise_traversal_task_path: diagnostics/session/promise_tasks/task-nutriplanner-collapse-seam-scan.json
+promise_scan_outcome_path: diagnostics/session/promise_outcomes/incident-20260313-235921/outcome-nutriplanner-collapse-seam-20260324T124100Z.json
+promise_coverage_ledger_path: diagnostics/memory/promise_coverage_ledgers/promise-nutriplanner-collapse-boundary-lockstep.coverage_ledger.json

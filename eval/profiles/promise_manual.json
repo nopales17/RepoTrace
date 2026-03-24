@@ -1,0 +1,15 @@
+{
+  "schema_version": "ExperimentProfile.v1",
+  "produced_by": "scripts/eval_harness.py",
+  "profile_id": "promise_manual",
+  "name": "Promise Manual",
+  "status": "active",
+  "fixture_refs": [
+    "repotrace-current-incident",
+    "nutriplanner-collapse-case"
+  ],
+  "notes": "Computes metrics from manually authored promise registry/frame/task/outcome/coverage artifacts only.",
+  "scoping_mode": "promise_manual",
+  "promise_id": null,
+  "slice_key": null
+}

@@ -15,3 +15,8 @@ why_this_case_matters: >-
 scoping_mode: none
 promise_id:
 slice_key:
+promise_registry_path: diagnostics/memory/promise_registry.json
+promise_frame_checkpoint_path: diagnostics/session/promise_frames/incident-20260312-220604/frame-repotrace-queue-preview-20260324T101500Z.json
+promise_traversal_task_path: diagnostics/session/promise_tasks/task-repotrace-queue-lookup-scan.json
+promise_scan_outcome_path: diagnostics/session/promise_outcomes/incident-20260312-220604/outcome-repotrace-queue-lookup-20260324T123500Z.json
+promise_coverage_ledger_path: diagnostics/memory/promise_coverage_ledgers/promise-repotrace-queue-preview-reflects-selected-collection.coverage_ledger.json
