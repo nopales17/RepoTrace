@@ -1,0 +1,93 @@
+{
+  "schema_version": "PromiseCheckLibrary.v1",
+  "produced_by": "manual:promise-check-library-seed",
+  "library_id": "promise-check-library-seed",
+  "library_version": 1,
+  "generated_at": "2026-03-24T18:20:00Z",
+  "checks": [
+    {
+      "check_id": "check-nutriplanner-collapse-delta-trace-v1",
+      "statement": "Collapse transition probe traces should keep firstChildToDetailDeltaY inside the lockstep envelope across transitionSeq ticks.",
+      "promise_id": "promise-nutriplanner-collapse-boundary-lockstep",
+      "interaction_family": "family-row-collapse-transition",
+      "consistency_boundary": "boundary-delta-lockstep",
+      "objective": "Discriminate whether seam drift originates from transition ordering drift versus static layout constants.",
+      "check_type": "trace",
+      "required_inputs": [
+        "incident-20260313-235921 breadcrumbs",
+        "displayLink probe logs containing transitionSeq and firstChildToDetailDeltaY",
+        "frame-nutriplanner-collapse-20260324T101900Z context"
+      ],
+      "procedure_steps": [
+        "Collect one collapse run trace with transitionSeq, firstChildToDetailDeltaY, and detailVisibleHeight per probe tick.",
+        "Partition trace by collapse phases (start, transition, end) and compute max absolute delta from expected envelope.",
+        "Mark anomaly if any contiguous transition segment exits the envelope before collapse_end."
+      ],
+      "expected_signals": [
+        "transitionSeq strictly increases",
+        "firstChildToDetailDeltaY remains within expected envelope at each phase",
+        "collapse_end leaves no residual seam delta"
+      ],
+      "failure_signals": [
+        "delta spike appears while transitionSeq is monotonic",
+        "delta exits envelope before ownership settles",
+        "seam residual persists after collapse_end"
+      ],
+      "evidence_outputs": [
+        "phase-partitioned delta trace table",
+        "max-delta summary per transition phase",
+        "annotated witness candidate statement for any envelope breach"
+      ],
+      "cost": "medium",
+      "strength": "high",
+      "provenance_refs": [
+        "diagnostics/memory/promise_touch_maps/promise-nutriplanner-collapse-boundary-lockstep.touch_map.json#slice-collapse-delta-lockstep",
+        "diagnostics/session/promise_frames/incident-20260313-235921/frame-nutriplanner-collapse-20260324T101900Z.json",
+        "eval/fixtures/nutriplanner-collapse-case.yaml"
+      ],
+      "status": "accepted"
+    },
+    {
+      "check_id": "check-repotrace-queue-key-agreement-trace-v1",
+      "statement": "Selected collection key should match runtimeCollection and ruleCollection at the first queue lookup for accepted queue-preview slice.",
+      "promise_id": "promise-repotrace-queue-preview-reflects-selected-collection",
+      "interaction_family": "family-queue-lookup",
+      "consistency_boundary": "boundary-key-agreement",
+      "objective": "Kill or confirm the lookup-key drift hypothesis for queue preview mismatch under aligned UI selection.",
+      "check_type": "trace",
+      "required_inputs": [
+        "incident-20260312-220604 queue lookup breadcrumbs",
+        "lookup log fields screenCollection/runtimeCollection/ruleCollection",
+        "frame-repotrace-queue-preview-20260324T101500Z context"
+      ],
+      "procedure_steps": [
+        "Capture one deterministic selection->lookup sequence for a known collection from the fixture.",
+        "Extract the first lookup tuple (screenCollection, runtimeCollection, ruleCollection, lookupHit).",
+        "Classify as kill if all keys agree with lookupHit=true, otherwise classify as pressure evidence with explicit mismatch tuple."
+      ],
+      "expected_signals": [
+        "screenCollection equals runtimeCollection",
+        "runtimeCollection equals ruleCollection",
+        "lookupHit is true for the selected key"
+      ],
+      "failure_signals": [
+        "runtimeCollection diverges from screenCollection",
+        "ruleCollection diverges from runtimeCollection",
+        "lookupHit=false while keys are present"
+      ],
+      "evidence_outputs": [
+        "single-row key agreement tuple",
+        "lookupHit outcome note",
+        "witness statement capturing any first divergence"
+      ],
+      "cost": "low",
+      "strength": "high",
+      "provenance_refs": [
+        "diagnostics/memory/promise_touch_maps/promise-repotrace-queue-preview-reflects-selected-collection.touch_map.json#slice-queue-lookup-key-agreement",
+        "diagnostics/session/promise_frames/incident-20260312-220604/frame-repotrace-queue-preview-20260324T101500Z.json",
+        "eval/fixtures/repotrace-current-incident.yaml"
+      ],
+      "status": "accepted"
+    }
+  ]
+}

@@ -142,6 +142,29 @@ REQUIRED_BY_SCHEMA: dict[str, list[str]] = {
         "resulting_task_status",
         "created_at",
     ],
+    "CheckCard.v1": [
+        "check_id",
+        "statement",
+        "promise_id",
+        "interaction_family",
+        "consistency_boundary",
+        "objective",
+        "check_type",
+        "required_inputs",
+        "procedure_steps",
+        "expected_signals",
+        "failure_signals",
+        "evidence_outputs",
+        "cost",
+        "strength",
+        "provenance_refs",
+        "status",
+    ],
+    "PromiseCheckLibrary.v1": [
+        "library_id",
+        "library_version",
+        "checks",
+    ],
 }
 
 VALID_VERDICTS = {"motif_match", "motif_non_match", "ambiguous"}
@@ -223,6 +246,53 @@ PROMISE_TASK_REQUIRED_FIELDS = {
 PROMISE_TASK_ALLOWED_STATUSES = {"queued", "active", "blocked", "done"}
 PROMISE_SCAN_OUTCOME_ALLOWED_OUTCOMES = {"killed", "anomaly_found", "survives", "exhausted", "blocked"}
 PROMISE_TOUCH_SLICE_ALLOWED_STATUSES = {"proposed", "accepted", "deferred", "exhausted"}
+CHECK_CARD_REQUIRED_FIELDS = {
+    "check_id",
+    "statement",
+    "promise_id",
+    "interaction_family",
+    "consistency_boundary",
+    "objective",
+    "check_type",
+    "required_inputs",
+    "procedure_steps",
+    "expected_signals",
+    "failure_signals",
+    "evidence_outputs",
+    "cost",
+    "strength",
+    "provenance_refs",
+    "status",
+}
+CHECK_CARD_REQUIRED_STRING_FIELDS = {
+    "check_id",
+    "statement",
+    "promise_id",
+    "interaction_family",
+    "consistency_boundary",
+    "objective",
+    "check_type",
+    "cost",
+    "strength",
+    "status",
+}
+CHECK_CARD_REQUIRED_LIST_FIELDS = {
+    "required_inputs",
+    "procedure_steps",
+    "expected_signals",
+    "failure_signals",
+    "evidence_outputs",
+    "provenance_refs",
+}
+CHECK_CARD_ALLOWED_STATUSES = {"draft", "accepted", "deprecated"}
+CHECK_CARD_ALLOWED_TYPES = {
+    "inspection",
+    "trace",
+    "replay",
+    "differential",
+    "instrumentation",
+    "minimization",
+}
 
 
 def default_targets() -> list[Path]:
@@ -243,6 +313,7 @@ def default_targets() -> list[Path]:
         targets.append(promise_registry)
     targets.extend(sorted(Path("diagnostics/memory/promise_coverage_ledgers").glob("*.json")))
     targets.extend(sorted(Path("diagnostics/memory/promise_touch_maps").glob("*.json")))
+    targets.extend(sorted(Path("diagnostics/memory/promise_check_libraries").glob("*.json")))
     targets.extend(sorted(Path("diagnostics/session/promise_tasks").glob("*.json")))
 
     research_state = Path("research/research_state.yaml")
@@ -878,6 +949,86 @@ def validate_special_cases(path: Path, payload: dict[str, Any]) -> list[str]:
         incident_id = str(payload.get("incident_id", "")).strip()
         if parent_incident.startswith("incident-") and incident_id and incident_id != parent_incident:
             errors.append("PromiseScanOutcome.v1 incident_id must match parent incident directory")
+
+    if schema_version == "CheckCard.v1":
+        missing = sorted(CHECK_CARD_REQUIRED_FIELDS - set(payload.keys()))
+        if missing:
+            errors.append(f"CheckCard.v1 missing required keys: {', '.join(missing)}")
+        else:
+            for key in sorted(CHECK_CARD_REQUIRED_STRING_FIELDS):
+                if not str(payload.get(key, "")).strip():
+                    errors.append(f"CheckCard.v1 {key} must be a non-empty string")
+
+            for key in sorted(CHECK_CARD_REQUIRED_LIST_FIELDS):
+                values = payload.get(key)
+                if not isinstance(values, list) or any(not str(item).strip() for item in values):
+                    errors.append(f"CheckCard.v1 {key} must be a non-empty array of strings")
+
+            status = str(payload.get("status", "")).strip()
+            if status not in CHECK_CARD_ALLOWED_STATUSES:
+                errors.append(
+                    "CheckCard.v1 status must be one of "
+                    f"{'/'.join(sorted(CHECK_CARD_ALLOWED_STATUSES))}"
+                )
+
+            check_type = str(payload.get("check_type", "")).strip()
+            if check_type not in CHECK_CARD_ALLOWED_TYPES:
+                errors.append(
+                    "CheckCard.v1 check_type must be one of "
+                    f"{'/'.join(sorted(CHECK_CARD_ALLOWED_TYPES))}"
+                )
+
+    if schema_version == "PromiseCheckLibrary.v1":
+        library_id = str(payload.get("library_id", "")).strip()
+        if not library_id:
+            errors.append("PromiseCheckLibrary.v1 library_id must be a non-empty string")
+
+        library_version = payload.get("library_version")
+        if not isinstance(library_version, int) or library_version < 1:
+            errors.append("PromiseCheckLibrary.v1 library_version must be an integer >= 1")
+
+        checks = payload.get("checks")
+        if not isinstance(checks, list):
+            errors.append("PromiseCheckLibrary.v1 checks must be an array")
+        else:
+            seen_check_ids: set[str] = set()
+            for idx, check in enumerate(checks, start=1):
+                label = f"PromiseCheckLibrary.v1 checks[{idx}]"
+                if not isinstance(check, dict):
+                    errors.append(f"{label} must be an object")
+                    continue
+
+                missing = sorted(CHECK_CARD_REQUIRED_FIELDS - set(check.keys()))
+                if missing:
+                    errors.append(f"{label} missing required keys: {', '.join(missing)}")
+                    continue
+
+                for key in sorted(CHECK_CARD_REQUIRED_STRING_FIELDS):
+                    if not str(check.get(key, "")).strip():
+                        errors.append(f"{label}.{key} must be a non-empty string")
+
+                for key in sorted(CHECK_CARD_REQUIRED_LIST_FIELDS):
+                    values = check.get(key)
+                    if not isinstance(values, list) or any(not str(item).strip() for item in values):
+                        errors.append(f"{label}.{key} must be a non-empty array of strings")
+
+                status = str(check.get("status", "")).strip()
+                if status not in CHECK_CARD_ALLOWED_STATUSES:
+                    errors.append(
+                        f"{label}.status must be one of {'/'.join(sorted(CHECK_CARD_ALLOWED_STATUSES))}"
+                    )
+
+                check_type = str(check.get("check_type", "")).strip()
+                if check_type not in CHECK_CARD_ALLOWED_TYPES:
+                    errors.append(
+                        f"{label}.check_type must be one of {'/'.join(sorted(CHECK_CARD_ALLOWED_TYPES))}"
+                    )
+
+                check_id = str(check.get("check_id", "")).strip()
+                if check_id:
+                    if check_id in seen_check_ids:
+                        errors.append(f"PromiseCheckLibrary.v1 duplicate check_id: {check_id}")
+                    seen_check_ids.add(check_id)
 
     if path.name == "research_state.yaml" and schema_version != "ResearchState.v1":
         errors.append("research_state.yaml must have schema_version ResearchState.v1")

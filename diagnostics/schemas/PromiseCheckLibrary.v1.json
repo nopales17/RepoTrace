@@ -1,0 +1,163 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://repotrace.local/diagnostics/schemas/PromiseCheckLibrary.v1.json",
+  "title": "PromiseCheckLibrary.v1",
+  "description": "Durable library of manual check cards for promise slice discrimination.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "produced_by",
+    "library_id",
+    "library_version",
+    "checks"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "PromiseCheckLibrary.v1"
+    },
+    "produced_by": {
+      "type": "string",
+      "minLength": 1
+    },
+    "library_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "library_version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "generated_at": {
+      "type": "string",
+      "minLength": 1
+    },
+    "checks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "check_id",
+          "statement",
+          "promise_id",
+          "interaction_family",
+          "consistency_boundary",
+          "objective",
+          "check_type",
+          "required_inputs",
+          "procedure_steps",
+          "expected_signals",
+          "failure_signals",
+          "evidence_outputs",
+          "cost",
+          "strength",
+          "provenance_refs",
+          "status"
+        ],
+        "properties": {
+          "check_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "statement": {
+            "type": "string",
+            "minLength": 1
+          },
+          "promise_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "interaction_family": {
+            "type": "string",
+            "minLength": 1
+          },
+          "consistency_boundary": {
+            "type": "string",
+            "minLength": 1
+          },
+          "objective": {
+            "type": "string",
+            "minLength": 1
+          },
+          "check_type": {
+            "type": "string",
+            "enum": [
+              "inspection",
+              "trace",
+              "replay",
+              "differential",
+              "instrumentation",
+              "minimization"
+            ]
+          },
+          "required_inputs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "procedure_steps": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "expected_signals": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "failure_signals": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "evidence_outputs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "cost": {
+            "type": "string",
+            "minLength": 1
+          },
+          "strength": {
+            "type": "string",
+            "minLength": 1
+          },
+          "provenance_refs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "accepted",
+              "deprecated"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

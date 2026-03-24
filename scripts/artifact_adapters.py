@@ -731,6 +731,276 @@ def load_promise_touch_maps_from_dir_v1(touch_maps_dir: Path) -> list[dict[str, 
     return [deduped_by_touch_map_id[touch_map_id] for touch_map_id in sorted(deduped_by_touch_map_id)]
 
 
+CHECK_CARD_REQUIRED_FIELDS = (
+    "check_id",
+    "statement",
+    "promise_id",
+    "interaction_family",
+    "consistency_boundary",
+    "objective",
+    "check_type",
+    "required_inputs",
+    "procedure_steps",
+    "expected_signals",
+    "failure_signals",
+    "evidence_outputs",
+    "cost",
+    "strength",
+    "provenance_refs",
+    "status",
+)
+
+CHECK_CARD_REQUIRED_STRING_FIELDS = (
+    "check_id",
+    "statement",
+    "promise_id",
+    "interaction_family",
+    "consistency_boundary",
+    "objective",
+    "check_type",
+    "cost",
+    "strength",
+    "status",
+)
+
+CHECK_CARD_REQUIRED_LIST_FIELDS = (
+    "required_inputs",
+    "procedure_steps",
+    "expected_signals",
+    "failure_signals",
+    "evidence_outputs",
+    "provenance_refs",
+)
+
+CHECK_CARD_ALLOWED_STATUSES = {"draft", "accepted", "deprecated"}
+CHECK_CARD_ALLOWED_TYPES = {
+    "inspection",
+    "trace",
+    "replay",
+    "differential",
+    "instrumentation",
+    "minimization",
+}
+
+
+def validate_check_card_v1(check_card: dict[str, Any], *, context: str = "check_card") -> list[str]:
+    if not isinstance(check_card, dict):
+        return [f"{context} must be an object"]
+
+    errors: list[str] = []
+    missing = [field for field in CHECK_CARD_REQUIRED_FIELDS if field not in check_card]
+    if missing:
+        errors.append(f"{context} missing required keys: {', '.join(missing)}")
+        return errors
+
+    for field in CHECK_CARD_REQUIRED_STRING_FIELDS:
+        if not _to_text(check_card.get(field)).strip():
+            errors.append(f"{context}.{field} must be a non-empty string")
+
+    for field in CHECK_CARD_REQUIRED_LIST_FIELDS:
+        if not _normalize_string_list(check_card.get(field)):
+            errors.append(f"{context}.{field} must be a non-empty array of strings")
+
+    status = _to_text(check_card.get("status")).strip()
+    if status not in CHECK_CARD_ALLOWED_STATUSES:
+        errors.append(
+            f"{context}.status must be one of {', '.join(sorted(CHECK_CARD_ALLOWED_STATUSES))}"
+        )
+
+    check_type = _to_text(check_card.get("check_type")).strip()
+    if check_type not in CHECK_CARD_ALLOWED_TYPES:
+        errors.append(
+            f"{context}.check_type must be one of {', '.join(sorted(CHECK_CARD_ALLOWED_TYPES))}"
+        )
+
+    return errors
+
+
+def _normalize_check_card_v1(check_card: dict[str, Any]) -> dict[str, Any]:
+    normalized = dict(check_card)
+    for field in CHECK_CARD_REQUIRED_STRING_FIELDS:
+        normalized[field] = _to_text(check_card.get(field)).strip()
+    for field in CHECK_CARD_REQUIRED_LIST_FIELDS:
+        normalized[field] = _normalize_string_list(check_card.get(field))
+    normalized["status"] = _to_text(check_card.get("status")).strip()
+    normalized["check_type"] = _to_text(check_card.get("check_type")).strip()
+    return normalized
+
+
+def load_promise_check_library_v1(path: Path) -> dict[str, Any]:
+    payload = json.loads(path.read_text())
+    if not isinstance(payload, dict):
+        raise ValueError(f"promise check library must be an object: {path}")
+
+    required_top_level = ("schema_version", "produced_by", "library_id", "library_version", "checks")
+    missing = [key for key in required_top_level if key not in payload]
+    if missing:
+        raise ValueError(f"{path} missing required keys: {', '.join(missing)}")
+    if payload.get("schema_version") != "PromiseCheckLibrary.v1":
+        raise ValueError(f"{path} schema_version must be PromiseCheckLibrary.v1")
+
+    library_id = _to_text(payload.get("library_id")).strip()
+    if not library_id:
+        raise ValueError(f"{path} library_id must be a non-empty string")
+
+    library_version = payload.get("library_version")
+    if not isinstance(library_version, int) or library_version < 1:
+        raise ValueError(f"{path} library_version must be an integer >= 1")
+
+    checks = payload.get("checks")
+    if not isinstance(checks, list):
+        raise ValueError(f"{path} checks must be an array")
+
+    normalized_checks: list[dict[str, Any]] = []
+    seen_check_ids: set[str] = set()
+    for idx, raw_check in enumerate(checks, start=1):
+        if not isinstance(raw_check, dict):
+            raise ValueError(f"{path} checks[{idx}] must be an object")
+
+        errors = validate_check_card_v1(raw_check, context=f"checks[{idx}]")
+        if errors:
+            raise ValueError(f"{path} invalid check card: {'; '.join(errors)}")
+
+        check_id = _to_text(raw_check.get("check_id")).strip()
+        if check_id in seen_check_ids:
+            raise ValueError(f"{path} duplicate check_id: {check_id}")
+        seen_check_ids.add(check_id)
+
+        normalized_checks.append(_normalize_check_card_v1(raw_check))
+
+    normalized_checks.sort(key=lambda check: _to_text(check.get("check_id")).strip())
+    normalized = dict(payload)
+    normalized["library_id"] = library_id
+    normalized["checks"] = normalized_checks
+    return normalized
+
+
+def load_promise_check_libraries_from_dir_v1(libraries_dir: Path) -> list[dict[str, Any]]:
+    if not libraries_dir.exists():
+        return []
+    if not libraries_dir.is_dir():
+        raise ValueError(f"promise check library path is not a directory: {libraries_dir}")
+
+    deduped_by_library_id: dict[str, dict[str, Any]] = {}
+    for path in sorted(libraries_dir.glob("*.json")):
+        library = load_promise_check_library_v1(path)
+        library_id = _to_text(library.get("library_id")).strip()
+        if library_id in deduped_by_library_id:
+            raise ValueError(f"duplicate library_id in directory: {library_id}")
+        deduped_by_library_id[library_id] = library
+
+    return [deduped_by_library_id[library_id] for library_id in sorted(deduped_by_library_id)]
+
+
+def suggest_checks_for_accepted_slice_candidate(
+    touch_map: dict[str, Any],
+    slice_candidate: dict[str, Any],
+    check_library: dict[str, Any],
+) -> list[dict[str, Any]]:
+    touch_map_errors = validate_promise_touch_map_v1(touch_map, context="touch_map")
+    if touch_map_errors:
+        raise ValueError(f"invalid promise touch map: {'; '.join(touch_map_errors)}")
+    if not isinstance(slice_candidate, dict):
+        raise ValueError("slice_candidate must be an object")
+
+    slice_status = _to_text(slice_candidate.get("status")).strip()
+    if slice_status != "accepted":
+        return []
+
+    if not isinstance(check_library, dict):
+        raise ValueError("check_library must be an object")
+    checks = check_library.get("checks")
+    if not isinstance(checks, list):
+        raise ValueError("check_library.checks must be an array")
+
+    family_by_id: dict[str, str] = {}
+    for family in touch_map.get("interaction_families", []):
+        if not isinstance(family, dict):
+            continue
+        family_id = _to_text(family.get("family_id")).strip()
+        if family_id:
+            family_by_id[family_id] = _to_text(family.get("statement")).strip()
+
+    boundary_by_id: dict[str, str] = {}
+    for boundary in touch_map.get("consistency_boundaries", []):
+        if not isinstance(boundary, dict):
+            continue
+        boundary_id = _to_text(boundary.get("boundary_id")).strip()
+        if boundary_id:
+            boundary_by_id[boundary_id] = _to_text(boundary.get("statement")).strip()
+
+    family_id = _to_text(slice_candidate.get("interaction_family")).strip()
+    boundary_id = _to_text(slice_candidate.get("consistency_boundary")).strip()
+    if not family_id or not boundary_id:
+        raise ValueError("slice_candidate must include interaction_family and consistency_boundary")
+
+    family_statement = family_by_id.get(family_id, "")
+    boundary_statement = boundary_by_id.get(boundary_id, "")
+    compatible_family_refs = {family_id}
+    compatible_boundary_refs = {boundary_id}
+    if family_statement:
+        compatible_family_refs.add(family_statement)
+    if boundary_statement:
+        compatible_boundary_refs.add(boundary_statement)
+
+    promise_id = _to_text(touch_map.get("promise_id")).strip()
+    strength_rank = {
+        "strong": 0,
+        "high": 0,
+        "moderate": 1,
+        "medium": 1,
+        "low": 2,
+        "weak": 2,
+    }
+    cost_rank = {
+        "low": 0,
+        "medium": 1,
+        "high": 2,
+    }
+    status_rank = {"accepted": 0, "draft": 1}
+
+    suggestions: list[dict[str, Any]] = []
+    for raw_check in checks:
+        if not isinstance(raw_check, dict):
+            continue
+
+        errors = validate_check_card_v1(raw_check, context="check")
+        if errors:
+            continue
+
+        check = _normalize_check_card_v1(raw_check)
+        check_status = _to_text(check.get("status")).strip()
+        if check_status == "deprecated":
+            continue
+        if _to_text(check.get("promise_id")).strip() != promise_id:
+            continue
+
+        check_family = _to_text(check.get("interaction_family")).strip()
+        check_boundary = _to_text(check.get("consistency_boundary")).strip()
+        if check_family not in compatible_family_refs:
+            continue
+        if check_boundary not in compatible_boundary_refs:
+            continue
+
+        suggestion = dict(check)
+        suggestion["source_slice_id"] = _to_text(slice_candidate.get("slice_id")).strip()
+        suggestion["manual_only"] = True
+        suggestion["compatibility"] = (
+            f"promise+family+boundary match for {suggestion['source_slice_id'] or 'accepted-slice'}"
+        )
+        suggestions.append(suggestion)
+
+    suggestions.sort(
+        key=lambda check: (
+            status_rank.get(_to_text(check.get("status")).strip(), 9),
+            strength_rank.get(_to_text(check.get("strength")).strip().lower(), 9),
+            cost_rank.get(_to_text(check.get("cost")).strip().lower(), 9),
+            _to_text(check.get("check_id")).strip(),
+        )
+    )
+    return suggestions
+
+
 def _slugify(value: str) -> str:
     slug = re.sub(r"[^a-z0-9]+", "-", value.lower())
     return slug.strip("-") or "unknown"
