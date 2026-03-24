@@ -1,276 +1,278 @@
 # RepoTrace
 
-**Persistent debugging memory for evolving codebases.**
+**Promise-scoped semantic search for high-value state bugs.**
 
-RepoTrace is a repo-local debugging layer for iOS apps and Codex-style workflows.
+RepoTrace is a repo-local system for turning vague bug hunting into structured search over **reachable promise violations**.
 
-It captures structured incidents from a running app, stores reusable debugging claims and motif-level priors in the repository, and helps future debugging sessions start from a smaller, more relevant search frontier instead of repeatedly reconstructing repo context from scratch.
+The core model is simple:
+
+> a bug is a reachable state where an important promise is false
+
+RepoTrace exists to preserve the reasoning state needed to find those bugs:
+- what promise is under test
+- how that promise decomposes into scanable slices
+- what evidence has been gathered
+- what has already been ruled out
+- what happened when a slice was worked
+- what semantic coverage actually exists
+
+This started as a debugging-memory experiment. It is now becoming a **promise-scoped search substrate**.
+
+---
 
 ## Why this exists
 
-A lot of debugging time is not spent fixing the bug itself.
+Most debugging and bug hunting time is not spent on final verification.
 
-It is spent reconstructing enough local understanding to even begin:
+It is spent reconstructing enough hidden structure to even begin:
+- what the system is trying to keep true
+- what state is actually authoritative
+- which surfaces can affect that state
+- where representations can drift
+- which slice is worth scanning next
+- which branches have already been killed
 
-- what subsystem likely owns the behavior
-- what state or contract is actually authoritative
-- which branches were already ruled out
-- what this repo has broken like before
-- what the smallest next discriminating check should be
+LLMs are already strong at shallow local search and pattern matching.
 
-That reconstruction cost repeats across incidents and across commits.
+They are much weaker at:
+- hidden-spec reconstruction
+- selecting the right semantic object
+- maintaining focus across stateful logic
+- tracking real semantic coverage
 
-RepoTrace is an experiment in preserving the **minimum reusable debugging structure** that makes future investigation cheaper.
+RepoTrace is built for that gap.
+
+---
 
 ## Core idea
 
-RepoTrace started as:
+RepoTrace no longer treats the file or function as the deepest search object.
 
-**incident → trace → claims → narrower frontier**
+The durable search unit is:
 
-It now supports a more explicit control loop:
+**promise × interaction family × consistency boundary**
 
-**incident → retrieval verdict → triage mode → targeted search**
+Examples of the kinds of things this captures:
+- queued entitlement must settle exactly once
+- preview state must reflect selected collection
+- boundary state must move in lockstep across layout seams
+- repricing and settlement must agree across delayed paths
 
-Instead of starting every investigation with a vague prompt like “my app doesn’t work,” the repository accumulates structured debugging state over time:
+That means the workflow is not:
 
-- incident reports
-- reusable claims
-- motif-level priors
-- falsified branches
-- retrieval results
-- scoped triage policy
+`repo -> files -> local bug patterns`
 
-The goal is not to store everything.
+It is:
 
-The goal is to store the **smallest reusable causal structure** that reduces repeated inference.
+`promise -> touch map -> slice -> probe -> outcome -> coverage`
+
+---
 
 ## What RepoTrace is
 
 RepoTrace is:
 
-- a repo-local diagnostics layer
-- a structured incident capture workflow
-- a persistent claim and motif store for debugging
-- a retrieval-and-triage layer for narrowing search
-- a way to give Codex or another debugging agent a better starting state
+- a repo-local evidence and witness layer
+- a session-lineage layer for active promise-scoped work
+- a durable promise memory layer
+- a semantic coverage layer
+- an evaluation harness for comparing search modes
+- a better starting state for Codex or another agent than “go find a bug”
 
-## What RepoTrace is not
-
-RepoTrace is not:
-
+It is **not**:
 - a crash reporting platform
-- a full observability suite
-- a backend-heavy SaaS
-- a generic AI wrapper
-- a replacement for deterministic debugging tools
+- a generic observability suite
+- a SaaS backend
+- a full autonomous agent runtime
+- an invariant prover
+- a bug-pattern wrapper around retrieval
 
-The intended use is:
+---
 
-- collect high-signal incident context
-- preserve reusable debugging facts
-- classify incidents against known motifs
-- narrow the active search frontier
-- choose the next debugging action more intelligently
-- let Codex or a developer do more targeted work
+## Current architecture
 
-## How the current architecture works
+RepoTrace is organized into four layers.
 
-RepoTrace currently revolves around four persistent artifacts:
+### 1. Evidence
+Grounded, append-only artifacts.
 
-### 1. Incidents
+Examples:
+- incidents
+- witness sets
+- provenance-bearing observations
 
-Structured bug reports captured from the app, including things like:
+Witnesses stay **promise-agnostic**.  
+They are the grounded layer beneath interpretation.
 
-- expected vs actual behavior
-- breadcrumbs
-- metadata
-- optional screenshots
-- staged notes
+### 2. Session lineage
+Revisable active search state.
 
-An incident is the primary evidence object.
+Examples:
+- promise frame checkpoints
+- traversal tasks
+- scan outcomes
 
-### 2. Claims
+This is where one active promise slice under test is preserved across work.
 
-Stored in `diagnostics/claims.json`.
+### 3. Durable memory
+Reusable semantic objects.
 
-These include:
+Examples:
+- promise registry
+- promise touch maps
+- promise coverage ledgers
 
-- bug-instance claims
-- falsified branches
-- motif-level claims
-- retrieval-priority hints
+This is where the system remembers what matters and how it decomposes.
 
-Claims are not meant to be a full knowledge base. They are meant to preserve reusable debugging priors that are likely to matter again.
+### 4. Evaluation
+Profile-based measurement over fixtures.
 
-### 3. Retrieval results
+Current profiles include:
+- `baseline_flat_retrieval`
+- `layered_storage_only`
+- `layered_plus_witnesses`
+- `promise_manual`
 
-Stored under `diagnostics/retrieval_results/`.
+This lets RepoTrace compare prettier artifacts against actual process improvements.
 
-A retrieval result is a per-incident classification artifact that captures:
+---
 
-- verdict (`motif_match`, `motif_non_match`, `ambiguous`)
-- candidate motif
-- supporting evidence
-- contradicting evidence
-- missing evidence
-- next discriminating check
+## Current ontology
 
-This is the step where RepoTrace moves from “memory” into “control.”
+### Promise
+The primary durable semantic object.
 
-### 4. Triage policy
+A promise is a system-specific obligation over state and transitions:
+what the protocol or application must preserve for some actor, asset, or right.
 
-Stored in `diagnostics/triage_policy.json`.
+### Witness
+A grounded atomic observation with provenance.
 
-This is a small machine-readable policy that maps retrieval verdicts to the next debugging mode.
+### Anomaly
+A witness pattern that puts pressure on a promise.
 
-Current modes are:
+### Promise frame
+A minimal runtime object representing one active promise slice under test.
 
-- `motif_match`
-- `motif_non_match`
-- `ambiguous`
+### Promise touch map
+The bridge from “this promise matters” to “these are the exact slices worth scanning.”
 
-The point is to prevent broad, expensive wandering before the next action is justified.
+### Invariant
+A late formalization of a surviving minimized promise violation.
 
-## Current workflow
+---
 
-The current minimal RepoTrace workflow is:
+## Current search loop
 
-1. reproduce a bug in the app
-2. capture a structured incident
-3. ingest that incident into the repo
-4. retrieve the most relevant motif or abstain
-5. save a retrieval result
-6. apply triage policy
-7. take the smallest justified next action
+RepoTrace is built around a three-stage loop.
 
-In practice, this means RepoTrace can now support a loop like:
+### Stage 1 — Promise derivation
+Derive what the system is trying to keep true.
 
-**incident → retrieval result → triage policy → scoped next action**
+Outputs include:
+- actors
+- protected state
+- interaction families
+- consistency boundaries
+- settlement horizons
+- PromiseCard entries
 
-## Design principle
+### Stage 2 — Promise slice scanning
+Take one promise, keep it fixed, and decompose it into scanable slices.
 
-RepoTrace is built around a simple division of labor:
+Operational unit:
+**promise × interaction family × consistency boundary**
 
-**semantic proposal → deterministic verification**
+Outputs include:
+- PromiseTouchMap
+- PromiseTraversalTask
+- PromiseFrameCheckpoint
 
-LLMs are useful for:
+### Stage 3 — Violation reduction
+Take one suspicious break and try to kill it.
 
-- identifying likely motifs
-- proposing hypotheses
-- narrowing the frontier
-- choosing the next discriminating check
+If it survives:
+- reduce it to the smallest concrete broken state
+- preserve the outcome durably
+- only then move toward stronger invariant language
 
-Static tools and instrumentation are useful for:
+Outputs include:
+- PromiseScanOutcome
+- updated semantic coverage
+- anomaly reduction
+- candidate surviving violation
 
-- confirming or falsifying those hypotheses
-- resolving ambiguity cheaply
-- grounding debugging in deterministic evidence
+---
 
-RepoTrace exists to preserve the reusable intermediate state between those two steps.
+## What has already landed
 
-## What has been validated so far
+RepoTrace already includes:
 
-RepoTrace has already been used to validate several important behaviors in the demo environment:
+- layered artifact architecture:
+  - Evidence / Session / Durable Memory / Evaluation
+- witness extraction with proposer / critic structure
+- profile-driven evaluation harness
+- promise registry as the primary durable semantic object
+- promise frame checkpoints for active session state
+- promise coverage ledgers
+- promise traversal tasks
+- promise scan outcomes
+- promise-manual evaluation
+- promise touch maps for durable slice decomposition
 
-- structured incident capture works
-- repo-local claim storage works
-- Codex can narrow using incidents plus claims
-- motif reuse works across superficially different bug surfaces
-- motif retrieval can transfer under refactor/name drift
-- retrieval can distinguish:
-  - `motif_match`
-  - `motif_non_match`
-  - `ambiguous`
-- ambiguity can be resolved by requesting one targeted discriminating check
-- retrieval verdicts can drive a scoped triage mode
-- retrieval results can now be saved as repo-local artifacts before broader search
+This means the repo is already past the “debugging notes + retrieval” phase.
 
-In other words, RepoTrace is no longer just a bug-report archive. It is starting to function as a lightweight **causal retrieval and debugging-control layer**.
+It is now a **promise-scoped semantic search architecture**.
 
-## How this fits into the larger architecture
+---
 
-RepoTrace is meant to sit between raw runtime symptoms and deeper code-level debugging.
+## What is novel here
 
-At a high level, the intended architecture is:
+The main bet is that under current LLM-agent equilibrium, the scarce step is not local code reading.
 
-**runtime incident → structured evidence → motif retrieval → triage policy → targeted search**
+It is:
+- reconstructing the right promise
+- choosing the right semantic slice
+- holding that focus long enough to falsify it
 
-The idea is not to replace Codex or static tooling. The idea is to make them more efficient by preserving the smallest reusable debugging structure across incidents.
+RepoTrace is built around that bottleneck.
 
-Right now, RepoTrace is still a research prototype, but it already has the core control-plane pieces:
+Instead of rewarding broad wandering, it tries to preserve:
+- semantic focus
+- explicit slice decomposition
+- loop-closing scan outcomes
+- real coverage accounting
 
-- incident evidence
-- reusable motifs
-- retrieval verdicts
-- uncertainty handling
-- policy-driven next actions
+That is the real differentiator.
 
-That is enough to test whether the architecture has real epistemic value before building heavier automation.
+---
 
-## Current status
+## Current frontier
 
-Early research prototype.
+The current frontier is no longer “store more structure.”
 
-RepoTrace is currently strong enough to support meaningful usage tests on real debugging problems, especially bugs that involve:
+It is:
 
-- cross-layer identity drift
-- source-of-truth divergence
-- stale state between UI and execution
-- ambiguous causal boundaries that benefit from one carefully chosen discriminating check
+**make promise-slice probing repeatable, discriminating, and measurable without jumping too early to full automation**
 
-The most important thing that has been demonstrated so far is not just that RepoTrace can help identify bugs, but that it can:
+That is why the next layer is a reusable check / probe library rather than predictive routing or full orchestration.
 
-- recognize a known motif
-- reject a superficially similar non-match
-- abstain when evidence is mixed
-- request the smallest missing evidence needed to resolve ambiguity
+---
 
-That is the core behavior the architecture is aiming for.
+## Status
 
-## Near-term direction
+RepoTrace is an active systems experiment in turning:
 
-The next likely directions are:
+**bug = reachable promise violation**
 
-- multi-motif retrieval and ranking
-- stronger abstention and uncertainty calibration
-- drift-aware motif maintenance across code changes
-- stronger integration with real app repositories beyond the demo fixture
-- moving from single-motif evaluation toward competing candidate bug classes
+into a practical search architecture with:
+- grounded evidence
+- promise memory
+- slice decomposition
+- semantic coverage
+- loop-closing outcomes
+- measurable promise-scoped evaluation
 
-The long-term goal is not to store everything.
+If you are browsing this repo quickly, the shortest accurate summary is:
 
-The long-term goal is to preserve just enough reusable causal structure that future debugging starts from a better prior instead of repeatedly reconstructing the same latent context from scratch.
-
-## Directory Structure 
-```text
-RepoTrace/
-├── AGENTS.md
-├── diagnostics/
-│   ├── claims.json
-│   ├── triage_policy.json
-│   ├── README.md
-│   ├── incidents/
-│   ├── inbox/
-│   └── retrieval_results/
-├── RepoTrace/
-│   └── Diagnostics/
-│       ├── BreadcrumbStore.swift
-│       ├── DebugReportDraftStore.swift
-│       ├── DebugReportEntryPoint.swift
-│       ├── DebugReportView.swift
-│       ├── DiagnosticModels.swift
-│       └── IncidentWriter.swift
-├── ios/
-│   └── RepoTraceDemo/
-│       ├── DemoRootView.swift
-│       ├── PlaylistQueueing.swift
-│       ├── CheckoutPricing.swift
-│       └── RepoTraceDemoApp.swift
-├── scripts/
-│   ├── new_incident.py
-│   ├── pull_simulator_incident.py
-│   └── save_retrieval_result.py
-├── LICENSE
-└── README.md
-```
+**RepoTrace is a repo-local promise-scoped search system for finding high-value state bugs by preserving the semantic objects that ordinary retrieval-based debugging loses.**
