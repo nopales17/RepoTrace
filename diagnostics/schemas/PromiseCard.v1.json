@@ -1,0 +1,174 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://repotrace.local/diagnostics/schemas/PromiseCard.v1.json",
+  "title": "PromiseCard.v1",
+  "description": "Minimal durable promise contract for semantic retrieval scope.",
+  "type": "object",
+  "required": [
+    "promise_id",
+    "statement",
+    "why_it_exists",
+    "actors",
+    "assets_or_rights",
+    "protected_state",
+    "interaction_families",
+    "consistency_boundaries",
+    "settlement_horizon",
+    "representations",
+    "admin_or_external_surfaces",
+    "stress_axes",
+    "evidence_refs",
+    "priority",
+    "confidence",
+    "status"
+  ],
+  "properties": {
+    "promise_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "statement": {
+      "type": "string",
+      "minLength": 1
+    },
+    "why_it_exists": {
+      "type": "string",
+      "minLength": 1
+    },
+    "actors": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "assets_or_rights": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "protected_state": {
+      "type": "string",
+      "minLength": 1
+    },
+    "interaction_families": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "consistency_boundaries": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "settlement_horizon": {
+      "type": "string",
+      "minLength": 1
+    },
+    "representations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "admin_or_external_surfaces": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "stress_axes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "evidence_refs": {
+      "type": "object",
+      "required": [
+        "source_incident_ids",
+        "retrieval_refs",
+        "witness_refs",
+        "fixture_refs",
+        "verifier_refs"
+      ],
+      "properties": {
+        "source_incident_ids": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "retrieval_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "witness_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "fixture_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "verifier_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "priority": {
+      "type": "string",
+      "minLength": 1
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "hypothesized",
+        "accepted",
+        "formalized"
+      ]
+    }
+  },
+  "additionalProperties": true
+}

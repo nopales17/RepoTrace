@@ -1,0 +1,140 @@
+{
+  "schema_version": "PromiseRegistry.v1",
+  "produced_by": "manual-seeding:feat/promise-registry",
+  "registry_version": 1,
+  "generated_at": "2026-03-24T09:20:00Z",
+  "deferred_artifacts": {
+    "promise_template": "deferred",
+    "failure_motif": "deferred",
+    "runtime_promise_frame": "not_implemented"
+  },
+  "promises": [
+    {
+      "promise_id": "promise-repotrace-queue-preview-reflects-selected-collection",
+      "statement": "When the user picks a collection, queue preview reflects that selected collection with the expected queued track count.",
+      "why_it_exists": "Selection and queue preview are a user-visible correctness contract; mismatch blocks trust in playback setup.",
+      "actors": [
+        "user",
+        "collection picker UI",
+        "queue rule lookup",
+        "queue preview"
+      ],
+      "assets_or_rights": [
+        "correct queued track count",
+        "selection-to-preview consistency",
+        "predictable queue setup"
+      ],
+      "protected_state": "selected collection identity and queued track count agreement across UI and queue rule surfaces",
+      "interaction_families": [
+        "pick collection",
+        "queue lookup",
+        "preview render"
+      ],
+      "consistency_boundaries": [
+        "screenCollection/runtimeCollection/ruleCollection agreement",
+        "queue rule lookup key normalization",
+        "preview count equals selected collection library count"
+      ],
+      "settlement_horizon": "single interaction from collection pick through first queue preview render",
+      "representations": [
+        "incident markdown",
+        "retrieval result",
+        "witness set",
+        "debug screenshot"
+      ],
+      "admin_or_external_surfaces": [
+        "diagnostics export",
+        "incident ingestion",
+        "eval fixture repotrace-current-incident"
+      ],
+      "stress_axes": [
+        "lookup miss with non-empty runtime key",
+        "nil collection code in rule layer",
+        "partial state agreement (ui/runtime aligned, rule divergent)"
+      ],
+      "evidence_refs": {
+        "source_incident_ids": [
+          "incident-20260312-220604"
+        ],
+        "retrieval_refs": [
+          "diagnostics/retrieval_results/incident-20260312-220604.json"
+        ],
+        "witness_refs": [
+          "diagnostics/evidence/witness_sets/incident-20260312-220604.witness_set.json"
+        ],
+        "fixture_refs": [
+          "eval/fixtures/repotrace-current-incident.yaml"
+        ],
+        "verifier_refs": [
+          "manual:promise-registry-seed"
+        ]
+      },
+      "priority": "high",
+      "confidence": 0.83,
+      "status": "accepted"
+    },
+    {
+      "promise_id": "promise-nutriplanner-collapse-boundary-lockstep",
+      "statement": "During row collapse/edit transitions, the collapsed detail region and first boundary child remain visually synchronized without transient seam divergence.",
+      "why_it_exists": "The interaction promises stable visual continuity while editing estimate rows; seam divergence appears as a correctness break.",
+      "actors": [
+        "user",
+        "estimate row view",
+        "collapse animation pipeline",
+        "layout boundary owner"
+      ],
+      "assets_or_rights": [
+        "stable collapse animation",
+        "detail-to-boundary visual continuity",
+        "predictable editing feedback"
+      ],
+      "protected_state": "relative geometry and timing alignment between detail region and first boundary child during collapse",
+      "interaction_families": [
+        "row collapse",
+        "row expand/collapse toggling",
+        "cell reuse during animated transitions"
+      ],
+      "consistency_boundaries": [
+        "detailRegionHeight and boundary child transition ordering",
+        "firstChildToDetailDeltaY remains near lockstep envelope",
+        "collapsed gate ownership updates do not lag child reconciliation"
+      ],
+      "settlement_horizon": "one collapse transition sequence from animation start to collapse end",
+      "representations": [
+        "witness set",
+        "retrieval result",
+        "fixture lineage commits"
+      ],
+      "admin_or_external_surfaces": [
+        "eval fixture nutriplanner-collapse-case",
+        "cross-repo retrieval lineage comparison"
+      ],
+      "stress_axes": [
+        "high-frequency displayLink probe activity",
+        "rapid collapse/edit transitions",
+        "cell reuse and ownership handoff timing"
+      ],
+      "evidence_refs": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "retrieval_refs": [
+          "diagnostics/retrieval_results/incident-20260313-logs-boundary-seam.json",
+          "eval/fixtures/nutriplanner-collapse-case.yaml"
+        ],
+        "witness_refs": [
+          "diagnostics/evidence/witness_sets/nutriplanner-collapse-case.witness_set.json"
+        ],
+        "fixture_refs": [
+          "eval/fixtures/nutriplanner-collapse-case.yaml"
+        ],
+        "verifier_refs": [
+          "manual:promise-registry-seed"
+        ]
+      },
+      "priority": "high",
+      "confidence": 0.71,
+      "status": "accepted"
+    }
+  ]
+}

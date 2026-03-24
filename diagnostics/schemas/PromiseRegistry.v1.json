@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://repotrace.local/diagnostics/schemas/PromiseRegistry.v1.json",
+  "title": "PromiseRegistry.v1",
+  "description": "Versioned durable registry for PromiseCard artifacts.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "produced_by",
+    "registry_version",
+    "generated_at",
+    "promises"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "PromiseRegistry.v1"
+    },
+    "produced_by": {
+      "type": "string",
+      "minLength": 1
+    },
+    "registry_version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "generated_at": {
+      "type": "string",
+      "minLength": 1
+    },
+    "deferred_artifacts": {
+      "type": "object"
+    },
+    "promises": {
+      "type": "array",
+      "items": {
+        "$ref": "https://repotrace.local/diagnostics/schemas/PromiseCard.v1.json"
+      }
+    }
+  },
+  "additionalProperties": true
+}

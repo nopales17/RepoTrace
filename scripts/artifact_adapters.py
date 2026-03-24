@@ -187,6 +187,149 @@ def normalize_retrieval_attempt(raw_attempt: dict[str, Any]) -> NormalizedAttemp
     }
 
 
+PROMISE_REQUIRED_FIELDS = (
+    "promise_id",
+    "statement",
+    "why_it_exists",
+    "actors",
+    "assets_or_rights",
+    "protected_state",
+    "interaction_families",
+    "consistency_boundaries",
+    "settlement_horizon",
+    "representations",
+    "admin_or_external_surfaces",
+    "stress_axes",
+    "evidence_refs",
+    "priority",
+    "confidence",
+    "status",
+)
+
+PROMISE_REQUIRED_LIST_FIELDS = (
+    "actors",
+    "assets_or_rights",
+    "interaction_families",
+    "consistency_boundaries",
+    "representations",
+    "admin_or_external_surfaces",
+    "stress_axes",
+)
+
+PROMISE_REQUIRED_STRING_FIELDS = (
+    "promise_id",
+    "statement",
+    "why_it_exists",
+    "protected_state",
+    "settlement_horizon",
+    "priority",
+    "status",
+)
+
+PROMISE_ALLOWED_STATUSES = {"hypothesized", "accepted", "formalized"}
+
+
+def _normalize_string_list(value: Any) -> list[str]:
+    return [_to_text(item).strip() for item in _as_list(value) if _to_text(item).strip()]
+
+
+def validate_promise_card(card: dict[str, Any], *, context: str = "promise") -> list[str]:
+    if not isinstance(card, dict):
+        return [f"{context} must be an object"]
+
+    errors: list[str] = []
+    missing = [field for field in PROMISE_REQUIRED_FIELDS if field not in card]
+    if missing:
+        errors.append(f"{context} missing required keys: {', '.join(missing)}")
+        return errors
+
+    for field in PROMISE_REQUIRED_STRING_FIELDS:
+        if not _to_text(card.get(field)).strip():
+            errors.append(f"{context}.{field} must be a non-empty string")
+
+    for field in PROMISE_REQUIRED_LIST_FIELDS:
+        if not _normalize_string_list(card.get(field)):
+            errors.append(f"{context}.{field} must be a non-empty array of strings")
+
+    confidence = card.get("confidence")
+    if not isinstance(confidence, (int, float)) or not (0.0 <= float(confidence) <= 1.0):
+        errors.append(f"{context}.confidence must be a number between 0 and 1")
+
+    status = _to_text(card.get("status")).strip()
+    if status not in PROMISE_ALLOWED_STATUSES:
+        errors.append(
+            f"{context}.status must be one of {', '.join(sorted(PROMISE_ALLOWED_STATUSES))}"
+        )
+
+    evidence_refs = card.get("evidence_refs")
+    if not isinstance(evidence_refs, dict):
+        errors.append(f"{context}.evidence_refs must be an object")
+    else:
+        required_refs = ("source_incident_ids", "retrieval_refs", "witness_refs", "fixture_refs", "verifier_refs")
+        for ref_key in required_refs:
+            if not _normalize_string_list(evidence_refs.get(ref_key)):
+                errors.append(f"{context}.evidence_refs.{ref_key} must be a non-empty array of strings")
+
+    return errors
+
+
+def load_promise_registry_v1(path: Path) -> dict[str, Any]:
+    payload = json.loads(path.read_text())
+    if not isinstance(payload, dict):
+        raise ValueError(f"promise registry must be an object: {path}")
+
+    required_top_level = ("schema_version", "produced_by", "registry_version", "promises")
+    missing = [key for key in required_top_level if key not in payload]
+    if missing:
+        raise ValueError(f"{path} missing required keys: {', '.join(missing)}")
+    if payload.get("schema_version") != "PromiseRegistry.v1":
+        raise ValueError(f"{path} schema_version must be PromiseRegistry.v1")
+
+    registry_version = payload.get("registry_version")
+    if not isinstance(registry_version, int) or registry_version < 1:
+        raise ValueError(f"{path} registry_version must be an integer >= 1")
+
+    promises = payload.get("promises")
+    if not isinstance(promises, list):
+        raise ValueError(f"{path} promises must be an array")
+
+    normalized_promises: list[dict[str, Any]] = []
+    seen_promise_ids: set[str] = set()
+    for idx, raw_card in enumerate(promises, start=1):
+        if not isinstance(raw_card, dict):
+            raise ValueError(f"{path} promises[{idx}] must be an object")
+
+        errors = validate_promise_card(raw_card, context=f"promises[{idx}]")
+        if errors:
+            raise ValueError(f"{path} invalid promise card: {'; '.join(errors)}")
+
+        promise_id = _to_text(raw_card.get("promise_id")).strip()
+        if promise_id in seen_promise_ids:
+            raise ValueError(f"{path} duplicate promise_id: {promise_id}")
+        seen_promise_ids.add(promise_id)
+
+        normalized_card = dict(raw_card)
+        for field in PROMISE_REQUIRED_LIST_FIELDS:
+            normalized_card[field] = _normalize_string_list(raw_card.get(field))
+        normalized_card["status"] = _to_text(raw_card.get("status")).strip()
+        normalized_card["priority"] = _to_text(raw_card.get("priority")).strip()
+        normalized_card["confidence"] = float(raw_card.get("confidence"))
+
+        raw_refs = raw_card.get("evidence_refs")
+        evidence_refs: dict[str, Any] = {}
+        if isinstance(raw_refs, dict):
+            for key, value in raw_refs.items():
+                evidence_refs[_to_text(key)] = _normalize_string_list(value)
+        normalized_card["evidence_refs"] = evidence_refs
+        normalized_promises.append(normalized_card)
+
+    normalized_promises.sort(key=lambda card: _to_text(card.get("promise_id")))
+
+    normalized_payload = dict(payload)
+    normalized_payload["promises"] = normalized_promises
+    return normalized_payload
+
+
 WITNESS_TYPES = {
     "observed_state",
     "missing_event",

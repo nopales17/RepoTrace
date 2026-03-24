@@ -70,6 +70,13 @@ REQUIRED_BY_SCHEMA: dict[str, list[str]] = {
         "source",
         "claims",
     ],
+    "PromiseRegistry.v1": [
+        "registry_version",
+        "promises",
+    ],
+    "PromiseSchema.v1": [
+        "promise",
+    ],
 }
 
 VALID_VERDICTS = {"motif_match", "motif_non_match", "ambiguous"}
@@ -104,6 +111,25 @@ UNSUPPORTED_REJECTION_REASONS = {
     "too_abstract",
     "noisy_log_statement",
 }
+PROMISE_REQUIRED_FIELDS = {
+    "promise_id",
+    "statement",
+    "why_it_exists",
+    "actors",
+    "assets_or_rights",
+    "protected_state",
+    "interaction_families",
+    "consistency_boundaries",
+    "settlement_horizon",
+    "representations",
+    "admin_or_external_surfaces",
+    "stress_axes",
+    "evidence_refs",
+    "priority",
+    "confidence",
+    "status",
+}
+PROMISE_ALLOWED_STATUSES = {"hypothesized", "accepted", "formalized"}
 
 
 def default_targets() -> list[Path]:
@@ -116,6 +142,9 @@ def default_targets() -> list[Path]:
     memory_claims = Path("diagnostics/memory/claims.json")
     if memory_claims.exists():
         targets.append(memory_claims)
+    promise_registry = Path("diagnostics/memory/promise_registry.json")
+    if promise_registry.exists():
+        targets.append(promise_registry)
 
     research_state = Path("research/research_state.yaml")
     if research_state.exists():
@@ -334,6 +363,76 @@ def validate_special_cases(path: Path, payload: dict[str, Any]) -> list[str]:
         scoping_mode = payload.get("scoping_mode")
         if scoping_mode is not None and scoping_mode not in {"none", "promise_manual"}:
             errors.append("ExperimentProfile.v1 scoping_mode must be none or promise_manual")
+
+    if schema_version == "PromiseRegistry.v1":
+        registry_version = payload.get("registry_version")
+        if not isinstance(registry_version, int) or registry_version < 1:
+            errors.append("PromiseRegistry.v1 registry_version must be an integer >= 1")
+
+        promises = payload.get("promises")
+        if not isinstance(promises, list):
+            errors.append("PromiseRegistry.v1 promises must be an array")
+        else:
+            seen_promise_ids: set[str] = set()
+            for idx, promise in enumerate(promises, start=1):
+                label = f"PromiseRegistry.v1 promises[{idx}]"
+                if not isinstance(promise, dict):
+                    errors.append(f"{label} must be an object")
+                    continue
+
+                missing = sorted(PROMISE_REQUIRED_FIELDS - set(promise.keys()))
+                if missing:
+                    errors.append(f"{label} missing required keys: {', '.join(missing)}")
+                    continue
+
+                promise_id = str(promise.get("promise_id", "")).strip()
+                if not promise_id:
+                    errors.append(f"{label}.promise_id must be non-empty")
+                elif promise_id in seen_promise_ids:
+                    errors.append(f"{label} duplicate promise_id: {promise_id}")
+                else:
+                    seen_promise_ids.add(promise_id)
+
+                status = str(promise.get("status", "")).strip()
+                if status not in PROMISE_ALLOWED_STATUSES:
+                    errors.append(
+                        f"{label}.status must be one of {', '.join(sorted(PROMISE_ALLOWED_STATUSES))}"
+                    )
+
+                confidence = promise.get("confidence")
+                if not isinstance(confidence, (int, float)) or not (0.0 <= float(confidence) <= 1.0):
+                    errors.append(f"{label}.confidence must be a number between 0 and 1")
+
+                for array_key in (
+                    "actors",
+                    "assets_or_rights",
+                    "interaction_families",
+                    "consistency_boundaries",
+                    "representations",
+                    "admin_or_external_surfaces",
+                    "stress_axes",
+                ):
+                    if not _non_empty_strings(promise.get(array_key)):
+                        errors.append(f"{label}.{array_key} must be a non-empty array of strings")
+
+                evidence_refs = promise.get("evidence_refs")
+                if not isinstance(evidence_refs, dict):
+                    errors.append(f"{label}.evidence_refs must be an object")
+                else:
+                    for ref_key in ("source_incident_ids", "retrieval_refs", "witness_refs", "fixture_refs", "verifier_refs"):
+                        if not _non_empty_strings(evidence_refs.get(ref_key)):
+                            errors.append(
+                                f"{label}.evidence_refs.{ref_key} must be a non-empty array of strings"
+                            )
+
+    if schema_version == "PromiseSchema.v1":
+        promise = payload.get("promise")
+        if not isinstance(promise, dict):
+            errors.append("PromiseSchema.v1 promise must be an object")
+        else:
+            missing = sorted(PROMISE_REQUIRED_FIELDS - set(promise.keys()))
+            if missing:
+                errors.append(f"PromiseSchema.v1 promise missing required keys: {', '.join(missing)}")
 
     if path.name == "research_state.yaml" and schema_version != "ResearchState.v1":
         errors.append("research_state.yaml must have schema_version ResearchState.v1")

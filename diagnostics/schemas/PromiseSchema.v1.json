@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://repotrace.local/diagnostics/schemas/PromiseSchema.v1.json",
+  "title": "PromiseSchema.v1",
+  "description": "Envelope contract for one durable PromiseCard artifact.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "produced_by",
+    "promise"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "PromiseSchema.v1"
+    },
+    "produced_by": {
+      "type": "string",
+      "minLength": 1
+    },
+    "promise": {
+      "$ref": "https://repotrace.local/diagnostics/schemas/PromiseCard.v1.json"
+    }
+  },
+  "additionalProperties": true
+}

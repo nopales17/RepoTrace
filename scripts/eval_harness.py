@@ -18,6 +18,7 @@ from typing import Any
 from artifact_adapters import (
     build_witness_set_v1,
     load_experiment_profiles_v1,
+    load_promise_registry_v1,
     make_run_id,
     normalize_retrieval_attempt,
     utc_now_iso,
@@ -211,7 +212,28 @@ def load_fixture_artifacts(manifest: dict[str, Any], workspace_root: Path) -> tu
     return attempts, incident_payload
 
 
-def _profile_scoping(manifest: dict[str, Any], profile: dict[str, Any]) -> tuple[str, str | None, str | None]:
+def _load_promise_index(workspace_root: Path) -> dict[str, dict[str, Any]]:
+    registry_path = workspace_root / "diagnostics/memory/promise_registry.json"
+    if not registry_path.exists():
+        return {}
+
+    registry = load_promise_registry_v1(registry_path)
+    index: dict[str, dict[str, Any]] = {}
+    for card in registry.get("promises", []):
+        if not isinstance(card, dict):
+            continue
+        promise_id = _to_text(card.get("promise_id")).strip()
+        if promise_id:
+            index[promise_id] = card
+    return index
+
+
+def _profile_scoping(
+    manifest: dict[str, Any],
+    profile: dict[str, Any],
+    *,
+    promise_index: dict[str, dict[str, Any]],
+) -> tuple[str, str | None, str | None]:
     scoping_mode = _to_text(manifest.get("scoping_mode")).strip() or _to_text(profile.get("scoping_mode")).strip() or "none"
     if scoping_mode not in SCOPING_MODES:
         raise ValueError(f"unsupported scoping_mode {scoping_mode}; expected one of {sorted(SCOPING_MODES)}")
@@ -229,6 +251,12 @@ def _profile_scoping(manifest: dict[str, Any], profile: dict[str, Any]) -> tuple
         slice_raw = ""
     if _to_text(slice_raw).strip():
         slice_key = _to_text(slice_raw).strip()
+
+    if scoping_mode == "promise_manual":
+        if not promise_id:
+            raise ValueError("promise_manual scoping requires promise_id")
+        if promise_id not in promise_index:
+            raise ValueError(f"promise_manual scoping references unknown promise_id: {promise_id}")
 
     return scoping_mode, promise_id, slice_key
 
@@ -386,6 +414,7 @@ def run_evaluation(
         raise ValueError(f"required profiles must be active: {', '.join(missing_active)}")
 
     fixtures_by_id = load_fixture_manifests(fixtures_dir, required_fixture_ids=REQUIRED_FIXTURE_IDS)
+    promise_index = _load_promise_index(workspace_root)
 
     results: list[dict[str, Any]] = []
     for fixture_id in REQUIRED_FIXTURE_IDS:
@@ -397,7 +426,11 @@ def run_evaluation(
             profile = profiles_by_id[profile_id]
             considered_raw = _considered_raw_attempts(profile_id, raw_attempts)
             normalized_attempts = [normalize_retrieval_attempt(raw) for raw in considered_raw]
-            scoping_mode, promise_id, slice_key = _profile_scoping(manifest, profile)
+            scoping_mode, promise_id, slice_key = _profile_scoping(
+                manifest,
+                profile,
+                promise_index=promise_index,
+            )
 
             result = {
                 "fixture_id": fixture_id,
