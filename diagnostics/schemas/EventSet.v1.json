@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://repotrace.local/diagnostics/schemas/EventSet.v1.json",
+  "title": "EventSet.v1 (placeholder)",
+  "description": "Placeholder contract. Not runtime-wired in this PR.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "produced_by",
+    "placeholder"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "EventSet.v1"
+    },
+    "produced_by": {
+      "type": "string"
+    },
+    "placeholder": {
+      "const": true
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    }
+  },
+  "additionalProperties": true
+}

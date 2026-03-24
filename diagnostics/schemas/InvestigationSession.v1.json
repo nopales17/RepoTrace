@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://repotrace.local/diagnostics/schemas/InvestigationSession.v1.json",
+  "title": "InvestigationSession.v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "produced_by",
+    "session_id",
+    "incident_id",
+    "lineage_version",
+    "latest_retrieval_attempt_id",
+    "retrieval_attempt_ids",
+    "latest_attempt_path",
+    "updated_at"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "InvestigationSession.v1"
+    },
+    "produced_by": {
+      "type": "string",
+      "minLength": 1
+    },
+    "session_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "incident_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "lineage_version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "latest_retrieval_attempt_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "retrieval_attempt_ids": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "latest_attempt_path": {
+      "type": "string",
+      "minLength": 1
+    },
+    "updated_at": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "additionalProperties": true
+}

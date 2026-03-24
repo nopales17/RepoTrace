@@ -1,0 +1,19 @@
+{
+  "incident_id": "incident-20260313-logs-boundary-seam",
+  "source_incident": "user-reported evidence (2026-03-13)",
+  "generated_at": "2026-03-13T00:00:00-07:00",
+  "evidence": {
+    "expected": "During collapse/edit, the collapsed detail region and its first boundary child should move in lockstep with no transient seam mismatch.",
+    "actual": "The first true divergence occurs at the seam between the collapsed/gated detail region and the first boundary child; parent/detail updates first and the first boundary child catches up last, causing a transient mismatch.",
+    "notes": "Probe signal of interest: firstChildToDetailDeltaY spike during collapse/edit."
+  },
+  "retrieval": {
+    "candidate_subsystems": [
+      "logs-table microContent boundary seam",
+      "collapsed detail gate boundary ownership"
+    ],
+    "verdict": "motif_non_match",
+    "confidence": 0.95,
+    "rationale": "Evidence indicates an ordering/seam ownership issue at a local layout boundary, not tentative-versus-committed state promotion divergence."
+  }
+}

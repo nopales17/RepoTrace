@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://repotrace.local/diagnostics/schemas/SessionState.v1.json",
+  "title": "SessionState.v1 (placeholder)",
+  "description": "Placeholder contract. Not runtime-wired in this PR.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "produced_by",
+    "placeholder"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "SessionState.v1"
+    },
+    "produced_by": {
+      "type": "string"
+    },
+    "placeholder": {
+      "const": true
+    },
+    "state_version": {
+      "type": "integer",
+      "minimum": 1
+    }
+  },
+  "additionalProperties": true
+}

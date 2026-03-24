@@ -1,0 +1,88 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://repotrace.local/diagnostics/schemas/MotifSchema.v1.json",
+  "title": "MotifSchema.v1 (placeholder)",
+  "description": "Placeholder contract. Not runtime-wired in this PR.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "produced_by",
+    "placeholder",
+    "motifs"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "MotifSchema.v1"
+    },
+    "produced_by": {
+      "type": "string"
+    },
+    "placeholder": {
+      "const": true
+    },
+    "motifs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "motif_id",
+          "statement",
+          "provenance"
+        ],
+        "properties": {
+          "motif_id": {
+            "type": "string"
+          },
+          "statement": {
+            "type": "string"
+          },
+          "provenance": {
+            "type": "object",
+            "required": [
+              "source_incident_ids",
+              "retrieval_attempt_ids",
+              "witness_ids",
+              "commit_refs",
+              "verifier_refs"
+            ],
+            "properties": {
+              "source_incident_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "retrieval_attempt_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "witness_ids": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "commit_refs": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "verifier_refs": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

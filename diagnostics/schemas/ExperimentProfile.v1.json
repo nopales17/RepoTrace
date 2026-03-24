@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://repotrace.local/diagnostics/schemas/ExperimentProfile.v1.json",
+  "title": "ExperimentProfile.v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "produced_by",
+    "profile_id",
+    "name",
+    "status",
+    "fixture_refs"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "ExperimentProfile.v1"
+    },
+    "produced_by": {
+      "type": "string",
+      "minLength": 1
+    },
+    "profile_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive"
+      ]
+    },
+    "fixture_refs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}

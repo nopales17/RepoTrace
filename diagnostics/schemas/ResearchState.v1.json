@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://repotrace.local/diagnostics/schemas/ResearchState.v1.json",
+  "title": "ResearchState.v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "produced_by",
+    "architecture_version",
+    "mechanistic_bet",
+    "current_invariants",
+    "known_fractures",
+    "active_questions",
+    "deferred_features",
+    "evaluation_fixtures",
+    "next_actions"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "ResearchState.v1"
+    },
+    "produced_by": {
+      "type": "string",
+      "minLength": 1
+    },
+    "architecture_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mechanistic_bet": {
+      "type": "string",
+      "minLength": 1
+    },
+    "current_invariants": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "known_fractures": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "active_questions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "deferred_features": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "evaluation_fixtures": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "next_actions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": true
+}

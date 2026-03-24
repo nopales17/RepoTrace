@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://repotrace.local/diagnostics/schemas/FrameSet.v1.json",
+  "title": "FrameSet.v1 (placeholder)",
+  "description": "Placeholder contract. Not runtime-wired in this PR.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "produced_by",
+    "placeholder",
+    "frames"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "FrameSet.v1"
+    },
+    "produced_by": {
+      "type": "string"
+    },
+    "placeholder": {
+      "const": true
+    },
+    "frames": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "frame_id",
+          "incident_id",
+          "motif_id",
+          "evidence_links"
+        ],
+        "properties": {
+          "frame_id": {
+            "type": "string"
+          },
+          "incident_id": {
+            "type": "string"
+          },
+          "motif_id": {
+            "type": "string"
+          },
+          "evidence_links": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

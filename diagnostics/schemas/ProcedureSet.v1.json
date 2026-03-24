@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://repotrace.local/diagnostics/schemas/ProcedureSet.v1.json",
+  "title": "ProcedureSet.v1 (placeholder)",
+  "description": "Placeholder contract. Not runtime-wired in this PR.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "produced_by",
+    "placeholder"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "ProcedureSet.v1"
+    },
+    "produced_by": {
+      "type": "string"
+    },
+    "placeholder": {
+      "const": true
+    },
+    "procedures": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    }
+  },
+  "additionalProperties": true
+}

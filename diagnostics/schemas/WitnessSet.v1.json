@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://repotrace.local/diagnostics/schemas/WitnessSet.v1.json",
+  "title": "WitnessSet.v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "produced_by",
+    "incident_id",
+    "witnesses"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "WitnessSet.v1"
+    },
+    "produced_by": {
+      "type": "string",
+      "minLength": 1
+    },
+    "incident_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "witnesses": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "witness_id",
+          "kind",
+          "content",
+          "source_field"
+        ],
+        "properties": {
+          "witness_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "expected",
+              "actual",
+              "notes",
+              "breadcrumb",
+              "screenshot",
+              "metadata"
+            ]
+          },
+          "content": {
+            "type": "string"
+          },
+          "source_field": {
+            "type": "string",
+            "minLength": 1
+          },
+          "timestamp": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

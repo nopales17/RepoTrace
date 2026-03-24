@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://repotrace.local/diagnostics/schemas/Incident.v1.json",
+  "title": "Incident.v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "produced_by",
+    "incident_id",
+    "append_only",
+    "collected_at",
+    "source",
+    "metadata",
+    "witness_set",
+    "witness_ids"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "Incident.v1"
+    },
+    "produced_by": {
+      "type": "string",
+      "minLength": 1
+    },
+    "incident_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "append_only": {
+      "const": true
+    },
+    "collected_at": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "source_kind",
+        "source_path"
+      ],
+      "properties": {
+        "source_kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_path": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": true
+    },
+    "title": {
+      "type": "string"
+    },
+    "expected_behavior": {
+      "type": "string"
+    },
+    "actual_behavior": {
+      "type": "string"
+    },
+    "reporter_notes": {
+      "type": "string"
+    },
+    "metadata": {
+      "type": "object"
+    },
+    "screenshot_filename": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "witness_set": {
+      "type": "object",
+      "required": [
+        "schema_version",
+        "produced_by",
+        "incident_id",
+        "witnesses"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "WitnessSet.v1"
+        },
+        "produced_by": {
+          "type": "string",
+          "minLength": 1
+        },
+        "incident_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "witnesses": {
+          "type": "array",
+          "minItems": 1
+        }
+      },
+      "additionalProperties": true
+    },
+    "witness_ids": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  },
+  "additionalProperties": true
+}

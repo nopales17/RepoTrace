@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://repotrace.local/diagnostics/schemas/RetrievalAttempt.v1.json",
+  "title": "RetrievalAttempt.v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "produced_by",
+    "retrieval_attempt_id",
+    "incident_id",
+    "run_id",
+    "generated_at",
+    "verdict",
+    "evidence_links"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "RetrievalAttempt.v1"
+    },
+    "produced_by": {
+      "type": "string",
+      "minLength": 1
+    },
+    "retrieval_attempt_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "incident_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "generated_at": {
+      "type": "string",
+      "minLength": 1
+    },
+    "verdict": {
+      "type": "string",
+      "enum": [
+        "motif_match",
+        "motif_non_match",
+        "ambiguous"
+      ]
+    },
+    "candidate_subsystems": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "motif_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "evidence_links": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "next_discriminating_check": {
+      "type": "string",
+      "minLength": 1
+    },
+    "gap_description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "source_kind",
+        "source_path"
+      ],
+      "properties": {
+        "source_kind": {
+          "type": "string"
+        },
+        "source_path": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "oneOf": [
+    {
+      "required": [
+        "next_discriminating_check"
+      ]
+    },
+    {
+      "required": [
+        "gap_description"
+      ]
+    }
+  ],
+  "additionalProperties": true
+}

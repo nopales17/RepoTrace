@@ -1,0 +1,16 @@
+schema_version: FixtureManifest.v1
+produced_by: repotrace-architecture-freeze
+fixture_id: nutriplanner-collapse-case
+source_repo: nutriplanner
+source_repo_path: /Users/paolo/proj/nutriplanner/nutriplanner
+source_branch: repotrace-eval
+incident_id: incident-20260313-235921
+incident_artifact_path: diagnostics/incidents/incident-20260313-235921.md
+incident_evidence_path: diagnostics/inbox/incident-20260313-235921.json
+retrieval_artifact_path: diagnostics/retrieval_results/incident-20260313-235921.json
+reference_commits:
+  - 85486cd
+  - f3a3a59
+why_this_case_matters: >-
+  Incident evidence remained stable while retrieval interpretation changed across
+  commits, proving evidence and investigation lineage must be modeled separately.

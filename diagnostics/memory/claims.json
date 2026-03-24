@@ -1,0 +1,283 @@
+{
+  "schema_version": "DurableMemory.v1",
+  "produced_by": "scripts/artifact_adapters.py",
+  "source": {
+    "source_kind": "legacy_claims_json",
+    "source_path": "diagnostics/claims.json"
+  },
+  "generated_at": "2026-03-24T06:44:20Z",
+  "claims": [
+    {
+      "claim_id": "diag-mainactor-incident-writer",
+      "status": "supported",
+      "statement": "Incident export must run on MainActor because BreadcrumbStore is MainActor-isolated.",
+      "subsystem": "diagnostics-export",
+      "motif_id": "",
+      "provenance": {
+        "source_incident_ids": [],
+        "retrieval_attempt_ids": [],
+        "witness_ids": [],
+        "commit_refs": [],
+        "verifier_refs": [
+          "legacy-claims:diag-mainactor-incident-writer"
+        ]
+      }
+    },
+    {
+      "claim_id": "demo-target-repotracedemo",
+      "status": "supported",
+      "statement": "Runnable iOS demo target is scheme RepoTraceDemo in RepoTraceDemo.xcodeproj, sourcing ios/RepoTraceDemo and RepoTrace/Diagnostics.",
+      "subsystem": "demo-app-target",
+      "motif_id": "",
+      "provenance": {
+        "source_incident_ids": [],
+        "retrieval_attempt_ids": [],
+        "witness_ids": [],
+        "commit_refs": [],
+        "verifier_refs": [
+          "legacy-claims:demo-target-repotracedemo"
+        ]
+      }
+    },
+    {
+      "claim_id": "debug-entrypoint-visibility",
+      "status": "supported",
+      "statement": "Attach the debug report modifier to visible content inside NavigationStack, and use a text toolbar button to ensure a visible DEBUG-only entrypoint.",
+      "subsystem": "diagnostics-ui",
+      "motif_id": "",
+      "provenance": {
+        "source_incident_ids": [],
+        "retrieval_attempt_ids": [],
+        "witness_ids": [],
+        "commit_refs": [],
+        "verifier_refs": [
+          "legacy-claims:debug-entrypoint-visibility"
+        ]
+      }
+    },
+    {
+      "claim_id": "export-sheet-driven-by-item",
+      "status": "supported",
+      "statement": "Present export share sheet from an identifiable exported file item, not a boolean with optional sheet content, to avoid empty/blank exporter presentation.",
+      "subsystem": "diagnostics-export",
+      "motif_id": "",
+      "provenance": {
+        "source_incident_ids": [],
+        "retrieval_attempt_ids": [],
+        "witness_ids": [],
+        "commit_refs": [],
+        "verifier_refs": [
+          "legacy-claims:export-sheet-driven-by-item"
+        ]
+      }
+    },
+    {
+      "claim_id": "metadata-unknown-when-version-keys-missing",
+      "status": "supported",
+      "statement": "Incident metadata appVersion/buildNumber become \"unknown\" when bundle version keys are not defined, because IncidentWriter explicitly falls back to \"unknown\".",
+      "subsystem": "diagnostics-metadata",
+      "motif_id": "",
+      "provenance": {
+        "source_incident_ids": [],
+        "retrieval_attempt_ids": [],
+        "witness_ids": [],
+        "commit_refs": [],
+        "verifier_refs": [
+          "legacy-claims:metadata-unknown-when-version-keys-missing"
+        ]
+      }
+    },
+    {
+      "claim_id": "xcodegen-version-keys-drive-incident-metadata",
+      "status": "supported",
+      "statement": "In the demo target, setting MARKETING_VERSION/CURRENT_PROJECT_VERSION and mapping them to CFBundleShortVersionString/CFBundleVersion in project.yml makes IncidentWriter export real appVersion/buildNumber.",
+      "subsystem": "diagnostics-metadata",
+      "motif_id": "",
+      "provenance": {
+        "source_incident_ids": [],
+        "retrieval_attempt_ids": [],
+        "witness_ids": [],
+        "commit_refs": [],
+        "verifier_refs": [
+          "legacy-claims:xcodegen-version-keys-drive-incident-metadata"
+        ]
+      }
+    },
+    {
+      "claim_id": "incident-ingest-defaults-to-newest-inbox-json",
+      "status": "supported",
+      "statement": "new_incident.py can ingest an explicit JSON path, or with no args it ingests the newest diagnostics/inbox/*.json file.",
+      "subsystem": "diagnostics-ingest",
+      "motif_id": "",
+      "provenance": {
+        "source_incident_ids": [],
+        "retrieval_attempt_ids": [],
+        "witness_ids": [],
+        "commit_refs": [],
+        "verifier_refs": [
+          "legacy-claims:incident-ingest-defaults-to-newest-inbox-json"
+        ]
+      }
+    },
+    {
+      "claim_id": "demo-fake-bug-reset-counter",
+      "status": "falsified",
+      "statement": "Superseded: demo bug scenario no longer uses reset-counter mismatch.",
+      "subsystem": "demo-bug-harness",
+      "motif_id": "",
+      "provenance": {
+        "source_incident_ids": [],
+        "retrieval_attempt_ids": [],
+        "witness_ids": [],
+        "commit_refs": [],
+        "verifier_refs": [
+          "legacy-claims:demo-fake-bug-reset-counter"
+        ]
+      }
+    },
+    {
+      "claim_id": "report-form-expected-actual-default-empty",
+      "status": "supported",
+      "statement": "DebugReportView initializes expectedBehavior and actualBehavior as empty strings, so incidents keep those fields empty when the reporter does not fill them manually.",
+      "subsystem": "diagnostics-ui",
+      "motif_id": "",
+      "provenance": {
+        "source_incident_ids": [],
+        "retrieval_attempt_ids": [],
+        "witness_ids": [],
+        "commit_refs": [],
+        "verifier_refs": [
+          "legacy-claims:report-form-expected-actual-default-empty"
+        ]
+      }
+    },
+    {
+      "claim_id": "fake-bug-stages-report-prefill",
+      "status": "falsified",
+      "statement": "Superseded: report prefill is no longer staged by the reset-counter flow.",
+      "subsystem": "diagnostics-ui",
+      "motif_id": "",
+      "provenance": {
+        "source_incident_ids": [],
+        "retrieval_attempt_ids": [],
+        "witness_ids": [],
+        "commit_refs": [],
+        "verifier_refs": [
+          "legacy-claims:fake-bug-stages-report-prefill"
+        ]
+      }
+    },
+    {
+      "claim_id": "simulator-helper-copies-newest-unprocessed-incident",
+      "status": "supported",
+      "statement": "pull_simulator_incident.py finds the booted simulator app data container and copies the newest unprocessed Documents/Incidents JSON into diagnostics/inbox.",
+      "subsystem": "diagnostics-ingest",
+      "motif_id": "",
+      "provenance": {
+        "source_incident_ids": [],
+        "retrieval_attempt_ids": [],
+        "witness_ids": [],
+        "commit_refs": [],
+        "verifier_refs": [
+          "legacy-claims:simulator-helper-copies-newest-unprocessed-incident"
+        ]
+      }
+    },
+    {
+      "claim_id": "demo-coupon-discount-integer-division-bug",
+      "status": "falsified",
+      "statement": "Superseded: demo bug no longer uses integer-division pricing math.",
+      "subsystem": "demo-bug-harness",
+      "motif_id": "",
+      "provenance": {
+        "source_incident_ids": [],
+        "retrieval_attempt_ids": [],
+        "witness_ids": [],
+        "commit_refs": [],
+        "verifier_refs": [
+          "legacy-claims:demo-coupon-discount-integer-division-bug"
+        ]
+      }
+    },
+    {
+      "claim_id": "demo-stale-policy-context-bug",
+      "status": "falsified",
+      "statement": "Superseded: demo bug no longer uses stale cached context in policy repository.",
+      "subsystem": "demo-bug-harness",
+      "motif_id": "",
+      "provenance": {
+        "source_incident_ids": [],
+        "retrieval_attempt_ids": [],
+        "witness_ids": [],
+        "commit_refs": [],
+        "verifier_refs": [
+          "legacy-claims:demo-stale-policy-context-bug"
+        ]
+      }
+    },
+    {
+      "claim_id": "demo-pending-vs-applied-coupon-divergence-bug",
+      "status": "falsified",
+      "statement": "Superseded: demo bug no longer uses coupon-total divergence as the active motif example.",
+      "subsystem": "demo-bug-harness",
+      "motif_id": "motif-source-of-truth-state-promotion-divergence",
+      "provenance": {
+        "source_incident_ids": [],
+        "retrieval_attempt_ids": [],
+        "witness_ids": [],
+        "commit_refs": [],
+        "verifier_refs": [
+          "legacy-claims:demo-pending-vs-applied-coupon-divergence-bug"
+        ]
+      }
+    },
+    {
+      "claim_id": "demo-pending-vs-applied-delivery-promise-divergence-bug",
+      "status": "falsified",
+      "statement": "Superseded: demo bug no longer uses delivery-promise divergence as the active motif surface.",
+      "subsystem": "demo-bug-harness",
+      "motif_id": "motif-source-of-truth-state-promotion-divergence",
+      "provenance": {
+        "source_incident_ids": [],
+        "retrieval_attempt_ids": [],
+        "witness_ids": [],
+        "commit_refs": [],
+        "verifier_refs": [
+          "legacy-claims:demo-pending-vs-applied-delivery-promise-divergence-bug"
+        ]
+      }
+    },
+    {
+      "claim_id": "demo-source-of-truth-state-promotion-motif",
+      "status": "supported",
+      "statement": "Motif: presentation can reflect a tentative state channel while execution consumes a committed state channel; when the promotion/commit step is skipped, the UI appears updated but computed outcomes remain unchanged.",
+      "subsystem": "demo-bug-harness",
+      "motif_id": "motif-source-of-truth-state-promotion-divergence",
+      "provenance": {
+        "source_incident_ids": [],
+        "retrieval_attempt_ids": [],
+        "witness_ids": [],
+        "commit_refs": [],
+        "verifier_refs": [
+          "legacy-claims:demo-source-of-truth-state-promotion-motif"
+        ]
+      }
+    },
+    {
+      "claim_id": "motif-source-of-truth-state-promotion-divergence",
+      "status": "supported",
+      "statement": "Canonical motif: UI/presentation state updates a tentative selection channel while execution/policy/rule evaluation reads a committed runtime channel; if promotion is skipped, the UI appears updated but computed outcomes remain unchanged.",
+      "subsystem": "demo-bug-harness",
+      "motif_id": "",
+      "provenance": {
+        "source_incident_ids": [],
+        "retrieval_attempt_ids": [],
+        "witness_ids": [],
+        "commit_refs": [],
+        "verifier_refs": [
+          "legacy-claims:motif-source-of-truth-state-promotion-divergence"
+        ]
+      }
+    }
+  ]
+}
