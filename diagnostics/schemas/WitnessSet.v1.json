@@ -7,6 +7,7 @@
     "schema_version",
     "produced_by",
     "incident_id",
+    "metrics",
     "witnesses"
   ],
   "properties": {
@@ -21,6 +22,39 @@
       "type": "string",
       "minLength": 1
     },
+    "metrics": {
+      "type": "object",
+      "description": "Critic accounting for this witness set.",
+      "required": [
+        "candidate_count",
+        "accepted_count",
+        "rejected_count",
+        "unsupported_count"
+      ],
+      "properties": {
+        "candidate_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total candidate witnesses evaluated by the critic, plus one fallback candidate when no candidate is accepted."
+        },
+        "accepted_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of candidates accepted as witnesses."
+        },
+        "rejected_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of candidates rejected by the critic."
+        },
+        "unsupported_count": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Subset of rejected candidates whose reasons indicate supportability failures (e.g., abstract, composite, unanchored, or unsupported/noisy statements)."
+        }
+      },
+      "additionalProperties": true
+    },
     "witnesses": {
       "type": "array",
       "minItems": 1,
@@ -28,38 +62,108 @@
         "type": "object",
         "required": [
           "witness_id",
-          "kind",
-          "content",
-          "source_field"
+          "witness_type",
+          "statement",
+          "provenance"
         ],
         "properties": {
           "witness_id": {
             "type": "string",
             "minLength": 1
           },
-          "kind": {
+          "witness_type": {
             "type": "string",
             "enum": [
-              "expected",
-              "actual",
-              "notes",
-              "breadcrumb",
-              "screenshot",
-              "metadata"
+              "observed_state",
+              "missing_event",
+              "unexpected_transition",
+              "environment_fact",
+              "ui_fact",
+              "system_fact"
             ]
+          },
+          "statement": {
+            "type": "string"
+          },
+          "provenance": {
+            "type": "object",
+            "required": [
+              "source_incident_ids",
+              "raw_field_refs",
+              "breadcrumb_refs",
+              "log_refs",
+              "screenshot_refs",
+              "verifier_refs"
+            ],
+            "properties": {
+              "source_incident_ids": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "raw_field_refs": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "breadcrumb_refs": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "log_refs": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "screenshot_refs": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "verifier_refs": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "additionalProperties": true
+          },
+          "kind": {
+            "type": "string",
+            "minLength": 1
           },
           "content": {
             "type": "string"
           },
           "source_field": {
-            "type": "string",
-            "minLength": 1
+            "type": "string"
           },
           "timestamp": {
             "type": "string"
           }
         },
         "additionalProperties": true
+      }
+    },
+    "rejected_candidates": {
+      "type": "array",
+      "items": {
+        "type": "object"
       }
     }
   },

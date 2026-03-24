@@ -1,0 +1,855 @@
+{
+  "schema_version": "WitnessSet.v1",
+  "produced_by": "scripts/witness_example_generator.py",
+  "incident_id": "incident-20260312-220604",
+  "metrics": {
+    "candidate_count": 36,
+    "accepted_count": 35,
+    "rejected_count": 1,
+    "unsupported_count": 1
+  },
+  "witnesses": [
+    {
+      "witness_id": "incident-20260312-220604:missing_event:0001",
+      "witness_type": "missing_event",
+      "statement": "After picking Road Trip Mix, queue preview should show 4 tracks.",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260312-220604"
+        ],
+        "raw_field_refs": [
+          "expectedBehavior"
+        ],
+        "breadcrumb_refs": [],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:expectedBehavior"
+        ]
+      },
+      "kind": "missing_event",
+      "content": "After picking Road Trip Mix, queue preview should show 4 tracks.",
+      "source_field": "expectedBehavior"
+    },
+    {
+      "witness_id": "incident-20260312-220604:ui_fact:0002",
+      "witness_type": "ui_fact",
+      "statement": "UI shows collection Road Trip Mix",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260312-220604"
+        ],
+        "raw_field_refs": [
+          "actualBehavior"
+        ],
+        "breadcrumb_refs": [],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:actualBehavior"
+        ]
+      },
+      "kind": "ui_fact",
+      "content": "UI shows collection Road Trip Mix",
+      "source_field": "actualBehavior"
+    },
+    {
+      "witness_id": "incident-20260312-220604:observed_state:0003",
+      "witness_type": "observed_state",
+      "statement": "queue preview is 0 tracks.",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260312-220604"
+        ],
+        "raw_field_refs": [
+          "actualBehavior"
+        ],
+        "breadcrumb_refs": [],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:actualBehavior"
+        ]
+      },
+      "kind": "observed_state",
+      "content": "queue preview is 0 tracks.",
+      "source_field": "actualBehavior"
+    },
+    {
+      "witness_id": "incident-20260312-220604:ui_fact:0004",
+      "witness_type": "ui_fact",
+      "statement": "ScreenCollection=ROAD_TRIP_MIX",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260312-220604"
+        ],
+        "raw_field_refs": [
+          "reporterNotes"
+        ],
+        "breadcrumb_refs": [],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:reporterNotes.kv"
+        ]
+      },
+      "kind": "ui_fact",
+      "content": "ScreenCollection=ROAD_TRIP_MIX",
+      "source_field": "reporterNotes"
+    },
+    {
+      "witness_id": "incident-20260312-220604:system_fact:0005",
+      "witness_type": "system_fact",
+      "statement": "RuntimeCollection=ROAD_TRIP_MIX",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260312-220604"
+        ],
+        "raw_field_refs": [
+          "reporterNotes"
+        ],
+        "breadcrumb_refs": [],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:reporterNotes.kv"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "RuntimeCollection=ROAD_TRIP_MIX",
+      "source_field": "reporterNotes"
+    },
+    {
+      "witness_id": "incident-20260312-220604:system_fact:0006",
+      "witness_type": "system_fact",
+      "statement": "RuleCollection=nil",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260312-220604"
+        ],
+        "raw_field_refs": [
+          "reporterNotes"
+        ],
+        "breadcrumb_refs": [],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:reporterNotes.kv"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "RuleCollection=nil",
+      "source_field": "reporterNotes"
+    },
+    {
+      "witness_id": "incident-20260312-220604:system_fact:0007",
+      "witness_type": "system_fact",
+      "statement": "RuleQueuedTrackCount=0.",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260312-220604"
+        ],
+        "raw_field_refs": [
+          "reporterNotes"
+        ],
+        "breadcrumb_refs": [],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:reporterNotes.kv"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "RuleQueuedTrackCount=0.",
+      "source_field": "reporterNotes"
+    },
+    {
+      "witness_id": "incident-20260312-220604:environment_fact:0008",
+      "witness_type": "environment_fact",
+      "statement": "appVersion=1.0.0",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260312-220604"
+        ],
+        "raw_field_refs": [
+          "metadata.appVersion"
+        ],
+        "breadcrumb_refs": [],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:metadata"
+        ]
+      },
+      "kind": "environment_fact",
+      "content": "appVersion=1.0.0",
+      "source_field": "metadata.appVersion"
+    },
+    {
+      "witness_id": "incident-20260312-220604:environment_fact:0009",
+      "witness_type": "environment_fact",
+      "statement": "buildNumber=1",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260312-220604"
+        ],
+        "raw_field_refs": [
+          "metadata.buildNumber"
+        ],
+        "breadcrumb_refs": [],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:metadata"
+        ]
+      },
+      "kind": "environment_fact",
+      "content": "buildNumber=1",
+      "source_field": "metadata.buildNumber"
+    },
+    {
+      "witness_id": "incident-20260312-220604:environment_fact:0010",
+      "witness_type": "environment_fact",
+      "statement": "deviceModel=iPhone",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260312-220604"
+        ],
+        "raw_field_refs": [
+          "metadata.deviceModel"
+        ],
+        "breadcrumb_refs": [],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:metadata"
+        ]
+      },
+      "kind": "environment_fact",
+      "content": "deviceModel=iPhone",
+      "source_field": "metadata.deviceModel"
+    },
+    {
+      "witness_id": "incident-20260312-220604:environment_fact:0011",
+      "witness_type": "environment_fact",
+      "statement": "osVersion=26.2",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260312-220604"
+        ],
+        "raw_field_refs": [
+          "metadata.osVersion"
+        ],
+        "breadcrumb_refs": [],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:metadata"
+        ]
+      },
+      "kind": "environment_fact",
+      "content": "osVersion=26.2",
+      "source_field": "metadata.osVersion"
+    },
+    {
+      "witness_id": "incident-20260312-220604:ui_fact:0012",
+      "witness_type": "ui_fact",
+      "statement": "screenName=DownloadHome",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260312-220604"
+        ],
+        "raw_field_refs": [
+          "metadata.screenName"
+        ],
+        "breadcrumb_refs": [],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:metadata"
+        ]
+      },
+      "kind": "ui_fact",
+      "content": "screenName=DownloadHome",
+      "source_field": "metadata.screenName"
+    },
+    {
+      "witness_id": "incident-20260312-220604:observed_state:0013",
+      "witness_type": "observed_state",
+      "statement": "timestamp=2026-03-13T05:06:04Z",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260312-220604"
+        ],
+        "raw_field_refs": [
+          "metadata.timestamp"
+        ],
+        "breadcrumb_refs": [],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:metadata"
+        ]
+      },
+      "kind": "observed_state",
+      "content": "timestamp=2026-03-13T05:06:04Z",
+      "source_field": "metadata.timestamp"
+    },
+    {
+      "witness_id": "incident-20260312-220604:ui_fact:0014",
+      "witness_type": "ui_fact",
+      "statement": "screenshot=incident-20260312-220604-screenshot.jpg",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260312-220604"
+        ],
+        "raw_field_refs": [
+          "screenshotFilename"
+        ],
+        "breadcrumb_refs": [],
+        "log_refs": [],
+        "screenshot_refs": [
+          "incident-20260312-220604-screenshot.jpg"
+        ],
+        "verifier_refs": [
+          "witness_proposer:screenshot"
+        ]
+      },
+      "kind": "ui_fact",
+      "content": "screenshot=incident-20260312-220604-screenshot.jpg",
+      "source_field": "screenshotFilename"
+    },
+    {
+      "witness_id": "incident-20260312-220604:ui_fact:0015",
+      "witness_type": "ui_fact",
+      "statement": "uiCollection=ROAD_TRIP_MIX",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260312-220604"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[2]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[2]"
+        ],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.kv"
+        ]
+      },
+      "kind": "ui_fact",
+      "content": "uiCollection=ROAD_TRIP_MIX",
+      "source_field": "breadcrumbs[2]",
+      "timestamp": "2026-03-13T05:06:02Z"
+    },
+    {
+      "witness_id": "incident-20260312-220604:system_fact:0016",
+      "witness_type": "system_fact",
+      "statement": "libraryTrackCount=4",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260312-220604"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[2]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[2]"
+        ],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.kv"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "libraryTrackCount=4",
+      "source_field": "breadcrumbs[2]",
+      "timestamp": "2026-03-13T05:06:02Z"
+    },
+    {
+      "witness_id": "incident-20260312-220604:ui_fact:0017",
+      "witness_type": "ui_fact",
+      "statement": "Collection snapshot: screenCollection=ROAD_TRIP_MIX",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260312-220604"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[3]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[3]"
+        ],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.kv"
+        ]
+      },
+      "kind": "ui_fact",
+      "content": "Collection snapshot: screenCollection=ROAD_TRIP_MIX",
+      "source_field": "breadcrumbs[3]",
+      "timestamp": "2026-03-13T05:06:02Z"
+    },
+    {
+      "witness_id": "incident-20260312-220604:system_fact:0018",
+      "witness_type": "system_fact",
+      "statement": "Collection snapshot: runtimeCollection=ROAD_TRIP_MIX",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260312-220604"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[3]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[3]"
+        ],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.kv"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "Collection snapshot: runtimeCollection=ROAD_TRIP_MIX",
+      "source_field": "breadcrumbs[3]",
+      "timestamp": "2026-03-13T05:06:02Z"
+    },
+    {
+      "witness_id": "incident-20260312-220604:system_fact:0019",
+      "witness_type": "system_fact",
+      "statement": "Queue rule used: collectionCode=nil",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260312-220604"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[4]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[4]"
+        ],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.kv"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "Queue rule used: collectionCode=nil",
+      "source_field": "breadcrumbs[4]",
+      "timestamp": "2026-03-13T05:06:02Z"
+    },
+    {
+      "witness_id": "incident-20260312-220604:system_fact:0020",
+      "witness_type": "system_fact",
+      "statement": "Queue rule used: queuedTrackCount=0",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260312-220604"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[4]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[4]"
+        ],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.kv"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "Queue rule used: queuedTrackCount=0",
+      "source_field": "breadcrumbs[4]",
+      "timestamp": "2026-03-13T05:06:02Z"
+    },
+    {
+      "witness_id": "incident-20260312-220604:system_fact:0021",
+      "witness_type": "system_fact",
+      "statement": "Queue engine result: queuedTrackCount=0",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260312-220604"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[5]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[5]"
+        ],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.text"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "Queue engine result: queuedTrackCount=0",
+      "source_field": "breadcrumbs[5]",
+      "timestamp": "2026-03-13T05:06:02Z"
+    },
+    {
+      "witness_id": "incident-20260312-220604:missing_event:0022",
+      "witness_type": "missing_event",
+      "statement": "Observed UI state: expectedCollection=ROAD_TRIP_MIX",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260312-220604"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[6]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[6]"
+        ],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.kv"
+        ]
+      },
+      "kind": "missing_event",
+      "content": "Observed UI state: expectedCollection=ROAD_TRIP_MIX",
+      "source_field": "breadcrumbs[6]",
+      "timestamp": "2026-03-13T05:06:02Z"
+    },
+    {
+      "witness_id": "incident-20260312-220604:ui_fact:0023",
+      "witness_type": "ui_fact",
+      "statement": "Observed UI state: displayedCollection=ROAD_TRIP_MIX",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260312-220604"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[6]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[6]"
+        ],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.kv"
+        ]
+      },
+      "kind": "ui_fact",
+      "content": "Observed UI state: displayedCollection=ROAD_TRIP_MIX",
+      "source_field": "breadcrumbs[6]",
+      "timestamp": "2026-03-13T05:06:02Z"
+    },
+    {
+      "witness_id": "incident-20260312-220604:observed_state:0024",
+      "witness_type": "observed_state",
+      "statement": "Observed preview values: ruleQueuedTrackCount=0",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260312-220604"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[7]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[7]"
+        ],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.kv"
+        ]
+      },
+      "kind": "observed_state",
+      "content": "Observed preview values: ruleQueuedTrackCount=0",
+      "source_field": "breadcrumbs[7]",
+      "timestamp": "2026-03-13T05:06:02Z"
+    },
+    {
+      "witness_id": "incident-20260312-220604:missing_event:0025",
+      "witness_type": "missing_event",
+      "statement": "Observed preview values: expectedQueuedTrackCount=4",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260312-220604"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[7]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[7]"
+        ],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.kv"
+        ]
+      },
+      "kind": "missing_event",
+      "content": "Observed preview values: expectedQueuedTrackCount=4",
+      "source_field": "breadcrumbs[7]",
+      "timestamp": "2026-03-13T05:06:02Z"
+    },
+    {
+      "witness_id": "incident-20260312-220604:observed_state:0026",
+      "witness_type": "observed_state",
+      "statement": "Observed preview values: actualQueuedTrackCount=0",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260312-220604"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[7]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[7]"
+        ],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.kv"
+        ]
+      },
+      "kind": "observed_state",
+      "content": "Observed preview values: actualQueuedTrackCount=0",
+      "source_field": "breadcrumbs[7]",
+      "timestamp": "2026-03-13T05:06:02Z"
+    },
+    {
+      "witness_id": "incident-20260312-220604:ui_fact:0027",
+      "witness_type": "ui_fact",
+      "statement": "Observed state values: screenCollection=ROAD_TRIP_MIX",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260312-220604"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[8]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[8]"
+        ],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.kv"
+        ]
+      },
+      "kind": "ui_fact",
+      "content": "Observed state values: screenCollection=ROAD_TRIP_MIX",
+      "source_field": "breadcrumbs[8]",
+      "timestamp": "2026-03-13T05:06:02Z"
+    },
+    {
+      "witness_id": "incident-20260312-220604:observed_state:0028",
+      "witness_type": "observed_state",
+      "statement": "Observed state values: runtimeCollection=ROAD_TRIP_MIX",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260312-220604"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[8]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[8]"
+        ],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.kv"
+        ]
+      },
+      "kind": "observed_state",
+      "content": "Observed state values: runtimeCollection=ROAD_TRIP_MIX",
+      "source_field": "breadcrumbs[8]",
+      "timestamp": "2026-03-13T05:06:02Z"
+    },
+    {
+      "witness_id": "incident-20260312-220604:observed_state:0029",
+      "witness_type": "observed_state",
+      "statement": "Observed state values: ruleCollection=nil",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260312-220604"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[8]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[8]"
+        ],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.kv"
+        ]
+      },
+      "kind": "observed_state",
+      "content": "Observed state values: ruleCollection=nil",
+      "source_field": "breadcrumbs[8]",
+      "timestamp": "2026-03-13T05:06:02Z"
+    },
+    {
+      "witness_id": "incident-20260312-220604:missing_event:0030",
+      "witness_type": "missing_event",
+      "statement": "Queue preview mismatch: expectedQueuedTrackCount=4",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260312-220604"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[9]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[9]"
+        ],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.kv"
+        ]
+      },
+      "kind": "missing_event",
+      "content": "Queue preview mismatch: expectedQueuedTrackCount=4",
+      "source_field": "breadcrumbs[9]",
+      "timestamp": "2026-03-13T05:06:02Z"
+    },
+    {
+      "witness_id": "incident-20260312-220604:unexpected_transition:0031",
+      "witness_type": "unexpected_transition",
+      "statement": "Queue preview mismatch: actualQueuedTrackCount=0",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260312-220604"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[9]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[9]"
+        ],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.kv"
+        ]
+      },
+      "kind": "unexpected_transition",
+      "content": "Queue preview mismatch: actualQueuedTrackCount=0",
+      "source_field": "breadcrumbs[9]",
+      "timestamp": "2026-03-13T05:06:02Z"
+    },
+    {
+      "witness_id": "incident-20260312-220604:system_fact:0032",
+      "witness_type": "system_fact",
+      "statement": "Queue rule lookup: runtimeInputKey=ROAD_TRIP_MIX",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260312-220604"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[10]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[10]"
+        ],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.kv"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "Queue rule lookup: runtimeInputKey=ROAD_TRIP_MIX",
+      "source_field": "breadcrumbs[10]",
+      "timestamp": "2026-03-13T05:06:02Z"
+    },
+    {
+      "witness_id": "incident-20260312-220604:system_fact:0033",
+      "witness_type": "system_fact",
+      "statement": "Queue rule lookup: lookupKey=ROAD_TRIP_MIX",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260312-220604"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[10]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[10]"
+        ],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.kv"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "Queue rule lookup: lookupKey=ROAD_TRIP_MIX",
+      "source_field": "breadcrumbs[10]",
+      "timestamp": "2026-03-13T05:06:02Z"
+    },
+    {
+      "witness_id": "incident-20260312-220604:system_fact:0034",
+      "witness_type": "system_fact",
+      "statement": "Queue rule lookup: lookupHit=false",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260312-220604"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[10]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[10]"
+        ],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.kv"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "Queue rule lookup: lookupHit=false",
+      "source_field": "breadcrumbs[10]",
+      "timestamp": "2026-03-13T05:06:02Z"
+    },
+    {
+      "witness_id": "incident-20260312-220604:system_fact:0035",
+      "witness_type": "system_fact",
+      "statement": "incident_id=incident-20260312-220604",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260312-220604"
+        ],
+        "raw_field_refs": [
+          "id"
+        ],
+        "breadcrumb_refs": [],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:incident_id"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "incident_id=incident-20260312-220604",
+      "source_field": "id"
+    }
+  ],
+  "rejected_candidates": [
+    {
+      "candidate_id": "incident-20260312-220604:candidate:0015",
+      "statement": "Opened demo root",
+      "witness_type": "system_fact",
+      "reasons": [
+        "too_abstract"
+      ]
+    }
+  ]
+}

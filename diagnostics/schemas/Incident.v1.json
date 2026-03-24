@@ -78,6 +78,7 @@
         "schema_version",
         "produced_by",
         "incident_id",
+        "metrics",
         "witnesses"
       ],
       "properties": {
@@ -91,6 +92,35 @@
         "incident_id": {
           "type": "string",
           "minLength": 1
+        },
+        "metrics": {
+          "type": "object",
+          "description": "Witness critic accounting copied from WitnessSet.v1 metrics.",
+          "required": [
+            "candidate_count",
+            "accepted_count",
+            "rejected_count",
+            "unsupported_count"
+          ],
+          "properties": {
+            "candidate_count": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "accepted_count": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "rejected_count": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "unsupported_count": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "additionalProperties": true
         },
         "witnesses": {
           "type": "array",

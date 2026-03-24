@@ -1,0 +1,2306 @@
+{
+  "schema_version": "WitnessSet.v1",
+  "produced_by": "scripts/witness_example_generator.py",
+  "incident_id": "incident-20260313-235921",
+  "metrics": {
+    "candidate_count": 170,
+    "accepted_count": 51,
+    "rejected_count": 119,
+    "unsupported_count": 46
+  },
+  "witnesses": [
+    {
+      "witness_id": "incident-20260313-235921:environment_fact:0001",
+      "witness_type": "environment_fact",
+      "statement": "appVersion=1.0",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "metadata.appVersion"
+        ],
+        "breadcrumb_refs": [],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:metadata"
+        ]
+      },
+      "kind": "environment_fact",
+      "content": "appVersion=1.0",
+      "source_field": "metadata.appVersion"
+    },
+    {
+      "witness_id": "incident-20260313-235921:environment_fact:0002",
+      "witness_type": "environment_fact",
+      "statement": "buildNumber=1",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "metadata.buildNumber"
+        ],
+        "breadcrumb_refs": [],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:metadata"
+        ]
+      },
+      "kind": "environment_fact",
+      "content": "buildNumber=1",
+      "source_field": "metadata.buildNumber"
+    },
+    {
+      "witness_id": "incident-20260313-235921:environment_fact:0003",
+      "witness_type": "environment_fact",
+      "statement": "deviceModel=iPhone",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "metadata.deviceModel"
+        ],
+        "breadcrumb_refs": [],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:metadata"
+        ]
+      },
+      "kind": "environment_fact",
+      "content": "deviceModel=iPhone",
+      "source_field": "metadata.deviceModel"
+    },
+    {
+      "witness_id": "incident-20260313-235921:environment_fact:0004",
+      "witness_type": "environment_fact",
+      "statement": "osVersion=26.3.1",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "metadata.osVersion"
+        ],
+        "breadcrumb_refs": [],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:metadata"
+        ]
+      },
+      "kind": "environment_fact",
+      "content": "osVersion=26.3.1",
+      "source_field": "metadata.osVersion"
+    },
+    {
+      "witness_id": "incident-20260313-235921:ui_fact:0005",
+      "witness_type": "ui_fact",
+      "statement": "screenName=Estimate",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "metadata.screenName"
+        ],
+        "breadcrumb_refs": [],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:metadata"
+        ]
+      },
+      "kind": "ui_fact",
+      "content": "screenName=Estimate",
+      "source_field": "metadata.screenName"
+    },
+    {
+      "witness_id": "incident-20260313-235921:observed_state:0006",
+      "witness_type": "observed_state",
+      "statement": "timestamp=2026-03-14T06:59:21Z",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "metadata.timestamp"
+        ],
+        "breadcrumb_refs": [],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:metadata"
+        ]
+      },
+      "kind": "observed_state",
+      "content": "timestamp=2026-03-14T06:59:21Z",
+      "source_field": "metadata.timestamp"
+    },
+    {
+      "witness_id": "incident-20260313-235921:ui_fact:0007",
+      "witness_type": "ui_fact",
+      "statement": "screenshot=incident-20260313-235921-screenshot.jpg",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "screenshotFilename"
+        ],
+        "breadcrumb_refs": [],
+        "log_refs": [],
+        "screenshot_refs": [
+          "incident-20260313-235921-screenshot.jpg"
+        ],
+        "verifier_refs": [
+          "witness_proposer:screenshot"
+        ]
+      },
+      "kind": "ui_fact",
+      "content": "screenshot=incident-20260313-235921-screenshot.jpg",
+      "source_field": "screenshotFilename"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0008",
+      "witness_type": "system_fact",
+      "statement": "direction=collapse",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[1]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[1]"
+        ],
+        "log_refs": [
+          "breadcrumbs[1]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "direction=collapse",
+      "source_field": "breadcrumbs[1]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0009",
+      "witness_type": "system_fact",
+      "statement": "rowRectHeight=782.667",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[1]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[1]"
+        ],
+        "log_refs": [
+          "breadcrumbs[1]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "rowRectHeight=782.667",
+      "source_field": "breadcrumbs[1]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0010",
+      "witness_type": "system_fact",
+      "statement": "targetCellHeight=782.667",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[1]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[1]"
+        ],
+        "log_refs": [
+          "breadcrumbs[1]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "targetCellHeight=782.667",
+      "source_field": "breadcrumbs[1]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0011",
+      "witness_type": "system_fact",
+      "statement": "transitionSeq=3",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[2]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[2]"
+        ],
+        "log_refs": [
+          "breadcrumbs[2]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "transitionSeq=3",
+      "source_field": "breadcrumbs[2]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0012",
+      "witness_type": "system_fact",
+      "statement": "baselineTargetHeight=782.667",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[2]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[2]"
+        ],
+        "log_refs": [
+          "breadcrumbs[2]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "baselineTargetHeight=782.667",
+      "source_field": "breadcrumbs[2]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0013",
+      "witness_type": "system_fact",
+      "statement": "event=animation.start",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[3]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[3]"
+        ],
+        "log_refs": [
+          "breadcrumbs[3]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "event=animation.start",
+      "source_field": "breadcrumbs[3]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0014",
+      "witness_type": "system_fact",
+      "statement": "event=animation.batch.begin",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[4]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[4]"
+        ],
+        "log_refs": [
+          "breadcrumbs[4]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "event=animation.batch.begin",
+      "source_field": "breadcrumbs[4]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0015",
+      "witness_type": "system_fact",
+      "statement": "trigger=rowContainerFrame",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[5]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[5]"
+        ],
+        "log_refs": [
+          "breadcrumbs[5]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "trigger=rowContainerFrame",
+      "source_field": "breadcrumbs[5]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0016",
+      "witness_type": "system_fact",
+      "statement": "rowHeight=782.667",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[5]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[5]"
+        ],
+        "log_refs": [
+          "breadcrumbs[5]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "rowHeight=782.667",
+      "source_field": "breadcrumbs[5]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0017",
+      "witness_type": "system_fact",
+      "statement": "cardOuterHeight=770.333",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[5]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[5]"
+        ],
+        "log_refs": [
+          "breadcrumbs[5]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "cardOuterHeight=770.333",
+      "source_field": "breadcrumbs[5]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0018",
+      "witness_type": "system_fact",
+      "statement": "detailRegionHeight=620.333",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[5]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[5]"
+        ],
+        "log_refs": [
+          "breadcrumbs[5]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "detailRegionHeight=620.333",
+      "source_field": "breadcrumbs[5]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0019",
+      "witness_type": "system_fact",
+      "statement": "boundaryFirstChildHeight=0.333",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[5]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[5]"
+        ],
+        "log_refs": [
+          "breadcrumbs[5]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "boundaryFirstChildHeight=0.333",
+      "source_field": "breadcrumbs[5]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0020",
+      "witness_type": "system_fact",
+      "statement": "cardHeight=150.000",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[6]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[6]"
+        ],
+        "log_refs": [
+          "breadcrumbs[6]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "cardHeight=150.000",
+      "source_field": "breadcrumbs[6]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0021",
+      "witness_type": "system_fact",
+      "statement": "detailVisibleHeight=620.333",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[6]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[6]"
+        ],
+        "log_refs": [
+          "breadcrumbs[6]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "detailVisibleHeight=620.333",
+      "source_field": "breadcrumbs[6]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0022",
+      "witness_type": "system_fact",
+      "statement": "detailVisibleHeight=0.000",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[7]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[7]"
+        ],
+        "log_refs": [
+          "breadcrumbs[7]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "detailVisibleHeight=0.000",
+      "source_field": "breadcrumbs[7]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0023",
+      "witness_type": "system_fact",
+      "statement": "trigger=detailVisibleHeight",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[8]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[8]"
+        ],
+        "log_refs": [
+          "breadcrumbs[8]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "trigger=detailVisibleHeight",
+      "source_field": "breadcrumbs[8]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0024",
+      "witness_type": "system_fact",
+      "statement": "cardOuterHeight=150.000",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[8]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[8]"
+        ],
+        "log_refs": [
+          "breadcrumbs[8]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "cardOuterHeight=150.000",
+      "source_field": "breadcrumbs[8]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0025",
+      "witness_type": "system_fact",
+      "statement": "trigger=detailRegionFrame",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[9]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[9]"
+        ],
+        "log_refs": [
+          "breadcrumbs[9]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "trigger=detailRegionFrame",
+      "source_field": "breadcrumbs[9]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0026",
+      "witness_type": "system_fact",
+      "statement": "detailRegionHeight=0.000",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[9]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[9]"
+        ],
+        "log_refs": [
+          "breadcrumbs[9]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "detailRegionHeight=0.000",
+      "source_field": "breadcrumbs[9]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0027",
+      "witness_type": "system_fact",
+      "statement": "trigger=belowBoundaryChildFrame",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[10]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[10]"
+        ],
+        "log_refs": [
+          "breadcrumbs[10]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "trigger=belowBoundaryChildFrame",
+      "source_field": "breadcrumbs[10]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0028",
+      "witness_type": "system_fact",
+      "statement": "detailIntrinsicHeight=620.333",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[11]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[11]"
+        ],
+        "log_refs": [
+          "breadcrumbs[11]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "detailIntrinsicHeight=620.333",
+      "source_field": "breadcrumbs[11]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0029",
+      "witness_type": "system_fact",
+      "statement": "phaseDirection=collapse",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[11]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[11]"
+        ],
+        "log_refs": [
+          "breadcrumbs[11]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "phaseDirection=collapse",
+      "source_field": "breadcrumbs[11]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0030",
+      "witness_type": "system_fact",
+      "statement": "event=swiftui.row.expandedChanged",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[13]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[13]"
+        ],
+        "log_refs": [
+          "breadcrumbs[13]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "event=swiftui.row.expandedChanged",
+      "source_field": "breadcrumbs[13]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0031",
+      "witness_type": "system_fact",
+      "statement": "event=swiftui.row.animatingChanged",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[14]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[14]"
+        ],
+        "log_refs": [
+          "breadcrumbs[14]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "event=swiftui.row.animatingChanged",
+      "source_field": "breadcrumbs[14]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0032",
+      "witness_type": "system_fact",
+      "statement": "rowToCardOuterTopDeltaY=-364.000",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[16]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[16]"
+        ],
+        "log_refs": [
+          "breadcrumbs[16]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "rowToCardOuterTopDeltaY=-364.000",
+      "source_field": "breadcrumbs[16]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0033",
+      "witness_type": "system_fact",
+      "statement": "event=cell.prepareForReuse",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[17]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[17]"
+        ],
+        "log_refs": [
+          "breadcrumbs[17]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "event=cell.prepareForReuse",
+      "source_field": "breadcrumbs[17]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0034",
+      "witness_type": "system_fact",
+      "statement": "event=cell.configure",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[18]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[18]"
+        ],
+        "log_refs": [
+          "breadcrumbs[18]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "event=cell.configure",
+      "source_field": "breadcrumbs[18]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0035",
+      "witness_type": "system_fact",
+      "statement": "event=cell.willDisplay",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[21]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[21]"
+        ],
+        "log_refs": [
+          "breadcrumbs[21]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "event=cell.willDisplay",
+      "source_field": "breadcrumbs[21]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0036",
+      "witness_type": "system_fact",
+      "statement": "height=162.0",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[21]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[21]"
+        ],
+        "log_refs": [
+          "breadcrumbs[21]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "height=162.0",
+      "source_field": "breadcrumbs[21]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0037",
+      "witness_type": "system_fact",
+      "statement": "rowHeight=162.000",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[24]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[24]"
+        ],
+        "log_refs": [
+          "breadcrumbs[24]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "rowHeight=162.000",
+      "source_field": "breadcrumbs[24]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0038",
+      "witness_type": "system_fact",
+      "statement": "event=animation.batch.end",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[25]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[25]"
+        ],
+        "log_refs": [
+          "breadcrumbs[25]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "event=animation.batch.end",
+      "source_field": "breadcrumbs[25]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0039",
+      "witness_type": "system_fact",
+      "statement": "elapsed=0.066292",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[25]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[25]"
+        ],
+        "log_refs": [
+          "breadcrumbs[25]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "elapsed=0.066292",
+      "source_field": "breadcrumbs[25]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0040",
+      "witness_type": "system_fact",
+      "statement": "event=table.duringHeightAnimation",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[26]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[26]"
+        ],
+        "log_refs": [
+          "breadcrumbs[26]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "event=table.duringHeightAnimation",
+      "source_field": "breadcrumbs[26]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0041",
+      "witness_type": "system_fact",
+      "statement": "rowRectHeight=162.000",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[27]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[27]"
+        ],
+        "log_refs": [
+          "breadcrumbs[27]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "rowRectHeight=162.000",
+      "source_field": "breadcrumbs[27]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0042",
+      "witness_type": "system_fact",
+      "statement": "targetCellHeight=162.000",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[27]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[27]"
+        ],
+        "log_refs": [
+          "breadcrumbs[27]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "targetCellHeight=162.000",
+      "source_field": "breadcrumbs[27]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0043",
+      "witness_type": "system_fact",
+      "statement": "elapsed=0.322344",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[36]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[36]"
+        ],
+        "log_refs": [
+          "breadcrumbs[36]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "elapsed=0.322344",
+      "source_field": "breadcrumbs[36]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0044",
+      "witness_type": "system_fact",
+      "statement": "elapsed=0.322664",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[37]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[37]"
+        ],
+        "log_refs": [
+          "breadcrumbs[37]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "elapsed=0.322664",
+      "source_field": "breadcrumbs[37]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0045",
+      "witness_type": "system_fact",
+      "statement": "elapsed=0.323442",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[39]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[39]"
+        ],
+        "log_refs": [
+          "breadcrumbs[39]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "elapsed=0.323442",
+      "source_field": "breadcrumbs[39]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0046",
+      "witness_type": "system_fact",
+      "statement": "stackRelationChangeCount=0",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[41]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[41]"
+        ],
+        "log_refs": [
+          "breadcrumbs[41]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "stackRelationChangeCount=0",
+      "source_field": "breadcrumbs[41]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0047",
+      "witness_type": "system_fact",
+      "statement": "event=table.afterHeightAnimation",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[42]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[42]"
+        ],
+        "log_refs": [
+          "breadcrumbs[42]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "event=table.afterHeightAnimation",
+      "source_field": "breadcrumbs[42]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0048",
+      "witness_type": "system_fact",
+      "statement": "event=animation.complete",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[43]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[43]"
+        ],
+        "log_refs": [
+          "breadcrumbs[43]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "event=animation.complete",
+      "source_field": "breadcrumbs[43]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0049",
+      "witness_type": "system_fact",
+      "statement": "elapsed=0.324971",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[43]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[43]"
+        ],
+        "log_refs": [
+          "breadcrumbs[43]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "elapsed=0.324971",
+      "source_field": "breadcrumbs[43]",
+      "timestamp": "2026-03-14T06:59:12Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0050",
+      "witness_type": "system_fact",
+      "statement": "event=swiftui.row.disappear",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "breadcrumbs[47]"
+        ],
+        "breadcrumb_refs": [
+          "breadcrumbs[47]"
+        ],
+        "log_refs": [
+          "breadcrumbs[47]"
+        ],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:breadcrumb.log"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "event=swiftui.row.disappear",
+      "source_field": "breadcrumbs[47]",
+      "timestamp": "2026-03-14T06:59:15Z"
+    },
+    {
+      "witness_id": "incident-20260313-235921:system_fact:0051",
+      "witness_type": "system_fact",
+      "statement": "incident_id=incident-20260313-235921",
+      "provenance": {
+        "source_incident_ids": [
+          "incident-20260313-235921"
+        ],
+        "raw_field_refs": [
+          "id"
+        ],
+        "breadcrumb_refs": [],
+        "log_refs": [],
+        "screenshot_refs": [],
+        "verifier_refs": [
+          "witness_proposer:incident_id"
+        ]
+      },
+      "kind": "system_fact",
+      "content": "incident_id=incident-20260313-235921",
+      "source_field": "id"
+    }
+  ],
+  "rejected_candidates": [
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0008",
+      "statement": "event=probe.ownerStack.sample",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0009",
+      "statement": "trigger=begin",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0011",
+      "statement": "target=5C021D01-56C9-4C33-8F72-9F5A6528CD7F",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0014",
+      "statement": "event=probe.sibling.begin",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0015",
+      "statement": "direction=collapse",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0017",
+      "statement": "target=5C021D01-56C9-4C33-8F72-9F5A6528CD7F",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0018",
+      "statement": "next=F872FE67-9655-4A94-8943-BCC8E18023A9",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0022",
+      "statement": "event=swiftui.row.geometryScopeProbe.sample",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0028",
+      "statement": "event=swiftui.row.borderProbe.sample",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0031",
+      "statement": "event=swiftui.row.borderProbe.sample",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0032",
+      "statement": "cardHeight=150.000",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0034",
+      "statement": "event=swiftui.row.geometryScopeProbe.sample",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0036",
+      "statement": "rowHeight=782.667",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0038",
+      "statement": "detailRegionHeight=620.333",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0039",
+      "statement": "boundaryFirstChildHeight=0.333",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0040",
+      "statement": "event=swiftui.row.geometryScopeProbe.sample",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0042",
+      "statement": "rowHeight=782.667",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0043",
+      "statement": "cardOuterHeight=150.000",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0045",
+      "statement": "boundaryFirstChildHeight=0.333",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0046",
+      "statement": "event=swiftui.row.geometryScopeProbe.sample",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0048",
+      "statement": "rowHeight=782.667",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0049",
+      "statement": "cardOuterHeight=150.000",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0050",
+      "statement": "detailRegionHeight=0.000",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0051",
+      "statement": "boundaryFirstChildHeight=0.333",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0052",
+      "statement": "event=swiftui.row.localStateProbe.sample",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0054",
+      "statement": "detailVisibleHeight=0.000",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0056",
+      "statement": "event=swiftui.row.localStateProbe.sample",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0057",
+      "statement": "detailIntrinsicHeight=620.333",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0058",
+      "statement": "detailVisibleHeight=0.000",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0059",
+      "statement": "phaseDirection=collapse",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0062",
+      "statement": "event=swiftui.row.geometryScopeProbe.sample",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0063",
+      "statement": "trigger=rowContainerFrame",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0064",
+      "statement": "rowHeight=782.667",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0065",
+      "statement": "cardOuterHeight=150.000",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0066",
+      "statement": "detailRegionHeight=0.000",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0067",
+      "statement": "boundaryFirstChildHeight=0.333",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0068",
+      "statement": "event=swiftui.row.topAnchorProbe.sample",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0069",
+      "statement": "direction=collapse",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0070",
+      "statement": "trigger=rowContainerFrame",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0071",
+      "statement": "cardOuterHeight=150.000",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0072",
+      "statement": "detailVisibleHeight=0.000",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0076",
+      "statement": "event=cell.prepareForReuse",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0077",
+      "statement": "event=cell.configure",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0080",
+      "statement": "event=cell.willDisplay",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0081",
+      "statement": "height=162.0",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0082",
+      "statement": "event=swiftui.row.geometryScopeProbe.sample",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0083",
+      "statement": "trigger=rowContainerFrame",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0084",
+      "statement": "rowHeight=782.667",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0085",
+      "statement": "cardOuterHeight=150.000",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0086",
+      "statement": "detailRegionHeight=0.000",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0087",
+      "statement": "boundaryFirstChildHeight=0.333",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0088",
+      "statement": "event=swiftui.row.geometryScopeProbe.sample",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0089",
+      "statement": "trigger=rowContainerFrame",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0091",
+      "statement": "cardOuterHeight=150.000",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0092",
+      "statement": "detailRegionHeight=0.000",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0093",
+      "statement": "boundaryFirstChildHeight=0.333",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0097",
+      "statement": "event=probe.ownerStack.sample",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0098",
+      "statement": "trigger=displayLink",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0099",
+      "statement": "direction=collapse",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0100",
+      "statement": "target=5C021D01-56C9-4C33-8F72-9F5A6528CD7F",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0103",
+      "statement": "event=swiftui.row.detailPhaseProbe.sample",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0104",
+      "statement": "phaseDirection=collapse",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0105",
+      "statement": "event=swiftui.row.detailOpacityProbe.sample",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0106",
+      "statement": "detailIntrinsicHeight=620.333",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0107",
+      "statement": "detailVisibleHeight=0.000",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0108",
+      "statement": "event=swiftui.row.detailOpacityProbe.sample",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0109",
+      "statement": "detailIntrinsicHeight=620.333",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0110",
+      "statement": "detailVisibleHeight=0.000",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0111",
+      "statement": "event=swiftui.row.detailOpacityProbe.sample",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0112",
+      "statement": "detailIntrinsicHeight=620.333",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0113",
+      "statement": "detailVisibleHeight=0.000",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0114",
+      "statement": "event=swiftui.row.detailOpacityProbe.sample",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0115",
+      "statement": "detailIntrinsicHeight=620.333",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0116",
+      "statement": "detailVisibleHeight=0.000",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0117",
+      "statement": "event=swiftui.row.detailOpacityProbe.sample",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0118",
+      "statement": "detailIntrinsicHeight=620.333",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0119",
+      "statement": "detailVisibleHeight=0.000",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0120",
+      "statement": "event=swiftui.row.detailOpacityProbe.sample",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0121",
+      "statement": "detailIntrinsicHeight=620.333",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0122",
+      "statement": "detailVisibleHeight=0.000",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0123",
+      "statement": "event=swiftui.row.detailOpacityProbe.sample",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0124",
+      "statement": "detailIntrinsicHeight=620.333",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0125",
+      "statement": "detailVisibleHeight=0.000",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0126",
+      "statement": "event=probe.collapse.end",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0127",
+      "statement": "target=5C021D01-56C9-4C33-8F72-9F5A6528CD7F",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0129",
+      "statement": "event=probe.topEdge.end",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0130",
+      "statement": "direction=collapse",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0131",
+      "statement": "target=5C021D01-56C9-4C33-8F72-9F5A6528CD7F",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0133",
+      "statement": "event=probe.ownerStack.sample",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0134",
+      "statement": "trigger=end",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0135",
+      "statement": "direction=collapse",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0136",
+      "statement": "target=5C021D01-56C9-4C33-8F72-9F5A6528CD7F",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0137",
+      "statement": "rowRectHeight=162.000",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0138",
+      "statement": "targetCellHeight=162.000",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0139",
+      "statement": "event=probe.ownerStack.end",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0140",
+      "statement": "direction=collapse",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0141",
+      "statement": "target=5C021D01-56C9-4C33-8F72-9F5A6528CD7F",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0143",
+      "statement": "event=probe.sequence.context",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0144",
+      "statement": "transitionSeq=3",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0145",
+      "statement": "target=5C021D01-56C9-4C33-8F72-9F5A6528CD7F",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0146",
+      "statement": "direction=collapse",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0147",
+      "statement": "event=probe.sibling.end",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0148",
+      "statement": "direction=collapse",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0149",
+      "statement": "transitionSeq=3",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0150",
+      "statement": "target=5C021D01-56C9-4C33-8F72-9F5A6528CD7F",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0151",
+      "statement": "next=F872FE67-9655-4A94-8943-BCC8E18023A9",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0156",
+      "statement": "event=swiftui.row.animatingChanged",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0157",
+      "statement": "event=probe.topEdge.begin",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0158",
+      "statement": "direction=collapse",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0159",
+      "statement": "target=5C021D01-56C9-4C33-8F72-9F5A6528CD7F",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0160",
+      "statement": "event=swiftui.row.topAnchorProbe.sample",
+      "witness_type": "system_fact",
+      "reasons": [
+        "noisy_log_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0161",
+      "statement": "direction=collapse",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0162",
+      "statement": "trigger=rowContainerFrame",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0163",
+      "statement": "cardOuterHeight=150.000",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0164",
+      "statement": "detailVisibleHeight=0.000",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0165",
+      "statement": "rowToCardOuterTopDeltaY=-364.000",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0167",
+      "statement": "event=swiftui.row.disappear",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0168",
+      "statement": "event=swiftui.row.disappear",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    },
+    {
+      "candidate_id": "incident-20260313-235921:candidate:0169",
+      "statement": "event=swiftui.row.disappear",
+      "witness_type": "system_fact",
+      "reasons": [
+        "duplicate_statement"
+      ]
+    }
+  ]
+}
