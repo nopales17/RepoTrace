@@ -1,0 +1,159 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://repotrace.local/diagnostics/schemas/PromiseFrameCheckpoint.v1.json",
+  "title": "PromiseFrameCheckpoint.v1",
+  "description": "Minimal active promise-under-test checkpoint stored in session lineage.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "produced_by",
+    "frame_id",
+    "incident_id",
+    "promise_id",
+    "interaction_family",
+    "consistency_boundary",
+    "focus_statement",
+    "violation_shape",
+    "touchpoints_remaining",
+    "pressure_axes_remaining",
+    "witness_ids",
+    "live_anomaly_id",
+    "next_check",
+    "budget",
+    "status"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "PromiseFrameCheckpoint.v1"
+    },
+    "produced_by": {
+      "type": "string",
+      "minLength": 1
+    },
+    "frame_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "incident_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "promise_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "interaction_family": {
+      "type": "string",
+      "minLength": 1
+    },
+    "consistency_boundary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "focus_statement": {
+      "type": "string",
+      "minLength": 1
+    },
+    "violation_shape": {
+      "type": "string",
+      "minLength": 1
+    },
+    "touchpoints_remaining": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "pressure_axes_remaining": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "witness_ids": {
+      "type": "object",
+      "required": [
+        "support",
+        "pressure",
+        "contradiction"
+      ],
+      "properties": {
+        "support": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "pressure": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "contradiction": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "additionalProperties": true
+    },
+    "live_anomaly_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "next_check": {
+      "type": "object",
+      "required": [
+        "kind",
+        "prompt"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "prompt": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": true
+    },
+    "budget": {
+      "type": "object",
+      "required": [
+        "checks_remaining"
+      ],
+      "properties": {
+        "checks_remaining": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "additionalProperties": true
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "blocked",
+        "anomaly_found",
+        "killed",
+        "survives",
+        "exhausted"
+      ]
+    },
+    "updated_at": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "additionalProperties": true
+}

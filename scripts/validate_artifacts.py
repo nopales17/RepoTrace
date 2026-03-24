@@ -77,6 +77,22 @@ REQUIRED_BY_SCHEMA: dict[str, list[str]] = {
     "PromiseSchema.v1": [
         "promise",
     ],
+    "PromiseFrameCheckpoint.v1": [
+        "frame_id",
+        "incident_id",
+        "promise_id",
+        "interaction_family",
+        "consistency_boundary",
+        "focus_statement",
+        "violation_shape",
+        "touchpoints_remaining",
+        "pressure_axes_remaining",
+        "witness_ids",
+        "live_anomaly_id",
+        "next_check",
+        "budget",
+        "status",
+    ],
 }
 
 VALID_VERDICTS = {"motif_match", "motif_non_match", "ambiguous"}
@@ -130,6 +146,9 @@ PROMISE_REQUIRED_FIELDS = {
     "status",
 }
 PROMISE_ALLOWED_STATUSES = {"hypothesized", "accepted", "formalized"}
+PROMISE_FRAME_ALLOWED_STATUSES = {"active", "blocked", "anomaly_found", "killed", "survives", "exhausted"}
+PROMISE_FRAME_WITNESS_BUCKETS = ("support", "pressure", "contradiction")
+PROMISE_FRAME_NEXT_CHECK_REQUIRED_FIELDS = ("kind", "prompt")
 
 
 def default_targets() -> list[Path]:
@@ -138,6 +157,8 @@ def default_targets() -> list[Path]:
     targets.extend(sorted(Path("diagnostics/evidence/witness_sets").glob("*.json")))
     targets.extend(sorted(Path("diagnostics/session/retrieval_attempts").glob("*/*.json")))
     targets.extend(sorted(Path("diagnostics/session/latest").glob("*.json")))
+    targets.extend(sorted(Path("diagnostics/session/promise_frames").glob("*/*.json")))
+    targets.extend(sorted(Path("diagnostics/session/promise_frames/latest").glob("*.json")))
 
     memory_claims = Path("diagnostics/memory/claims.json")
     if memory_claims.exists():
@@ -433,6 +454,53 @@ def validate_special_cases(path: Path, payload: dict[str, Any]) -> list[str]:
             missing = sorted(PROMISE_REQUIRED_FIELDS - set(promise.keys()))
             if missing:
                 errors.append(f"PromiseSchema.v1 promise missing required keys: {', '.join(missing)}")
+
+    if schema_version == "PromiseFrameCheckpoint.v1":
+        status = str(payload.get("status", "")).strip()
+        if status not in PROMISE_FRAME_ALLOWED_STATUSES:
+            errors.append(
+                "PromiseFrameCheckpoint.v1 status must be one of active/blocked/anomaly_found/killed/survives/exhausted"
+            )
+
+        for list_key in ("touchpoints_remaining", "pressure_axes_remaining"):
+            values = payload.get(list_key)
+            if not isinstance(values, list):
+                errors.append(f"PromiseFrameCheckpoint.v1 {list_key} must be an array")
+            elif any(not str(item).strip() for item in values):
+                errors.append(f"PromiseFrameCheckpoint.v1 {list_key} entries must be non-empty strings")
+
+        witness_ids = payload.get("witness_ids")
+        if not isinstance(witness_ids, dict):
+            errors.append("PromiseFrameCheckpoint.v1 witness_ids must be an object")
+        else:
+            for bucket in PROMISE_FRAME_WITNESS_BUCKETS:
+                values = witness_ids.get(bucket)
+                if not isinstance(values, list):
+                    errors.append(f"PromiseFrameCheckpoint.v1 witness_ids.{bucket} must be an array")
+                elif any(not str(item).strip() for item in values):
+                    errors.append(
+                        f"PromiseFrameCheckpoint.v1 witness_ids.{bucket} entries must be non-empty strings"
+                    )
+
+        next_check = payload.get("next_check")
+        if not isinstance(next_check, dict):
+            errors.append("PromiseFrameCheckpoint.v1 next_check must be an object")
+        elif not next_check:
+            errors.append("PromiseFrameCheckpoint.v1 next_check must not be empty")
+        else:
+            for field in PROMISE_FRAME_NEXT_CHECK_REQUIRED_FIELDS:
+                if not str(next_check.get(field, "")).strip():
+                    errors.append(
+                        f"PromiseFrameCheckpoint.v1 next_check.{field} must be a non-empty string"
+                    )
+
+        budget = payload.get("budget")
+        if not isinstance(budget, dict):
+            errors.append("PromiseFrameCheckpoint.v1 budget must be an object")
+        else:
+            checks_remaining = budget.get("checks_remaining")
+            if not isinstance(checks_remaining, int) or checks_remaining < 0:
+                errors.append("PromiseFrameCheckpoint.v1 budget.checks_remaining must be an integer >= 0")
 
     if path.name == "research_state.yaml" and schema_version != "ResearchState.v1":
         errors.append("research_state.yaml must have schema_version ResearchState.v1")

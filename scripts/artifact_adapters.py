@@ -330,6 +330,182 @@ def load_promise_registry_v1(path: Path) -> dict[str, Any]:
     return normalized_payload
 
 
+PROMISE_FRAME_REQUIRED_FIELDS = (
+    "frame_id",
+    "incident_id",
+    "promise_id",
+    "interaction_family",
+    "consistency_boundary",
+    "focus_statement",
+    "violation_shape",
+    "touchpoints_remaining",
+    "pressure_axes_remaining",
+    "witness_ids",
+    "live_anomaly_id",
+    "next_check",
+    "budget",
+    "status",
+)
+
+PROMISE_FRAME_REQUIRED_STRING_FIELDS = (
+    "frame_id",
+    "incident_id",
+    "promise_id",
+    "interaction_family",
+    "consistency_boundary",
+    "focus_statement",
+    "violation_shape",
+    "live_anomaly_id",
+    "status",
+)
+
+PROMISE_FRAME_REQUIRED_LIST_FIELDS = (
+    "touchpoints_remaining",
+    "pressure_axes_remaining",
+)
+
+PROMISE_FRAME_WITNESS_BUCKETS = ("support", "pressure", "contradiction")
+
+PROMISE_FRAME_ALLOWED_STATUSES = {
+    "active",
+    "blocked",
+    "anomaly_found",
+    "killed",
+    "survives",
+    "exhausted",
+}
+
+PROMISE_FRAME_NEXT_CHECK_REQUIRED_STRING_FIELDS = (
+    "kind",
+    "prompt",
+)
+
+
+def validate_promise_frame_checkpoint(frame: dict[str, Any], *, context: str = "promise_frame") -> list[str]:
+    if not isinstance(frame, dict):
+        return [f"{context} must be an object"]
+
+    errors: list[str] = []
+    missing = [field for field in PROMISE_FRAME_REQUIRED_FIELDS if field not in frame]
+    if missing:
+        errors.append(f"{context} missing required keys: {', '.join(missing)}")
+        return errors
+
+    for field in PROMISE_FRAME_REQUIRED_STRING_FIELDS:
+        if not _to_text(frame.get(field)).strip():
+            errors.append(f"{context}.{field} must be a non-empty string")
+
+    for field in PROMISE_FRAME_REQUIRED_LIST_FIELDS:
+        value = frame.get(field)
+        if not isinstance(value, list):
+            errors.append(f"{context}.{field} must be an array of strings")
+            continue
+        if any(not _to_text(item).strip() for item in value):
+            errors.append(f"{context}.{field} entries must be non-empty strings")
+
+    witness_ids = frame.get("witness_ids")
+    if not isinstance(witness_ids, dict):
+        errors.append(f"{context}.witness_ids must be an object")
+    else:
+        for bucket in PROMISE_FRAME_WITNESS_BUCKETS:
+            bucket_values = witness_ids.get(bucket)
+            if not isinstance(bucket_values, list):
+                errors.append(f"{context}.witness_ids.{bucket} must be an array of strings")
+                continue
+            if any(not _to_text(item).strip() for item in bucket_values):
+                errors.append(f"{context}.witness_ids.{bucket} entries must be non-empty strings")
+
+    next_check = frame.get("next_check")
+    if not isinstance(next_check, dict):
+        errors.append(f"{context}.next_check must be an object")
+    else:
+        if not next_check:
+            errors.append(f"{context}.next_check must not be empty")
+        for field in PROMISE_FRAME_NEXT_CHECK_REQUIRED_STRING_FIELDS:
+            if not _to_text(next_check.get(field)).strip():
+                errors.append(f"{context}.next_check.{field} must be a non-empty string")
+
+    budget = frame.get("budget")
+    if not isinstance(budget, dict):
+        errors.append(f"{context}.budget must be an object")
+    else:
+        checks_remaining = budget.get("checks_remaining")
+        if not isinstance(checks_remaining, int) or checks_remaining < 0:
+            errors.append(f"{context}.budget.checks_remaining must be an integer >= 0")
+
+    status = _to_text(frame.get("status")).strip()
+    if status not in PROMISE_FRAME_ALLOWED_STATUSES:
+        errors.append(
+            f"{context}.status must be one of {', '.join(sorted(PROMISE_FRAME_ALLOWED_STATUSES))}"
+        )
+
+    return errors
+
+
+def load_promise_frame_checkpoint_v1(path: Path) -> dict[str, Any]:
+    payload = json.loads(path.read_text())
+    if not isinstance(payload, dict):
+        raise ValueError(f"promise frame checkpoint must be an object: {path}")
+    if payload.get("schema_version") != "PromiseFrameCheckpoint.v1":
+        raise ValueError(f"{path} schema_version must be PromiseFrameCheckpoint.v1")
+
+    errors = validate_promise_frame_checkpoint(payload, context="checkpoint")
+    if errors:
+        raise ValueError(f"{path} invalid promise frame checkpoint: {'; '.join(errors)}")
+
+    normalized = dict(payload)
+    for field in PROMISE_FRAME_REQUIRED_STRING_FIELDS:
+        normalized[field] = _to_text(payload.get(field)).strip()
+
+    for field in PROMISE_FRAME_REQUIRED_LIST_FIELDS:
+        normalized[field] = _normalize_string_list(payload.get(field))
+
+    raw_witness_ids = payload.get("witness_ids")
+    witness_ids: dict[str, list[str]] = {}
+    if isinstance(raw_witness_ids, dict):
+        for bucket in PROMISE_FRAME_WITNESS_BUCKETS:
+            witness_ids[bucket] = _normalize_string_list(raw_witness_ids.get(bucket))
+    normalized["witness_ids"] = witness_ids
+
+    raw_next_check = payload.get("next_check")
+    next_check = dict(raw_next_check) if isinstance(raw_next_check, dict) else {}
+    for field in PROMISE_FRAME_NEXT_CHECK_REQUIRED_STRING_FIELDS:
+        next_check[field] = _to_text(next_check.get(field)).strip()
+    normalized["next_check"] = next_check
+
+    raw_budget = payload.get("budget")
+    budget = dict(raw_budget) if isinstance(raw_budget, dict) else {}
+    budget["checks_remaining"] = int(budget.get("checks_remaining", 0))
+    normalized["budget"] = budget
+
+    normalized["status"] = _to_text(payload.get("status")).strip()
+    return normalized
+
+
+def load_promise_frames_for_incident_v1(frames_root: Path, incident_id: str) -> list[dict[str, Any]]:
+    normalized_incident_id = _to_text(incident_id).strip()
+    if not normalized_incident_id:
+        raise ValueError("incident_id must be non-empty")
+
+    incident_dir = frames_root / normalized_incident_id
+    if not incident_dir.exists():
+        return []
+    if not incident_dir.is_dir():
+        raise ValueError(f"incident promise frame path is not a directory: {incident_dir}")
+
+    deduped_by_frame_id: dict[str, dict[str, Any]] = {}
+    for path in sorted(incident_dir.glob("*.json")):
+        frame = load_promise_frame_checkpoint_v1(path)
+        if _to_text(frame.get("incident_id")).strip() != normalized_incident_id:
+            raise ValueError(f"{path} incident_id must match directory incident: {normalized_incident_id}")
+        frame_id = _to_text(frame.get("frame_id")).strip()
+        if frame_id in deduped_by_frame_id:
+            raise ValueError(f"duplicate frame_id in incident directory: {frame_id}")
+        deduped_by_frame_id[frame_id] = frame
+
+    return [deduped_by_frame_id[frame_id] for frame_id in sorted(deduped_by_frame_id)]
+
+
 WITNESS_TYPES = {
     "observed_state",
     "missing_event",

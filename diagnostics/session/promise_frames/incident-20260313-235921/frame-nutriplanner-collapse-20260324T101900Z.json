@@ -1,0 +1,44 @@
+{
+  "schema_version": "PromiseFrameCheckpoint.v1",
+  "produced_by": "manual:promise-frame-checkpoint",
+  "frame_id": "frame-nutriplanner-collapse-20260324T101900Z",
+  "incident_id": "incident-20260313-235921",
+  "promise_id": "promise-nutriplanner-collapse-boundary-lockstep",
+  "interaction_family": "row collapse",
+  "consistency_boundary": "firstChildToDetailDeltaY remains near lockstep envelope",
+  "focus_statement": "The first boundary child lags the collapsing detail region, creating a transient seam mismatch during collapse.",
+  "violation_shape": "boundary_child_lag_at_collapse_seam",
+  "touchpoints_remaining": [
+    "detail region ownership handoff",
+    "boundary first-child reconciliation ordering"
+  ],
+  "pressure_axes_remaining": [
+    "high-frequency displayLink probe activity",
+    "cell reuse and ownership handoff timing"
+  ],
+  "witness_ids": {
+    "support": [
+      "incident-20260313-235921:system_fact:0008",
+      "incident-20260313-235921:system_fact:0018",
+      "incident-20260313-235921:system_fact:0029"
+    ],
+    "pressure": [
+      "incident-20260313-235921:system_fact:0019",
+      "incident-20260313-235921:system_fact:0026",
+      "incident-20260313-235921:system_fact:0040"
+    ],
+    "contradiction": [
+      "incident-20260313-235921:system_fact:0046"
+    ]
+  },
+  "live_anomaly_id": "anomaly-boundary-seam-drift",
+  "next_check": {
+    "kind": "transition_probe_check",
+    "prompt": "Record firstChildToDetailDeltaY, detailRegionHeight, and boundaryFirstChildHeight per transitionSeq to confirm update-order lag location."
+  },
+  "budget": {
+    "checks_remaining": 3
+  },
+  "status": "anomaly_found",
+  "updated_at": "2026-03-24T10:19:00Z"
+}

@@ -1,0 +1,44 @@
+{
+  "schema_version": "PromiseFrameCheckpoint.v1",
+  "produced_by": "manual:promise-frame-checkpoint",
+  "frame_id": "frame-repotrace-queue-preview-20260324T101500Z",
+  "incident_id": "incident-20260312-220604",
+  "promise_id": "promise-repotrace-queue-preview-reflects-selected-collection",
+  "interaction_family": "queue lookup",
+  "consistency_boundary": "screenCollection/runtimeCollection/ruleCollection agreement",
+  "focus_statement": "Queue rule lookup misses for ROAD_TRIP_MIX and forces queuedTrackCount=0 while UI selection remains aligned.",
+  "violation_shape": "lookup_miss_under_aligned_selection",
+  "touchpoints_remaining": [
+    "queue rule lookup key normalization",
+    "rule mapping entry resolution"
+  ],
+  "pressure_axes_remaining": [
+    "lookup miss with non-empty runtime key",
+    "nil collection code in rule layer"
+  ],
+  "witness_ids": {
+    "support": [
+      "incident-20260312-220604:missing_event:0001",
+      "incident-20260312-220604:missing_event:0030"
+    ],
+    "pressure": [
+      "incident-20260312-220604:system_fact:0019",
+      "incident-20260312-220604:system_fact:0034",
+      "incident-20260312-220604:unexpected_transition:0031"
+    ],
+    "contradiction": [
+      "incident-20260312-220604:system_fact:0005",
+      "incident-20260312-220604:ui_fact:0017"
+    ]
+  },
+  "live_anomaly_id": "anomaly-queue-rule-lookup-miss",
+  "next_check": {
+    "kind": "targeted_log_check",
+    "prompt": "Capture lookup key normalization and resolved table keys at queue-rule lookup when selection is ROAD_TRIP_MIX."
+  },
+  "budget": {
+    "checks_remaining": 2
+  },
+  "status": "active",
+  "updated_at": "2026-03-24T10:15:00Z"
+}
