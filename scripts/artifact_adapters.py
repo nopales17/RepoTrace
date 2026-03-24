@@ -792,6 +792,214 @@ def load_promise_tasks_from_dir_v1(tasks_dir: Path) -> list[dict[str, Any]]:
     return [deduped_by_task_id[task_id] for task_id in sorted(deduped_by_task_id)]
 
 
+PROMISE_SCAN_OUTCOME_REQUIRED_FIELDS = (
+    "outcome_id",
+    "task_id",
+    "frame_id",
+    "incident_id",
+    "promise_id",
+    "interaction_family",
+    "consistency_boundary",
+    "outcome",
+    "summary",
+    "witness_ids_added",
+    "anomaly_ids",
+    "killed_reason",
+    "next_action",
+    "resulting_coverage_status",
+    "resulting_task_status",
+    "created_at",
+)
+
+PROMISE_SCAN_OUTCOME_REQUIRED_STRING_FIELDS = (
+    "outcome_id",
+    "task_id",
+    "frame_id",
+    "incident_id",
+    "promise_id",
+    "interaction_family",
+    "consistency_boundary",
+    "outcome",
+    "summary",
+    "next_action",
+    "resulting_coverage_status",
+    "resulting_task_status",
+    "created_at",
+)
+
+PROMISE_SCAN_OUTCOME_ALLOWED_OUTCOMES = {
+    "killed",
+    "anomaly_found",
+    "survives",
+    "exhausted",
+    "blocked",
+}
+
+
+def validate_promise_scan_outcome(
+    outcome: dict[str, Any], *, context: str = "promise_scan_outcome"
+) -> list[str]:
+    if not isinstance(outcome, dict):
+        return [f"{context} must be an object"]
+
+    errors: list[str] = []
+    missing = [field for field in PROMISE_SCAN_OUTCOME_REQUIRED_FIELDS if field not in outcome]
+    if missing:
+        errors.append(f"{context} missing required keys: {', '.join(missing)}")
+        return errors
+
+    for field in PROMISE_SCAN_OUTCOME_REQUIRED_STRING_FIELDS:
+        if not _to_text(outcome.get(field)).strip():
+            errors.append(f"{context}.{field} must be a non-empty string")
+
+    raw_outcome = _to_text(outcome.get("outcome")).strip()
+    if raw_outcome not in PROMISE_SCAN_OUTCOME_ALLOWED_OUTCOMES:
+        errors.append(
+            f"{context}.outcome must be one of {', '.join(sorted(PROMISE_SCAN_OUTCOME_ALLOWED_OUTCOMES))}"
+        )
+
+    for key in ("witness_ids_added", "anomaly_ids"):
+        raw_items = outcome.get(key)
+        if not isinstance(raw_items, list):
+            errors.append(f"{context}.{key} must be an array of strings")
+            continue
+        if any(not _to_text(item).strip() for item in raw_items):
+            errors.append(f"{context}.{key} entries must be non-empty strings")
+
+    killed_reason = outcome.get("killed_reason")
+    if killed_reason is not None and not _to_text(killed_reason).strip():
+        errors.append(f"{context}.killed_reason must be null or a non-empty string")
+    if raw_outcome == "killed" and not _to_text(killed_reason).strip():
+        errors.append(f"{context}.killed_reason must be non-empty when outcome is killed")
+
+    next_action = _to_text(outcome.get("next_action")).strip()
+    if not next_action:
+        errors.append(f"{context}.next_action must be a non-empty string")
+
+    resulting_coverage_status = _to_text(outcome.get("resulting_coverage_status")).strip()
+    if resulting_coverage_status not in PROMISE_COVERAGE_ALLOWED_STATUSES:
+        errors.append(
+            f"{context}.resulting_coverage_status must be one of "
+            f"{', '.join(sorted(PROMISE_COVERAGE_ALLOWED_STATUSES))}"
+        )
+
+    resulting_task_status = _to_text(outcome.get("resulting_task_status")).strip()
+    if resulting_task_status not in PROMISE_TASK_ALLOWED_STATUSES:
+        errors.append(
+            f"{context}.resulting_task_status must be one of {', '.join(sorted(PROMISE_TASK_ALLOWED_STATUSES))}"
+        )
+
+    return errors
+
+
+def load_promise_scan_outcome_v1(path: Path) -> dict[str, Any]:
+    payload = json.loads(path.read_text())
+    if not isinstance(payload, dict):
+        raise ValueError(f"promise scan outcome must be an object: {path}")
+    if payload.get("schema_version") != "PromiseScanOutcome.v1":
+        raise ValueError(f"{path} schema_version must be PromiseScanOutcome.v1")
+
+    errors = validate_promise_scan_outcome(payload, context="scan_outcome")
+    if errors:
+        raise ValueError(f"{path} invalid promise scan outcome: {'; '.join(errors)}")
+
+    normalized = dict(payload)
+    for field in PROMISE_SCAN_OUTCOME_REQUIRED_STRING_FIELDS:
+        normalized[field] = _to_text(payload.get(field)).strip()
+
+    normalized["witness_ids_added"] = _normalize_string_list(payload.get("witness_ids_added"))
+    normalized["anomaly_ids"] = _normalize_string_list(payload.get("anomaly_ids"))
+    raw_killed_reason = payload.get("killed_reason")
+    normalized["killed_reason"] = None if raw_killed_reason is None else _to_text(raw_killed_reason).strip()
+    normalized["outcome"] = _to_text(payload.get("outcome")).strip()
+    normalized["resulting_coverage_status"] = _to_text(payload.get("resulting_coverage_status")).strip()
+    normalized["resulting_task_status"] = _to_text(payload.get("resulting_task_status")).strip()
+    return normalized
+
+
+def load_promise_scan_outcomes_for_incident_v1(
+    outcomes_root: Path, incident_id: str
+) -> list[dict[str, Any]]:
+    normalized_incident_id = _to_text(incident_id).strip()
+    if not normalized_incident_id:
+        raise ValueError("incident_id must be non-empty")
+
+    incident_dir = outcomes_root / normalized_incident_id
+    if not incident_dir.exists():
+        return []
+    if not incident_dir.is_dir():
+        raise ValueError(f"incident promise outcome path is not a directory: {incident_dir}")
+
+    deduped_by_outcome_id: dict[str, dict[str, Any]] = {}
+    for path in sorted(incident_dir.glob("*.json")):
+        outcome = load_promise_scan_outcome_v1(path)
+        if _to_text(outcome.get("incident_id")).strip() != normalized_incident_id:
+            raise ValueError(f"{path} incident_id must match directory incident: {normalized_incident_id}")
+        outcome_id = _to_text(outcome.get("outcome_id")).strip()
+        if outcome_id in deduped_by_outcome_id:
+            raise ValueError(f"duplicate outcome_id in incident directory: {outcome_id}")
+        deduped_by_outcome_id[outcome_id] = outcome
+
+    return [deduped_by_outcome_id[outcome_id] for outcome_id in sorted(deduped_by_outcome_id)]
+
+
+def apply_promise_scan_outcome_statuses(
+    coverage_cell: dict[str, Any],
+    task: dict[str, Any],
+    scan_outcome: dict[str, Any],
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    if not isinstance(coverage_cell, dict):
+        raise ValueError("coverage_cell must be an object")
+    if not isinstance(task, dict):
+        raise ValueError("task must be an object")
+    if not isinstance(scan_outcome, dict):
+        raise ValueError("scan_outcome must be an object")
+
+    coverage_errors = validate_promise_coverage_cell(coverage_cell, context="coverage_cell")
+    if coverage_errors:
+        raise ValueError(f"invalid coverage_cell: {'; '.join(coverage_errors)}")
+
+    task_errors = validate_promise_traversal_task(task, context="task")
+    if task_errors:
+        raise ValueError(f"invalid task: {'; '.join(task_errors)}")
+
+    outcome_errors = validate_promise_scan_outcome(scan_outcome, context="scan_outcome")
+    if outcome_errors:
+        raise ValueError(f"invalid scan_outcome: {'; '.join(outcome_errors)}")
+
+    outcome_key = (
+        _to_text(scan_outcome.get("promise_id")).strip(),
+        _to_text(scan_outcome.get("interaction_family")).strip(),
+        _to_text(scan_outcome.get("consistency_boundary")).strip(),
+    )
+    coverage_key = (
+        _to_text(coverage_cell.get("promise_id")).strip(),
+        _to_text(coverage_cell.get("interaction_family")).strip(),
+        _to_text(coverage_cell.get("consistency_boundary")).strip(),
+    )
+    task_key = (
+        _to_text(task.get("promise_id")).strip(),
+        _to_text(task.get("interaction_family")).strip(),
+        _to_text(task.get("consistency_boundary")).strip(),
+    )
+
+    if coverage_key != outcome_key:
+        raise ValueError("malformed linkage: scan outcome key does not match coverage cell key")
+    if task_key != outcome_key:
+        raise ValueError("malformed linkage: scan outcome key does not match task key")
+    if _to_text(scan_outcome.get("task_id")).strip() != _to_text(task.get("task_id")).strip():
+        raise ValueError("malformed linkage: scan outcome task_id does not match task.task_id")
+    if _to_text(scan_outcome.get("frame_id")).strip() != _to_text(task.get("assigned_frame_id")).strip():
+        raise ValueError("malformed linkage: scan outcome frame_id does not match task.assigned_frame_id")
+
+    updated_coverage_cell = dict(coverage_cell)
+    updated_coverage_cell["status"] = _to_text(scan_outcome.get("resulting_coverage_status")).strip()
+
+    updated_task = dict(task)
+    updated_task["status"] = _to_text(scan_outcome.get("resulting_task_status")).strip()
+    return updated_coverage_cell, updated_task
+
+
 WITNESS_TYPES = {
     "observed_state",
     "missing_event",

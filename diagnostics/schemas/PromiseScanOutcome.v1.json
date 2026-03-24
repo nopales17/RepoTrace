@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://repotrace.local/diagnostics/schemas/PromiseScanOutcome.v1.json",
+  "title": "PromiseScanOutcome.v1",
+  "description": "Manual scan outcome artifact that closes a promise task/frame slice into coverage and task status updates.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "produced_by",
+    "outcome_id",
+    "task_id",
+    "frame_id",
+    "incident_id",
+    "promise_id",
+    "interaction_family",
+    "consistency_boundary",
+    "outcome",
+    "summary",
+    "witness_ids_added",
+    "anomaly_ids",
+    "killed_reason",
+    "next_action",
+    "resulting_coverage_status",
+    "resulting_task_status",
+    "created_at"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "PromiseScanOutcome.v1"
+    },
+    "produced_by": {
+      "type": "string",
+      "minLength": 1
+    },
+    "outcome_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "frame_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "incident_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "promise_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "interaction_family": {
+      "type": "string",
+      "minLength": 1
+    },
+    "consistency_boundary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "outcome": {
+      "type": "string",
+      "enum": [
+        "killed",
+        "anomaly_found",
+        "survives",
+        "exhausted",
+        "blocked"
+      ]
+    },
+    "summary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "witness_ids_added": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "anomaly_ids": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "killed_reason": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "next_action": {
+      "type": "string",
+      "minLength": 1
+    },
+    "resulting_coverage_status": {
+      "type": "string",
+      "enum": [
+        "unseen",
+        "mapped",
+        "scanned",
+        "anomaly_found",
+        "killed",
+        "survives"
+      ]
+    },
+    "resulting_task_status": {
+      "type": "string",
+      "enum": [
+        "queued",
+        "active",
+        "blocked",
+        "done"
+      ]
+    },
+    "created_at": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "additionalProperties": true
+}

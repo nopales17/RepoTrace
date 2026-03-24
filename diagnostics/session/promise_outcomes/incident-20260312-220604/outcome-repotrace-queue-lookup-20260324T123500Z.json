@@ -1,0 +1,22 @@
+{
+  "schema_version": "PromiseScanOutcome.v1",
+  "produced_by": "manual:promise-scan-outcome",
+  "outcome_id": "outcome-repotrace-queue-lookup-20260324T123500Z",
+  "task_id": "task-repotrace-queue-lookup-scan",
+  "frame_id": "frame-repotrace-queue-preview-20260324T101500Z",
+  "incident_id": "incident-20260312-220604",
+  "promise_id": "promise-repotrace-queue-preview-reflects-selected-collection",
+  "interaction_family": "queue lookup",
+  "consistency_boundary": "screenCollection/runtimeCollection/ruleCollection agreement",
+  "outcome": "blocked",
+  "summary": "Lookup-key normalization probe started but rule-layer key emission was missing in the current logging slice, so the scan could not close the boundary deterministically.",
+  "witness_ids_added": [],
+  "anomaly_ids": [
+    "anomaly-queue-rule-lookup-miss"
+  ],
+  "killed_reason": null,
+  "next_action": "Add one deterministic log point at rule-table key resolution for ROAD_TRIP_MIX, then rerun the same slice.",
+  "resulting_coverage_status": "scanned",
+  "resulting_task_status": "blocked",
+  "created_at": "2026-03-24T12:35:00Z"
+}

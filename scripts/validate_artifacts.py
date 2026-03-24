@@ -109,6 +109,24 @@ REQUIRED_BY_SCHEMA: dict[str, list[str]] = {
         "created_at",
         "updated_at",
     ],
+    "PromiseScanOutcome.v1": [
+        "outcome_id",
+        "task_id",
+        "frame_id",
+        "incident_id",
+        "promise_id",
+        "interaction_family",
+        "consistency_boundary",
+        "outcome",
+        "summary",
+        "witness_ids_added",
+        "anomaly_ids",
+        "killed_reason",
+        "next_action",
+        "resulting_coverage_status",
+        "resulting_task_status",
+        "created_at",
+    ],
 }
 
 VALID_VERDICTS = {"motif_match", "motif_non_match", "ambiguous"}
@@ -188,6 +206,7 @@ PROMISE_TASK_REQUIRED_FIELDS = {
     "updated_at",
 }
 PROMISE_TASK_ALLOWED_STATUSES = {"queued", "active", "blocked", "done"}
+PROMISE_SCAN_OUTCOME_ALLOWED_OUTCOMES = {"killed", "anomaly_found", "survives", "exhausted", "blocked"}
 
 
 def default_targets() -> list[Path]:
@@ -198,6 +217,7 @@ def default_targets() -> list[Path]:
     targets.extend(sorted(Path("diagnostics/session/latest").glob("*.json")))
     targets.extend(sorted(Path("diagnostics/session/promise_frames").glob("*/*.json")))
     targets.extend(sorted(Path("diagnostics/session/promise_frames/latest").glob("*.json")))
+    targets.extend(sorted(Path("diagnostics/session/promise_outcomes").glob("*/*.json")))
 
     memory_claims = Path("diagnostics/memory/claims.json")
     if memory_claims.exists():
@@ -620,6 +640,65 @@ def validate_special_cases(path: Path, payload: dict[str, Any]) -> list[str]:
 
             if not isinstance(payload.get("budget"), dict):
                 errors.append("PromiseTraversalTask.v1 budget must be an object")
+
+    if schema_version == "PromiseScanOutcome.v1":
+        outcome = str(payload.get("outcome", "")).strip()
+        if outcome not in PROMISE_SCAN_OUTCOME_ALLOWED_OUTCOMES:
+            errors.append(
+                "PromiseScanOutcome.v1 outcome must be one of "
+                f"{'/'.join(sorted(PROMISE_SCAN_OUTCOME_ALLOWED_OUTCOMES))}"
+            )
+
+        for key in (
+            "outcome_id",
+            "task_id",
+            "frame_id",
+            "incident_id",
+            "promise_id",
+            "interaction_family",
+            "consistency_boundary",
+            "summary",
+            "next_action",
+            "created_at",
+        ):
+            if not str(payload.get(key, "")).strip():
+                errors.append(f"PromiseScanOutcome.v1 {key} must be a non-empty string")
+
+        next_action = str(payload.get("next_action", "")).strip()
+        if not next_action:
+            errors.append("PromiseScanOutcome.v1 next_action must be non-empty")
+
+        for key in ("witness_ids_added", "anomaly_ids"):
+            values = payload.get(key)
+            if not isinstance(values, list):
+                errors.append(f"PromiseScanOutcome.v1 {key} must be an array")
+            elif any(not str(item).strip() for item in values):
+                errors.append(f"PromiseScanOutcome.v1 {key} entries must be non-empty strings")
+
+        killed_reason = payload.get("killed_reason")
+        if killed_reason is not None and not str(killed_reason).strip():
+            errors.append("PromiseScanOutcome.v1 killed_reason must be null or a non-empty string")
+        if outcome == "killed" and not str(killed_reason or "").strip():
+            errors.append("PromiseScanOutcome.v1 killed outcome requires killed_reason")
+
+        resulting_coverage_status = str(payload.get("resulting_coverage_status", "")).strip()
+        if resulting_coverage_status not in PROMISE_COVERAGE_ALLOWED_STATUSES:
+            errors.append(
+                "PromiseScanOutcome.v1 resulting_coverage_status must be one of "
+                f"{'/'.join(sorted(PROMISE_COVERAGE_ALLOWED_STATUSES))}"
+            )
+
+        resulting_task_status = str(payload.get("resulting_task_status", "")).strip()
+        if resulting_task_status not in PROMISE_TASK_ALLOWED_STATUSES:
+            errors.append(
+                "PromiseScanOutcome.v1 resulting_task_status must be one of "
+                f"{'/'.join(sorted(PROMISE_TASK_ALLOWED_STATUSES))}"
+            )
+
+        parent_incident = path.parent.name
+        incident_id = str(payload.get("incident_id", "")).strip()
+        if parent_incident.startswith("incident-") and incident_id and incident_id != parent_incident:
+            errors.append("PromiseScanOutcome.v1 incident_id must match parent incident directory")
 
     if path.name == "research_state.yaml" and schema_version != "ResearchState.v1":
         errors.append("research_state.yaml must have schema_version ResearchState.v1")
