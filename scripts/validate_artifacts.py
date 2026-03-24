@@ -97,6 +97,21 @@ REQUIRED_BY_SCHEMA: dict[str, list[str]] = {
         "ledger_version",
         "coverage",
     ],
+    "PromiseTouchMap.v1": [
+        "touch_map_id",
+        "promise_id",
+        "purpose_context",
+        "actors",
+        "protected_state",
+        "mutable_surfaces",
+        "interaction_families",
+        "consistency_boundaries",
+        "pressure_axes",
+        "slice_candidates",
+        "evidence_refs",
+        "created_at",
+        "updated_at",
+    ],
     "PromiseTraversalTask.v1": [
         "task_id",
         "promise_id",
@@ -207,6 +222,7 @@ PROMISE_TASK_REQUIRED_FIELDS = {
 }
 PROMISE_TASK_ALLOWED_STATUSES = {"queued", "active", "blocked", "done"}
 PROMISE_SCAN_OUTCOME_ALLOWED_OUTCOMES = {"killed", "anomaly_found", "survives", "exhausted", "blocked"}
+PROMISE_TOUCH_SLICE_ALLOWED_STATUSES = {"proposed", "accepted", "deferred", "exhausted"}
 
 
 def default_targets() -> list[Path]:
@@ -226,6 +242,7 @@ def default_targets() -> list[Path]:
     if promise_registry.exists():
         targets.append(promise_registry)
     targets.extend(sorted(Path("diagnostics/memory/promise_coverage_ledgers").glob("*.json")))
+    targets.extend(sorted(Path("diagnostics/memory/promise_touch_maps").glob("*.json")))
     targets.extend(sorted(Path("diagnostics/session/promise_tasks").glob("*.json")))
 
     research_state = Path("research/research_state.yaml")
@@ -612,6 +629,168 @@ def validate_special_cases(path: Path, payload: dict[str, Any]) -> list[str]:
                     errors.append(f"{label}.last_session_ref must be non-empty")
                 if not str(cell.get("updated_at", "")).strip():
                     errors.append(f"{label}.updated_at must be non-empty")
+
+    if schema_version == "PromiseTouchMap.v1":
+        for key in ("touch_map_id", "promise_id", "protected_state", "created_at", "updated_at"):
+            if not str(payload.get(key, "")).strip():
+                errors.append(f"PromiseTouchMap.v1 {key} must be a non-empty string")
+
+        purpose_context = payload.get("purpose_context")
+        if isinstance(purpose_context, dict):
+            if not purpose_context:
+                errors.append("PromiseTouchMap.v1 purpose_context must not be empty when object")
+        elif not str(purpose_context or "").strip():
+            errors.append("PromiseTouchMap.v1 purpose_context must be a non-empty string or object")
+
+        for key in ("actors", "pressure_axes"):
+            if not _non_empty_strings(payload.get(key)):
+                errors.append(f"PromiseTouchMap.v1 {key} must be a non-empty array of strings")
+
+        evidence_refs = payload.get("evidence_refs")
+        if not isinstance(evidence_refs, dict):
+            errors.append("PromiseTouchMap.v1 evidence_refs must be an object")
+
+        mutable_surfaces = payload.get("mutable_surfaces")
+        seen_surface_ids: set[str] = set()
+        if not isinstance(mutable_surfaces, list) or not mutable_surfaces:
+            errors.append("PromiseTouchMap.v1 mutable_surfaces must be a non-empty array")
+        else:
+            for idx, surface in enumerate(mutable_surfaces, start=1):
+                label = f"PromiseTouchMap.v1 mutable_surfaces[{idx}]"
+                if not isinstance(surface, dict):
+                    errors.append(f"{label} must be an object")
+                    continue
+                required = {"surface_id", "kind", "ref", "actor_scope", "notes"}
+                missing = sorted(required - set(surface.keys()))
+                if missing:
+                    errors.append(f"{label} missing required keys: {', '.join(missing)}")
+                    continue
+                for key in sorted(required):
+                    if not str(surface.get(key, "")).strip():
+                        errors.append(f"{label}.{key} must be a non-empty string")
+                surface_id = str(surface.get("surface_id", "")).strip()
+                if surface_id:
+                    if surface_id in seen_surface_ids:
+                        errors.append(f"PromiseTouchMap.v1 duplicate surface_id: {surface_id}")
+                    seen_surface_ids.add(surface_id)
+
+        interaction_families = payload.get("interaction_families")
+        family_ids: set[str] = set()
+        if not isinstance(interaction_families, list) or not interaction_families:
+            errors.append("PromiseTouchMap.v1 interaction_families must be a non-empty array")
+        else:
+            for idx, family in enumerate(interaction_families, start=1):
+                label = f"PromiseTouchMap.v1 interaction_families[{idx}]"
+                if not isinstance(family, dict):
+                    errors.append(f"{label} must be an object")
+                    continue
+                required = {"family_id", "statement", "surface_ids", "actor_scope", "transition_refs"}
+                missing = sorted(required - set(family.keys()))
+                if missing:
+                    errors.append(f"{label} missing required keys: {', '.join(missing)}")
+                    continue
+                for key in ("family_id", "statement", "actor_scope"):
+                    if not str(family.get(key, "")).strip():
+                        errors.append(f"{label}.{key} must be a non-empty string")
+                for key in ("surface_ids", "transition_refs"):
+                    if not _non_empty_strings(family.get(key)):
+                        errors.append(f"{label}.{key} must be a non-empty array of strings")
+                family_id = str(family.get("family_id", "")).strip()
+                if family_id:
+                    if family_id in family_ids:
+                        errors.append(f"PromiseTouchMap.v1 duplicate family_id: {family_id}")
+                    family_ids.add(family_id)
+
+        consistency_boundaries = payload.get("consistency_boundaries")
+        boundary_ids: set[str] = set()
+        if not isinstance(consistency_boundaries, list) or not consistency_boundaries:
+            errors.append("PromiseTouchMap.v1 consistency_boundaries must be a non-empty array")
+        else:
+            for idx, boundary in enumerate(consistency_boundaries, start=1):
+                label = f"PromiseTouchMap.v1 consistency_boundaries[{idx}]"
+                if not isinstance(boundary, dict):
+                    errors.append(f"{label} must be an object")
+                    continue
+                required = {
+                    "boundary_id",
+                    "statement",
+                    "representation_a",
+                    "representation_b",
+                    "settlement_horizon",
+                    "notes",
+                }
+                missing = sorted(required - set(boundary.keys()))
+                if missing:
+                    errors.append(f"{label} missing required keys: {', '.join(missing)}")
+                    continue
+                for key in sorted(required):
+                    if not str(boundary.get(key, "")).strip():
+                        errors.append(f"{label}.{key} must be a non-empty string")
+                boundary_id = str(boundary.get("boundary_id", "")).strip()
+                if boundary_id:
+                    if boundary_id in boundary_ids:
+                        errors.append(f"PromiseTouchMap.v1 duplicate boundary_id: {boundary_id}")
+                    boundary_ids.add(boundary_id)
+
+        slice_candidates = payload.get("slice_candidates")
+        seen_slice_ids: set[str] = set()
+        if not isinstance(slice_candidates, list) or not slice_candidates:
+            errors.append("PromiseTouchMap.v1 slice_candidates must be a non-empty array")
+        else:
+            for idx, candidate in enumerate(slice_candidates, start=1):
+                label = f"PromiseTouchMap.v1 slice_candidates[{idx}]"
+                if not isinstance(candidate, dict):
+                    errors.append(f"{label} must be an object")
+                    continue
+
+                required = {
+                    "slice_id",
+                    "interaction_family",
+                    "consistency_boundary",
+                    "rationale",
+                    "priority",
+                    "confidence",
+                    "status",
+                }
+                missing = sorted(required - set(candidate.keys()))
+                if missing:
+                    errors.append(f"{label} missing required keys: {', '.join(missing)}")
+                    continue
+
+                for key in (
+                    "slice_id",
+                    "interaction_family",
+                    "consistency_boundary",
+                    "rationale",
+                    "priority",
+                    "status",
+                ):
+                    if not str(candidate.get(key, "")).strip():
+                        errors.append(f"{label}.{key} must be a non-empty string")
+
+                confidence = candidate.get("confidence")
+                if not isinstance(confidence, (int, float)) or not (0.0 <= float(confidence) <= 1.0):
+                    errors.append(f"{label}.confidence must be a number between 0 and 1")
+
+                status = str(candidate.get("status", "")).strip()
+                if status not in PROMISE_TOUCH_SLICE_ALLOWED_STATUSES:
+                    errors.append(
+                        f"{label}.status must be one of {', '.join(sorted(PROMISE_TOUCH_SLICE_ALLOWED_STATUSES))}"
+                    )
+
+                slice_id = str(candidate.get("slice_id", "")).strip()
+                if slice_id:
+                    if slice_id in seen_slice_ids:
+                        errors.append(f"PromiseTouchMap.v1 duplicate slice_id: {slice_id}")
+                    seen_slice_ids.add(slice_id)
+
+                family_ref = str(candidate.get("interaction_family", "")).strip()
+                if family_ref and family_ids and family_ref not in family_ids:
+                    errors.append(f"{label}.interaction_family references unknown family_id: {family_ref}")
+
+                boundary_ref = str(candidate.get("consistency_boundary", "")).strip()
+                if boundary_ref and boundary_ids and boundary_ref not in boundary_ids:
+                    errors.append(f"{label}.consistency_boundary references unknown boundary_id: {boundary_ref}")
 
     if schema_version == "PromiseTraversalTask.v1":
         missing = sorted(PROMISE_TASK_REQUIRED_FIELDS - set(payload.keys()))

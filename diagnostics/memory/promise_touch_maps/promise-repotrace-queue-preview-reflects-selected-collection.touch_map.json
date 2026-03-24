@@ -1,0 +1,133 @@
+{
+  "schema_version": "PromiseTouchMap.v1",
+  "produced_by": "manual:promise-touch-map-seed",
+  "touch_map_id": "touch-map-repotrace-queue-preview-v1",
+  "promise_id": "promise-repotrace-queue-preview-reflects-selected-collection",
+  "purpose_context": {
+    "fixture_ref": "eval/fixtures/repotrace-current-incident.yaml",
+    "incident_ids": [
+      "incident-20260312-220604"
+    ],
+    "objective": "Bridge selected-collection promise to explicit scanable slices before worker traversal."
+  },
+  "actors": [
+    "user",
+    "collection picker UI",
+    "queue rule lookup",
+    "queue preview"
+  ],
+  "protected_state": "Selected collection identity and queued track count stay aligned across screen, runtime lookup, and preview render.",
+  "mutable_surfaces": [
+    {
+      "surface_id": "surface-selection-ui",
+      "kind": "ui_state",
+      "ref": "collection picker selected value",
+      "actor_scope": "user + collection picker UI",
+      "notes": "Entry point where selected collection changes before queue setup."
+    },
+    {
+      "surface_id": "surface-queue-rule-lookup",
+      "kind": "runtime_lookup",
+      "ref": "queue rule table key normalization and lookup",
+      "actor_scope": "queue rule lookup",
+      "notes": "Lookup miss or nil rule collection causes downstream preview drift."
+    },
+    {
+      "surface_id": "surface-preview-render",
+      "kind": "ui_projection",
+      "ref": "queue preview queued track count",
+      "actor_scope": "queue preview",
+      "notes": "Final user-visible projection of rule/selection consistency."
+    }
+  ],
+  "interaction_families": [
+    {
+      "family_id": "family-queue-lookup",
+      "statement": "Queue lookup resolves a selected collection key into rule collection and expected count inputs.",
+      "surface_ids": [
+        "surface-selection-ui",
+        "surface-queue-rule-lookup"
+      ],
+      "actor_scope": "collection picker UI + queue rule lookup",
+      "transition_refs": [
+        "pick_collection -> normalize_lookup_key",
+        "normalize_lookup_key -> resolve_rule_entry"
+      ]
+    },
+    {
+      "family_id": "family-preview-render",
+      "statement": "Preview render projects resolved queue values back into visible queued track count.",
+      "surface_ids": [
+        "surface-queue-rule-lookup",
+        "surface-preview-render"
+      ],
+      "actor_scope": "queue rule lookup + queue preview",
+      "transition_refs": [
+        "resolve_rule_entry -> preview_render",
+        "preview_render -> first_visible_count"
+      ]
+    }
+  ],
+  "consistency_boundaries": [
+    {
+      "boundary_id": "boundary-key-agreement",
+      "statement": "screenCollection/runtimeCollection/ruleCollection remain equivalent for the selected collection.",
+      "representation_a": "screenCollection from picker state",
+      "representation_b": "runtimeCollection + ruleCollection at lookup",
+      "settlement_horizon": "selection change to first rule lookup completion",
+      "notes": "Primary boundary behind lookup_miss_under_aligned_selection anomaly shape."
+    },
+    {
+      "boundary_id": "boundary-preview-count-agreement",
+      "statement": "Preview queued track count equals rule-derived count for the selected collection.",
+      "representation_a": "ruleQueuedTrackCount",
+      "representation_b": "preview visible queuedTrackCount",
+      "settlement_horizon": "lookup completion to first preview render",
+      "notes": "Secondary boundary used after key agreement is confirmed."
+    }
+  ],
+  "pressure_axes": [
+    "lookup miss with non-empty runtime key",
+    "nil collection code in rule layer",
+    "partial state agreement (ui/runtime aligned, rule divergent)"
+  ],
+  "slice_candidates": [
+    {
+      "slice_id": "slice-queue-lookup-key-agreement",
+      "interaction_family": "family-queue-lookup",
+      "consistency_boundary": "boundary-key-agreement",
+      "rationale": "Current frame/task evidence already centers on lookup-key drift under aligned UI selection.",
+      "priority": "high",
+      "confidence": 0.9,
+      "status": "accepted"
+    },
+    {
+      "slice_id": "slice-preview-count-agreement",
+      "interaction_family": "family-preview-render",
+      "consistency_boundary": "boundary-preview-count-agreement",
+      "rationale": "Useful follow-up once lookup consistency is re-established.",
+      "priority": "medium",
+      "confidence": 0.72,
+      "status": "proposed"
+    }
+  ],
+  "evidence_refs": {
+    "source_incident_ids": [
+      "incident-20260312-220604"
+    ],
+    "retrieval_refs": [
+      "diagnostics/retrieval_results/incident-20260312-220604.json"
+    ],
+    "frame_refs": [
+      "diagnostics/session/promise_frames/incident-20260312-220604/frame-repotrace-queue-preview-20260324T101500Z.json"
+    ],
+    "task_refs": [
+      "diagnostics/session/promise_tasks/task-repotrace-queue-lookup-scan.json"
+    ],
+    "fixture_refs": [
+      "eval/fixtures/repotrace-current-incident.yaml"
+    ]
+  },
+  "created_at": "2026-03-24T15:10:00Z",
+  "updated_at": "2026-03-24T15:10:00Z"
+}

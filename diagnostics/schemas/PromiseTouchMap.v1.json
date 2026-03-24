@@ -1,0 +1,261 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://repotrace.local/diagnostics/schemas/PromiseTouchMap.v1.json",
+  "title": "PromiseTouchMap.v1",
+  "description": "Manual decomposition bridge from promise definition to scan-ready slice candidates.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "produced_by",
+    "touch_map_id",
+    "promise_id",
+    "purpose_context",
+    "actors",
+    "protected_state",
+    "mutable_surfaces",
+    "interaction_families",
+    "consistency_boundaries",
+    "pressure_axes",
+    "slice_candidates",
+    "evidence_refs",
+    "created_at",
+    "updated_at"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "PromiseTouchMap.v1"
+    },
+    "produced_by": {
+      "type": "string",
+      "minLength": 1
+    },
+    "touch_map_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "promise_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "purpose_context": {
+      "oneOf": [
+        {
+          "type": "string",
+          "minLength": 1
+        },
+        {
+          "type": "object"
+        }
+      ]
+    },
+    "actors": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "protected_state": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mutable_surfaces": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "surface_id",
+          "kind",
+          "ref",
+          "actor_scope",
+          "notes"
+        ],
+        "properties": {
+          "surface_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "type": "string",
+            "minLength": 1
+          },
+          "ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "actor_scope": {
+            "type": "string",
+            "minLength": 1
+          },
+          "notes": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "interaction_families": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "family_id",
+          "statement",
+          "surface_ids",
+          "actor_scope",
+          "transition_refs"
+        ],
+        "properties": {
+          "family_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "statement": {
+            "type": "string",
+            "minLength": 1
+          },
+          "surface_ids": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "actor_scope": {
+            "type": "string",
+            "minLength": 1
+          },
+          "transition_refs": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "consistency_boundaries": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "boundary_id",
+          "statement",
+          "representation_a",
+          "representation_b",
+          "settlement_horizon",
+          "notes"
+        ],
+        "properties": {
+          "boundary_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "statement": {
+            "type": "string",
+            "minLength": 1
+          },
+          "representation_a": {
+            "type": "string",
+            "minLength": 1
+          },
+          "representation_b": {
+            "type": "string",
+            "minLength": 1
+          },
+          "settlement_horizon": {
+            "type": "string",
+            "minLength": 1
+          },
+          "notes": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "pressure_axes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "slice_candidates": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "slice_id",
+          "interaction_family",
+          "consistency_boundary",
+          "rationale",
+          "priority",
+          "confidence",
+          "status"
+        ],
+        "properties": {
+          "slice_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "interaction_family": {
+            "type": "string",
+            "minLength": 1
+          },
+          "consistency_boundary": {
+            "type": "string",
+            "minLength": 1
+          },
+          "rationale": {
+            "type": "string",
+            "minLength": 1
+          },
+          "priority": {
+            "type": "string",
+            "minLength": 1
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "proposed",
+              "accepted",
+              "deferred",
+              "exhausted"
+            ]
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "evidence_refs": {
+      "type": "object"
+    },
+    "created_at": {
+      "type": "string",
+      "minLength": 1
+    },
+    "updated_at": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "additionalProperties": true
+}

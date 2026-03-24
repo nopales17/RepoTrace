@@ -330,6 +330,493 @@ def load_promise_registry_v1(path: Path) -> dict[str, Any]:
     return normalized_payload
 
 
+PROMISE_TOUCH_MAP_REQUIRED_FIELDS = (
+    "touch_map_id",
+    "promise_id",
+    "purpose_context",
+    "actors",
+    "protected_state",
+    "mutable_surfaces",
+    "interaction_families",
+    "consistency_boundaries",
+    "pressure_axes",
+    "slice_candidates",
+    "evidence_refs",
+    "created_at",
+    "updated_at",
+)
+
+PROMISE_TOUCH_MAP_REQUIRED_STRING_FIELDS = (
+    "touch_map_id",
+    "promise_id",
+    "protected_state",
+    "created_at",
+    "updated_at",
+)
+
+PROMISE_TOUCH_SURFACE_REQUIRED_FIELDS = (
+    "surface_id",
+    "kind",
+    "ref",
+    "actor_scope",
+    "notes",
+)
+
+PROMISE_TOUCH_INTERACTION_FAMILY_REQUIRED_FIELDS = (
+    "family_id",
+    "statement",
+    "surface_ids",
+    "actor_scope",
+    "transition_refs",
+)
+
+PROMISE_TOUCH_CONSISTENCY_BOUNDARY_REQUIRED_FIELDS = (
+    "boundary_id",
+    "statement",
+    "representation_a",
+    "representation_b",
+    "settlement_horizon",
+    "notes",
+)
+
+PROMISE_TOUCH_SLICE_CANDIDATE_REQUIRED_FIELDS = (
+    "slice_id",
+    "interaction_family",
+    "consistency_boundary",
+    "rationale",
+    "priority",
+    "confidence",
+    "status",
+)
+
+PROMISE_TOUCH_SLICE_ALLOWED_STATUSES = {"proposed", "accepted", "deferred", "exhausted"}
+
+
+def _ensure_non_empty_string_fields(
+    payload: dict[str, Any],
+    *,
+    fields: tuple[str, ...],
+    context: str,
+    errors: list[str],
+) -> None:
+    for field in fields:
+        if not _to_text(payload.get(field)).strip():
+            errors.append(f"{context}.{field} must be a non-empty string")
+
+
+def validate_promise_touch_map_v1(
+    touch_map: dict[str, Any], *, context: str = "promise_touch_map"
+) -> list[str]:
+    if not isinstance(touch_map, dict):
+        return [f"{context} must be an object"]
+
+    errors: list[str] = []
+    missing = [field for field in PROMISE_TOUCH_MAP_REQUIRED_FIELDS if field not in touch_map]
+    if missing:
+        errors.append(f"{context} missing required keys: {', '.join(missing)}")
+        return errors
+
+    _ensure_non_empty_string_fields(
+        touch_map,
+        fields=PROMISE_TOUCH_MAP_REQUIRED_STRING_FIELDS,
+        context=context,
+        errors=errors,
+    )
+
+    purpose_context = touch_map.get("purpose_context")
+    if isinstance(purpose_context, dict):
+        if not purpose_context:
+            errors.append(f"{context}.purpose_context must not be empty")
+    elif not _to_text(purpose_context).strip():
+        errors.append(f"{context}.purpose_context must be a non-empty string or object")
+
+    actors = _normalize_string_list(touch_map.get("actors"))
+    if not actors:
+        errors.append(f"{context}.actors must be a non-empty array of strings")
+
+    pressure_axes = _normalize_string_list(touch_map.get("pressure_axes"))
+    if not pressure_axes:
+        errors.append(f"{context}.pressure_axes must be a non-empty array of strings")
+
+    evidence_refs = touch_map.get("evidence_refs")
+    if not isinstance(evidence_refs, dict):
+        errors.append(f"{context}.evidence_refs must be an object")
+
+    mutable_surfaces = touch_map.get("mutable_surfaces")
+    if not isinstance(mutable_surfaces, list) or not mutable_surfaces:
+        errors.append(f"{context}.mutable_surfaces must be a non-empty array")
+    else:
+        seen_surface_ids: set[str] = set()
+        for idx, raw_surface in enumerate(mutable_surfaces, start=1):
+            entry_context = f"{context}.mutable_surfaces[{idx}]"
+            if not isinstance(raw_surface, dict):
+                errors.append(f"{entry_context} must be an object")
+                continue
+            missing_fields = [field for field in PROMISE_TOUCH_SURFACE_REQUIRED_FIELDS if field not in raw_surface]
+            if missing_fields:
+                errors.append(f"{entry_context} missing required keys: {', '.join(missing_fields)}")
+                continue
+            _ensure_non_empty_string_fields(
+                raw_surface,
+                fields=PROMISE_TOUCH_SURFACE_REQUIRED_FIELDS,
+                context=entry_context,
+                errors=errors,
+            )
+            surface_id = _to_text(raw_surface.get("surface_id")).strip()
+            if surface_id:
+                if surface_id in seen_surface_ids:
+                    errors.append(f"{context}.mutable_surfaces duplicate surface_id: {surface_id}")
+                seen_surface_ids.add(surface_id)
+
+    interaction_families = touch_map.get("interaction_families")
+    family_ids: set[str] = set()
+    if not isinstance(interaction_families, list) or not interaction_families:
+        errors.append(f"{context}.interaction_families must be a non-empty array")
+    else:
+        for idx, raw_family in enumerate(interaction_families, start=1):
+            entry_context = f"{context}.interaction_families[{idx}]"
+            if not isinstance(raw_family, dict):
+                errors.append(f"{entry_context} must be an object")
+                continue
+
+            missing_fields = [
+                field for field in PROMISE_TOUCH_INTERACTION_FAMILY_REQUIRED_FIELDS if field not in raw_family
+            ]
+            if missing_fields:
+                errors.append(f"{entry_context} missing required keys: {', '.join(missing_fields)}")
+                continue
+
+            _ensure_non_empty_string_fields(
+                raw_family,
+                fields=("family_id", "statement", "actor_scope"),
+                context=entry_context,
+                errors=errors,
+            )
+
+            surface_ids = _normalize_string_list(raw_family.get("surface_ids"))
+            if not surface_ids:
+                errors.append(f"{entry_context}.surface_ids must be a non-empty array of strings")
+
+            transition_refs = _normalize_string_list(raw_family.get("transition_refs"))
+            if not transition_refs:
+                errors.append(f"{entry_context}.transition_refs must be a non-empty array of strings")
+
+            family_id = _to_text(raw_family.get("family_id")).strip()
+            if family_id:
+                if family_id in family_ids:
+                    errors.append(f"{context}.interaction_families duplicate family_id: {family_id}")
+                family_ids.add(family_id)
+
+    consistency_boundaries = touch_map.get("consistency_boundaries")
+    boundary_ids: set[str] = set()
+    if not isinstance(consistency_boundaries, list) or not consistency_boundaries:
+        errors.append(f"{context}.consistency_boundaries must be a non-empty array")
+    else:
+        for idx, raw_boundary in enumerate(consistency_boundaries, start=1):
+            entry_context = f"{context}.consistency_boundaries[{idx}]"
+            if not isinstance(raw_boundary, dict):
+                errors.append(f"{entry_context} must be an object")
+                continue
+
+            missing_fields = [
+                field
+                for field in PROMISE_TOUCH_CONSISTENCY_BOUNDARY_REQUIRED_FIELDS
+                if field not in raw_boundary
+            ]
+            if missing_fields:
+                errors.append(f"{entry_context} missing required keys: {', '.join(missing_fields)}")
+                continue
+
+            _ensure_non_empty_string_fields(
+                raw_boundary,
+                fields=PROMISE_TOUCH_CONSISTENCY_BOUNDARY_REQUIRED_FIELDS,
+                context=entry_context,
+                errors=errors,
+            )
+
+            boundary_id = _to_text(raw_boundary.get("boundary_id")).strip()
+            if boundary_id:
+                if boundary_id in boundary_ids:
+                    errors.append(f"{context}.consistency_boundaries duplicate boundary_id: {boundary_id}")
+                boundary_ids.add(boundary_id)
+
+    slice_candidates = touch_map.get("slice_candidates")
+    if not isinstance(slice_candidates, list) or not slice_candidates:
+        errors.append(f"{context}.slice_candidates must be a non-empty array")
+    else:
+        seen_slice_ids: set[str] = set()
+        for idx, raw_slice in enumerate(slice_candidates, start=1):
+            entry_context = f"{context}.slice_candidates[{idx}]"
+            if not isinstance(raw_slice, dict):
+                errors.append(f"{entry_context} must be an object")
+                continue
+
+            missing_fields = [field for field in PROMISE_TOUCH_SLICE_CANDIDATE_REQUIRED_FIELDS if field not in raw_slice]
+            if missing_fields:
+                errors.append(f"{entry_context} missing required keys: {', '.join(missing_fields)}")
+                continue
+
+            _ensure_non_empty_string_fields(
+                raw_slice,
+                fields=(
+                    "slice_id",
+                    "interaction_family",
+                    "consistency_boundary",
+                    "rationale",
+                    "priority",
+                    "status",
+                ),
+                context=entry_context,
+                errors=errors,
+            )
+
+            confidence = raw_slice.get("confidence")
+            if not isinstance(confidence, (int, float)) or not (0.0 <= float(confidence) <= 1.0):
+                errors.append(f"{entry_context}.confidence must be a number between 0 and 1")
+
+            slice_status = _to_text(raw_slice.get("status")).strip()
+            if slice_status not in PROMISE_TOUCH_SLICE_ALLOWED_STATUSES:
+                errors.append(
+                    f"{entry_context}.status must be one of "
+                    f"{', '.join(sorted(PROMISE_TOUCH_SLICE_ALLOWED_STATUSES))}"
+                )
+
+            slice_id = _to_text(raw_slice.get("slice_id")).strip()
+            if slice_id:
+                if slice_id in seen_slice_ids:
+                    errors.append(f"{context}.slice_candidates duplicate slice_id: {slice_id}")
+                seen_slice_ids.add(slice_id)
+
+            family_ref = _to_text(raw_slice.get("interaction_family")).strip()
+            if family_ref and family_ids and family_ref not in family_ids:
+                errors.append(
+                    f"{entry_context}.interaction_family references unknown family_id: {family_ref}"
+                )
+
+            boundary_ref = _to_text(raw_slice.get("consistency_boundary")).strip()
+            if boundary_ref and boundary_ids and boundary_ref not in boundary_ids:
+                errors.append(
+                    f"{entry_context}.consistency_boundary references unknown boundary_id: {boundary_ref}"
+                )
+
+    return errors
+
+
+def _normalize_touch_map_purpose_context(value: Any) -> Any:
+    if isinstance(value, dict):
+        normalized: dict[str, Any] = {}
+        for key in sorted(value):
+            normalized[_to_text(key)] = value[key]
+        return normalized
+    return _to_text(value).strip()
+
+
+def _normalize_touch_map_evidence_refs(raw_refs: Any) -> dict[str, Any]:
+    if not isinstance(raw_refs, dict):
+        return {}
+    normalized: dict[str, Any] = {}
+    for key in sorted(raw_refs):
+        value = raw_refs[key]
+        if isinstance(value, list):
+            normalized[_to_text(key)] = _normalize_string_list(value)
+            continue
+        normalized[_to_text(key)] = value
+    return normalized
+
+
+def load_promise_touch_map_v1(path: Path) -> dict[str, Any]:
+    payload = json.loads(path.read_text())
+    if not isinstance(payload, dict):
+        raise ValueError(f"promise touch map must be an object: {path}")
+
+    required_top_level = ("schema_version", "produced_by", *PROMISE_TOUCH_MAP_REQUIRED_FIELDS)
+    missing = [key for key in required_top_level if key not in payload]
+    if missing:
+        raise ValueError(f"{path} missing required keys: {', '.join(missing)}")
+    if payload.get("schema_version") != "PromiseTouchMap.v1":
+        raise ValueError(f"{path} schema_version must be PromiseTouchMap.v1")
+
+    errors = validate_promise_touch_map_v1(payload, context="touch_map")
+    if errors:
+        raise ValueError(f"{path} invalid promise touch map: {'; '.join(errors)}")
+
+    normalized = dict(payload)
+    for field in PROMISE_TOUCH_MAP_REQUIRED_STRING_FIELDS:
+        normalized[field] = _to_text(payload.get(field)).strip()
+
+    normalized["purpose_context"] = _normalize_touch_map_purpose_context(payload.get("purpose_context"))
+    normalized["actors"] = _normalize_string_list(payload.get("actors"))
+    normalized["pressure_axes"] = _normalize_string_list(payload.get("pressure_axes"))
+    normalized["evidence_refs"] = _normalize_touch_map_evidence_refs(payload.get("evidence_refs"))
+
+    mutable_surfaces = payload.get("mutable_surfaces")
+    normalized_surfaces: list[dict[str, Any]] = []
+    if isinstance(mutable_surfaces, list):
+        for raw_surface in mutable_surfaces:
+            if not isinstance(raw_surface, dict):
+                continue
+            surface = dict(raw_surface)
+            for field in PROMISE_TOUCH_SURFACE_REQUIRED_FIELDS:
+                surface[field] = _to_text(raw_surface.get(field)).strip()
+            normalized_surfaces.append(surface)
+    normalized_surfaces.sort(key=lambda surface: _to_text(surface.get("surface_id")).strip())
+    normalized["mutable_surfaces"] = normalized_surfaces
+
+    interaction_families = payload.get("interaction_families")
+    normalized_families: list[dict[str, Any]] = []
+    if isinstance(interaction_families, list):
+        for raw_family in interaction_families:
+            if not isinstance(raw_family, dict):
+                continue
+            family = dict(raw_family)
+            family["family_id"] = _to_text(raw_family.get("family_id")).strip()
+            family["statement"] = _to_text(raw_family.get("statement")).strip()
+            family["surface_ids"] = _normalize_string_list(raw_family.get("surface_ids"))
+            family["actor_scope"] = _to_text(raw_family.get("actor_scope")).strip()
+            family["transition_refs"] = _normalize_string_list(raw_family.get("transition_refs"))
+            normalized_families.append(family)
+    normalized_families.sort(key=lambda family: _to_text(family.get("family_id")).strip())
+    normalized["interaction_families"] = normalized_families
+
+    consistency_boundaries = payload.get("consistency_boundaries")
+    normalized_boundaries: list[dict[str, Any]] = []
+    if isinstance(consistency_boundaries, list):
+        for raw_boundary in consistency_boundaries:
+            if not isinstance(raw_boundary, dict):
+                continue
+            boundary = dict(raw_boundary)
+            for field in PROMISE_TOUCH_CONSISTENCY_BOUNDARY_REQUIRED_FIELDS:
+                boundary[field] = _to_text(raw_boundary.get(field)).strip()
+            normalized_boundaries.append(boundary)
+    normalized_boundaries.sort(key=lambda boundary: _to_text(boundary.get("boundary_id")).strip())
+    normalized["consistency_boundaries"] = normalized_boundaries
+
+    raw_slice_candidates = payload.get("slice_candidates")
+    normalized_slices: list[dict[str, Any]] = []
+    if isinstance(raw_slice_candidates, list):
+        for raw_slice in raw_slice_candidates:
+            if not isinstance(raw_slice, dict):
+                continue
+            slice_candidate = dict(raw_slice)
+            for field in (
+                "slice_id",
+                "interaction_family",
+                "consistency_boundary",
+                "rationale",
+                "priority",
+                "status",
+            ):
+                slice_candidate[field] = _to_text(raw_slice.get(field)).strip()
+            slice_candidate["confidence"] = float(raw_slice.get("confidence"))
+            normalized_slices.append(slice_candidate)
+    normalized_slices.sort(key=lambda slice_candidate: _to_text(slice_candidate.get("slice_id")).strip())
+    normalized["slice_candidates"] = normalized_slices
+    return normalized
+
+
+def load_promise_touch_maps_from_dir_v1(touch_maps_dir: Path) -> list[dict[str, Any]]:
+    if not touch_maps_dir.exists():
+        return []
+    if not touch_maps_dir.is_dir():
+        raise ValueError(f"promise touch map path is not a directory: {touch_maps_dir}")
+
+    deduped_by_touch_map_id: dict[str, dict[str, Any]] = {}
+    for path in sorted(touch_maps_dir.glob("*.json")):
+        touch_map = load_promise_touch_map_v1(path)
+        touch_map_id = _to_text(touch_map.get("touch_map_id")).strip()
+        if touch_map_id in deduped_by_touch_map_id:
+            raise ValueError(f"duplicate touch_map_id in directory: {touch_map_id}")
+        deduped_by_touch_map_id[touch_map_id] = touch_map
+
+    return [deduped_by_touch_map_id[touch_map_id] for touch_map_id in sorted(deduped_by_touch_map_id)]
+
+
+def _slugify(value: str) -> str:
+    slug = re.sub(r"[^a-z0-9]+", "-", value.lower())
+    return slug.strip("-") or "unknown"
+
+
+def derive_manual_task_stubs_from_touch_map(
+    touch_map: dict[str, Any],
+    *,
+    produced_by: str = "manual:promise-touch-map",
+    assigned_frame_id: str = "frame:manual-assignment-required",
+    created_at: str | None = None,
+) -> list[dict[str, Any]]:
+    errors = validate_promise_touch_map_v1(touch_map, context="touch_map")
+    if errors:
+        raise ValueError(f"invalid promise touch map: {'; '.join(errors)}")
+
+    family_by_id: dict[str, dict[str, Any]] = {}
+    for family in touch_map.get("interaction_families", []):
+        if isinstance(family, dict):
+            family_id = _to_text(family.get("family_id")).strip()
+            if family_id:
+                family_by_id[family_id] = family
+
+    boundary_by_id: dict[str, dict[str, Any]] = {}
+    for boundary in touch_map.get("consistency_boundaries", []):
+        if isinstance(boundary, dict):
+            boundary_id = _to_text(boundary.get("boundary_id")).strip()
+            if boundary_id:
+                boundary_by_id[boundary_id] = boundary
+
+    promise_id = _to_text(touch_map.get("promise_id")).strip()
+    touch_map_id = _to_text(touch_map.get("touch_map_id")).strip()
+    timestamp = _to_text(created_at).strip() or utc_now_iso()
+
+    stubs: list[dict[str, Any]] = []
+    for raw_slice in sorted(
+        [item for item in touch_map.get("slice_candidates", []) if isinstance(item, dict)],
+        key=lambda item: _to_text(item.get("slice_id")).strip(),
+    ):
+        if _to_text(raw_slice.get("status")).strip() != "accepted":
+            continue
+
+        slice_id = _to_text(raw_slice.get("slice_id")).strip()
+        family_id = _to_text(raw_slice.get("interaction_family")).strip()
+        boundary_id = _to_text(raw_slice.get("consistency_boundary")).strip()
+        family = family_by_id.get(family_id, {})
+        boundary = boundary_by_id.get(boundary_id, {})
+
+        interaction_family = (
+            _to_text(family.get("statement")).strip()
+            or family_id
+        )
+        consistency_boundary = (
+            _to_text(boundary.get("statement")).strip()
+            or boundary_id
+        )
+
+        stubs.append(
+            {
+                "schema_version": "PromiseTraversalTask.v1",
+                "produced_by": _to_text(produced_by).strip() or "manual:promise-touch-map",
+                "task_id": f"task-{_slugify(promise_id)}-{_slugify(slice_id)}-stub",
+                "promise_id": promise_id,
+                "interaction_family": interaction_family,
+                "consistency_boundary": consistency_boundary,
+                "assigned_frame_id": _to_text(assigned_frame_id).strip() or "frame:manual-assignment-required",
+                "objective": (
+                    "Manual slice scan from PromiseTouchMap accepted candidate "
+                    f"{slice_id}: validate {interaction_family} x {consistency_boundary}."
+                ),
+                "status": "queued",
+                "budget": {
+                    "checks_remaining": 1,
+                },
+                "created_at": timestamp,
+                "updated_at": timestamp,
+                "source_touch_map_id": touch_map_id,
+                "source_slice_id": slice_id,
+                "source_interaction_family_id": family_id,
+                "source_consistency_boundary_id": boundary_id,
+            }
+        )
+
+    return stubs
+
+
 PROMISE_FRAME_REQUIRED_FIELDS = (
     "frame_id",
     "incident_id",

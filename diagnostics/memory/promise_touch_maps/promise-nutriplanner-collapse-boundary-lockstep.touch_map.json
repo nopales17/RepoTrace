@@ -1,0 +1,135 @@
+{
+  "schema_version": "PromiseTouchMap.v1",
+  "produced_by": "manual:promise-touch-map-seed",
+  "touch_map_id": "touch-map-nutriplanner-collapse-lockstep-v1",
+  "promise_id": "promise-nutriplanner-collapse-boundary-lockstep",
+  "purpose_context": {
+    "fixture_ref": "eval/fixtures/nutriplanner-collapse-case.yaml",
+    "incident_ids": [
+      "incident-20260313-235921"
+    ],
+    "objective": "Decompose collapse-lockstep promise into concrete interaction/boundary slices for manual scan planning."
+  },
+  "actors": [
+    "user",
+    "estimate row view",
+    "collapse animation pipeline",
+    "layout boundary owner"
+  ],
+  "protected_state": "Detail region geometry and first boundary child geometry remain visually synchronized through collapse transition phases.",
+  "mutable_surfaces": [
+    {
+      "surface_id": "surface-collapse-toggle",
+      "kind": "ui_action",
+      "ref": "row collapse toggle interaction",
+      "actor_scope": "user + estimate row view",
+      "notes": "Begins collapse transition and seeds transitionSeq boundaries."
+    },
+    {
+      "surface_id": "surface-transition-probes",
+      "kind": "runtime_probe",
+      "ref": "displayLink transition probes (deltaY, heights, seq)",
+      "actor_scope": "collapse animation pipeline",
+      "notes": "Records timing and geometry ordering under stress."
+    },
+    {
+      "surface_id": "surface-boundary-owner",
+      "kind": "ownership_state",
+      "ref": "collapsed gate ownership and child reconciliation",
+      "actor_scope": "layout boundary owner",
+      "notes": "Lag or ordering inversion can create transient seam drift."
+    }
+  ],
+  "interaction_families": [
+    {
+      "family_id": "family-row-collapse-transition",
+      "statement": "Row collapse transition updates detail region and boundary child over ordered transition sequences.",
+      "surface_ids": [
+        "surface-collapse-toggle",
+        "surface-transition-probes",
+        "surface-boundary-owner"
+      ],
+      "actor_scope": "estimate row view + collapse animation pipeline + layout boundary owner",
+      "transition_refs": [
+        "collapse_start -> transition_probe_tick",
+        "transition_probe_tick -> ownership_handoff",
+        "ownership_handoff -> collapse_end"
+      ]
+    },
+    {
+      "family_id": "family-reuse-collapse-handoff",
+      "statement": "Cell reuse and ownership handoff during collapse preserve the same boundary-child reconciliation target.",
+      "surface_ids": [
+        "surface-transition-probes",
+        "surface-boundary-owner"
+      ],
+      "actor_scope": "collapse animation pipeline + layout boundary owner",
+      "transition_refs": [
+        "cell_reuse_prepare -> ownership_handoff",
+        "ownership_handoff -> child_reconciliation"
+      ]
+    }
+  ],
+  "consistency_boundaries": [
+    {
+      "boundary_id": "boundary-delta-lockstep",
+      "statement": "firstChildToDetailDeltaY stays within the lockstep envelope through collapse.",
+      "representation_a": "firstChildToDetailDeltaY probe series",
+      "representation_b": "expected lockstep envelope from collapse phase",
+      "settlement_horizon": "collapse start to collapse end",
+      "notes": "Matches current frame focus and anomaly id semantics."
+    },
+    {
+      "boundary_id": "boundary-ownership-order",
+      "statement": "Ownership handoff settles before child reconciliation uses the new collapsed gate owner.",
+      "representation_a": "ownership handoff transition markers",
+      "representation_b": "boundary child reconciliation ordering",
+      "settlement_horizon": "handoff event to first reconciliation tick",
+      "notes": "Captures ordering race suspected in seam divergence branch."
+    }
+  ],
+  "pressure_axes": [
+    "high-frequency displayLink probe activity",
+    "rapid collapse/edit transitions",
+    "cell reuse and ownership handoff timing"
+  ],
+  "slice_candidates": [
+    {
+      "slice_id": "slice-collapse-delta-lockstep",
+      "interaction_family": "family-row-collapse-transition",
+      "consistency_boundary": "boundary-delta-lockstep",
+      "rationale": "Matches current anomaly-bearing frame and existing queued traversal task objective.",
+      "priority": "high",
+      "confidence": 0.86,
+      "status": "accepted"
+    },
+    {
+      "slice_id": "slice-reuse-handoff-order",
+      "interaction_family": "family-reuse-collapse-handoff",
+      "consistency_boundary": "boundary-ownership-order",
+      "rationale": "Follow-up slice if delta lockstep anomaly origin remains ambiguous.",
+      "priority": "medium",
+      "confidence": 0.68,
+      "status": "deferred"
+    }
+  ],
+  "evidence_refs": {
+    "source_incident_ids": [
+      "incident-20260313-235921"
+    ],
+    "retrieval_refs": [
+      "diagnostics/retrieval_results/incident-20260313-235921.json"
+    ],
+    "frame_refs": [
+      "diagnostics/session/promise_frames/incident-20260313-235921/frame-nutriplanner-collapse-20260324T101900Z.json"
+    ],
+    "task_refs": [
+      "diagnostics/session/promise_tasks/task-nutriplanner-collapse-seam-scan.json"
+    ],
+    "fixture_refs": [
+      "eval/fixtures/nutriplanner-collapse-case.yaml"
+    ]
+  },
+  "created_at": "2026-03-24T15:11:00Z",
+  "updated_at": "2026-03-24T15:11:00Z"
+}
