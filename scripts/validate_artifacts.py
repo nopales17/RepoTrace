@@ -142,6 +142,24 @@ REQUIRED_BY_SCHEMA: dict[str, list[str]] = {
         "resulting_task_status",
         "created_at",
     ],
+    "PromiseWorkPacket.v1": [
+        "work_packet_id",
+        "incident_id",
+        "promise_id",
+        "slice",
+        "frame_ref",
+        "task_ref",
+        "touch_map_ref",
+        "coverage_ref",
+        "check_ids",
+        "prior_outcome_refs",
+        "objective",
+        "current_pressure",
+        "budget",
+        "status",
+        "created_at",
+        "updated_at",
+    ],
     "CheckCard.v1": [
         "check_id",
         "statement",
@@ -245,6 +263,7 @@ PROMISE_TASK_REQUIRED_FIELDS = {
 }
 PROMISE_TASK_ALLOWED_STATUSES = {"queued", "active", "blocked", "done"}
 PROMISE_SCAN_OUTCOME_ALLOWED_OUTCOMES = {"killed", "anomaly_found", "survives", "exhausted", "blocked"}
+PROMISE_WORK_PACKET_ALLOWED_STATUSES = {"draft", "ready", "active", "blocked", "completed", "stale"}
 PROMISE_TOUCH_SLICE_ALLOWED_STATUSES = {"proposed", "accepted", "deferred", "exhausted"}
 CHECK_CARD_REQUIRED_FIELDS = {
     "check_id",
@@ -304,6 +323,7 @@ def default_targets() -> list[Path]:
     targets.extend(sorted(Path("diagnostics/session/promise_frames").glob("*/*.json")))
     targets.extend(sorted(Path("diagnostics/session/promise_frames/latest").glob("*.json")))
     targets.extend(sorted(Path("diagnostics/session/promise_outcomes").glob("*/*.json")))
+    targets.extend(sorted(Path("diagnostics/session/promise_work_packets").glob("*/*.json")))
 
     memory_claims = Path("diagnostics/memory/claims.json")
     if memory_claims.exists():
@@ -1029,6 +1049,78 @@ def validate_special_cases(path: Path, payload: dict[str, Any]) -> list[str]:
                     if check_id in seen_check_ids:
                         errors.append(f"PromiseCheckLibrary.v1 duplicate check_id: {check_id}")
                     seen_check_ids.add(check_id)
+
+    if schema_version == "PromiseWorkPacket.v1":
+        for key in (
+            "work_packet_id",
+            "incident_id",
+            "promise_id",
+            "frame_ref",
+            "task_ref",
+            "touch_map_ref",
+            "coverage_ref",
+            "objective",
+            "created_at",
+            "updated_at",
+        ):
+            if not str(payload.get(key, "")).strip():
+                errors.append(f"PromiseWorkPacket.v1 {key} must be a non-empty string")
+
+        status = str(payload.get("status", "")).strip()
+        if status not in PROMISE_WORK_PACKET_ALLOWED_STATUSES:
+            errors.append(
+                "PromiseWorkPacket.v1 status must be one of "
+                f"{'/'.join(sorted(PROMISE_WORK_PACKET_ALLOWED_STATUSES))}"
+            )
+
+        slice_obj = payload.get("slice")
+        if not isinstance(slice_obj, dict):
+            errors.append("PromiseWorkPacket.v1 slice must be an object")
+        else:
+            for key in ("interaction_family", "consistency_boundary"):
+                if not str(slice_obj.get(key, "")).strip():
+                    errors.append(f"PromiseWorkPacket.v1 slice.{key} must be a non-empty string")
+
+        check_ids = payload.get("check_ids")
+        if not isinstance(check_ids, list):
+            errors.append("PromiseWorkPacket.v1 check_ids must be an array of strings")
+        else:
+            normalized_check_ids = [str(item).strip() for item in check_ids]
+            if any(not item for item in normalized_check_ids):
+                errors.append("PromiseWorkPacket.v1 check_ids entries must be non-empty strings")
+            if status != "draft" and not [item for item in normalized_check_ids if item]:
+                errors.append("PromiseWorkPacket.v1 check_ids may be empty only when status is draft")
+
+        prior_outcome_refs = payload.get("prior_outcome_refs")
+        if not isinstance(prior_outcome_refs, list):
+            errors.append("PromiseWorkPacket.v1 prior_outcome_refs must be an array of strings")
+        elif any(not str(item).strip() for item in prior_outcome_refs):
+            errors.append("PromiseWorkPacket.v1 prior_outcome_refs entries must be non-empty strings")
+
+        current_pressure = payload.get("current_pressure")
+        if not isinstance(current_pressure, dict):
+            errors.append("PromiseWorkPacket.v1 current_pressure must be an object")
+        else:
+            if not str(current_pressure.get("focus_statement", "")).strip():
+                errors.append("PromiseWorkPacket.v1 current_pressure.focus_statement must be a non-empty string")
+            if not str(current_pressure.get("violation_shape", "")).strip():
+                errors.append("PromiseWorkPacket.v1 current_pressure.violation_shape must be a non-empty string")
+
+            unresolved_questions = current_pressure.get("unresolved_questions")
+            if not isinstance(unresolved_questions, list):
+                errors.append("PromiseWorkPacket.v1 current_pressure.unresolved_questions must be an array")
+            elif any(not str(item).strip() for item in unresolved_questions):
+                errors.append("PromiseWorkPacket.v1 current_pressure.unresolved_questions entries must be non-empty strings")
+
+            if "next_check" not in current_pressure:
+                errors.append("PromiseWorkPacket.v1 current_pressure.next_check must be present")
+            elif status != "completed" and not str(current_pressure.get("next_check", "")).strip():
+                errors.append(
+                    "PromiseWorkPacket.v1 current_pressure.next_check must be non-empty unless status is completed"
+                )
+
+        if not isinstance(payload.get("budget"), dict):
+            errors.append("PromiseWorkPacket.v1 budget must be an object")
 
     if path.name == "research_state.yaml" and schema_version != "ResearchState.v1":
         errors.append("research_state.yaml must have schema_version ResearchState.v1")

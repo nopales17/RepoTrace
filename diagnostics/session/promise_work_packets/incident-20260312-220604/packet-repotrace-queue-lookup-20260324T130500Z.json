@@ -1,0 +1,37 @@
+{
+  "schema_version": "PromiseWorkPacket.v1",
+  "produced_by": "manual:promise-work-packet",
+  "work_packet_id": "packet-repotrace-queue-lookup-20260324T130500Z",
+  "incident_id": "incident-20260312-220604",
+  "promise_id": "promise-repotrace-queue-preview-reflects-selected-collection",
+  "slice": {
+    "interaction_family": "family-queue-lookup",
+    "consistency_boundary": "boundary-key-agreement"
+  },
+  "frame_ref": "diagnostics/session/promise_frames/incident-20260312-220604/frame-repotrace-queue-preview-20260324T101500Z.json",
+  "task_ref": "diagnostics/session/promise_tasks/task-repotrace-queue-lookup-scan.json",
+  "touch_map_ref": "diagnostics/memory/promise_touch_maps/promise-repotrace-queue-preview-reflects-selected-collection.touch_map.json",
+  "coverage_ref": "diagnostics/memory/promise_coverage_ledgers/promise-repotrace-queue-preview-reflects-selected-collection.coverage_ledger.json#promise-repotrace-queue-preview-reflects-selected-collection|queue lookup|screenCollection/runtimeCollection/ruleCollection agreement",
+  "check_ids": [
+    "check-repotrace-queue-key-agreement-trace-v1"
+  ],
+  "prior_outcome_refs": [
+    "diagnostics/session/promise_outcomes/incident-20260312-220604/outcome-repotrace-queue-lookup-20260324T123500Z.json"
+  ],
+  "objective": "Capture one deterministic lookup-key normalization trace for ROAD_TRIP_MIX and confirm whether rule table resolution diverges.",
+  "current_pressure": {
+    "focus_statement": "Queue rule lookup misses for ROAD_TRIP_MIX and forces queuedTrackCount=0 while UI selection remains aligned.",
+    "violation_shape": "lookup_miss_under_aligned_selection",
+    "unresolved_questions": [
+      "Is the first divergence introduced at key normalization or at rule table resolution?"
+    ],
+    "next_check": "Add one deterministic log point at rule-table key resolution for ROAD_TRIP_MIX, then rerun the same slice."
+  },
+  "budget": {
+    "checks_remaining": 1,
+    "max_minutes": 20
+  },
+  "status": "blocked",
+  "created_at": "2026-03-24T13:05:00Z",
+  "updated_at": "2026-03-24T13:05:00Z"
+}

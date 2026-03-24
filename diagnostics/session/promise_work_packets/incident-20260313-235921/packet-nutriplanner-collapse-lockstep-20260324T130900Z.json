@@ -1,0 +1,37 @@
+{
+  "schema_version": "PromiseWorkPacket.v1",
+  "produced_by": "manual:promise-work-packet",
+  "work_packet_id": "packet-nutriplanner-collapse-lockstep-20260324T130900Z",
+  "incident_id": "incident-20260313-235921",
+  "promise_id": "promise-nutriplanner-collapse-boundary-lockstep",
+  "slice": {
+    "interaction_family": "family-row-collapse-transition",
+    "consistency_boundary": "boundary-delta-lockstep"
+  },
+  "frame_ref": "diagnostics/session/promise_frames/incident-20260313-235921/frame-nutriplanner-collapse-20260324T101900Z.json",
+  "task_ref": "diagnostics/session/promise_tasks/task-nutriplanner-collapse-seam-scan.json",
+  "touch_map_ref": "diagnostics/memory/promise_touch_maps/promise-nutriplanner-collapse-boundary-lockstep.touch_map.json",
+  "coverage_ref": "diagnostics/memory/promise_coverage_ledgers/promise-nutriplanner-collapse-boundary-lockstep.coverage_ledger.json#promise-nutriplanner-collapse-boundary-lockstep|row collapse|firstChildToDetailDeltaY remains near lockstep envelope",
+  "check_ids": [
+    "check-nutriplanner-collapse-delta-trace-v1"
+  ],
+  "prior_outcome_refs": [
+    "diagnostics/session/promise_outcomes/incident-20260313-235921/outcome-nutriplanner-collapse-seam-20260324T124100Z.json"
+  ],
+  "objective": "Run one transition probe slice to confirm whether boundary-child lag starts before or after collapsed gate ownership handoff.",
+  "current_pressure": {
+    "focus_statement": "The first boundary child lags the collapsing detail region, creating a transient seam mismatch during collapse.",
+    "violation_shape": "boundary_child_lag_at_collapse_seam",
+    "unresolved_questions": [
+      "Does ownership handoff timing alone explain the lockstep envelope breach window?"
+    ],
+    "next_check": ""
+  },
+  "budget": {
+    "checks_remaining": 0,
+    "max_minutes": 30
+  },
+  "status": "completed",
+  "created_at": "2026-03-24T13:09:00Z",
+  "updated_at": "2026-03-24T13:09:00Z"
+}

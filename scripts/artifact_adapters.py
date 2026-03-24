@@ -4,6 +4,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable, TypedDict
 
+REPO_ROOT = Path(__file__).resolve().parent.parent
+
 
 def utc_now_iso() -> str:
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
@@ -1755,6 +1757,538 @@ def apply_promise_scan_outcome_statuses(
     updated_task = dict(task)
     updated_task["status"] = _to_text(scan_outcome.get("resulting_task_status")).strip()
     return updated_coverage_cell, updated_task
+
+
+PROMISE_WORK_PACKET_REQUIRED_FIELDS = (
+    "work_packet_id",
+    "incident_id",
+    "promise_id",
+    "slice",
+    "frame_ref",
+    "task_ref",
+    "touch_map_ref",
+    "coverage_ref",
+    "check_ids",
+    "prior_outcome_refs",
+    "objective",
+    "current_pressure",
+    "budget",
+    "status",
+    "created_at",
+    "updated_at",
+)
+
+PROMISE_WORK_PACKET_REQUIRED_STRING_FIELDS = (
+    "work_packet_id",
+    "incident_id",
+    "promise_id",
+    "frame_ref",
+    "task_ref",
+    "touch_map_ref",
+    "coverage_ref",
+    "objective",
+    "status",
+    "created_at",
+    "updated_at",
+)
+
+PROMISE_WORK_PACKET_ALLOWED_STATUSES = {
+    "draft",
+    "ready",
+    "active",
+    "blocked",
+    "completed",
+    "stale",
+}
+
+
+def validate_promise_work_packet_v1(
+    packet: dict[str, Any], *, context: str = "promise_work_packet"
+) -> list[str]:
+    if not isinstance(packet, dict):
+        return [f"{context} must be an object"]
+
+    errors: list[str] = []
+    missing = [field for field in PROMISE_WORK_PACKET_REQUIRED_FIELDS if field not in packet]
+    if missing:
+        errors.append(f"{context} missing required keys: {', '.join(missing)}")
+        return errors
+
+    for field in PROMISE_WORK_PACKET_REQUIRED_STRING_FIELDS:
+        if not _to_text(packet.get(field)).strip():
+            errors.append(f"{context}.{field} must be a non-empty string")
+
+    slice_obj = packet.get("slice")
+    if not isinstance(slice_obj, dict):
+        errors.append(f"{context}.slice must be an object")
+    else:
+        for field in ("interaction_family", "consistency_boundary"):
+            if not _to_text(slice_obj.get(field)).strip():
+                errors.append(f"{context}.slice.{field} must be a non-empty string")
+
+    status = _to_text(packet.get("status")).strip()
+    if status not in PROMISE_WORK_PACKET_ALLOWED_STATUSES:
+        errors.append(
+            f"{context}.status must be one of {', '.join(sorted(PROMISE_WORK_PACKET_ALLOWED_STATUSES))}"
+        )
+
+    check_ids = packet.get("check_ids")
+    if not isinstance(check_ids, list):
+        errors.append(f"{context}.check_ids must be an array of strings")
+    else:
+        normalized_check_ids = [_to_text(item).strip() for item in check_ids]
+        if any(not item for item in normalized_check_ids):
+            errors.append(f"{context}.check_ids entries must be non-empty strings")
+        if len({item for item in normalized_check_ids if item}) != len([item for item in normalized_check_ids if item]):
+            errors.append(f"{context}.check_ids entries must be unique")
+        if status != "draft" and not [item for item in normalized_check_ids if item]:
+            errors.append(f"{context}.check_ids may be empty only when status is draft")
+
+    prior_outcome_refs = packet.get("prior_outcome_refs")
+    if not isinstance(prior_outcome_refs, list):
+        errors.append(f"{context}.prior_outcome_refs must be an array of strings")
+    else:
+        normalized_outcome_refs = [_to_text(item).strip() for item in prior_outcome_refs]
+        if any(not item for item in normalized_outcome_refs):
+            errors.append(f"{context}.prior_outcome_refs entries must be non-empty strings")
+
+    current_pressure = packet.get("current_pressure")
+    if not isinstance(current_pressure, dict):
+        errors.append(f"{context}.current_pressure must be an object")
+    else:
+        for field in ("focus_statement", "violation_shape"):
+            if not _to_text(current_pressure.get(field)).strip():
+                errors.append(f"{context}.current_pressure.{field} must be a non-empty string")
+
+        unresolved_questions = current_pressure.get("unresolved_questions")
+        if not isinstance(unresolved_questions, list):
+            errors.append(f"{context}.current_pressure.unresolved_questions must be an array of strings")
+        elif any(not _to_text(item).strip() for item in unresolved_questions):
+            errors.append(f"{context}.current_pressure.unresolved_questions entries must be non-empty strings")
+
+        if "next_check" not in current_pressure:
+            errors.append(f"{context}.current_pressure.next_check must be present")
+        else:
+            next_check = _to_text(current_pressure.get("next_check")).strip()
+            if status != "completed" and not next_check:
+                errors.append(
+                    f"{context}.current_pressure.next_check must be non-empty unless status is completed"
+                )
+
+    budget = packet.get("budget")
+    if not isinstance(budget, dict):
+        errors.append(f"{context}.budget must be an object")
+
+    return errors
+
+
+def _resolve_artifact_ref_path(ref: str, *, packet_path: Path) -> Path:
+    ref_path = _to_text(ref).split("#", 1)[0].strip()
+    if not ref_path:
+        raise ValueError("artifact ref must include a path")
+
+    raw_path = Path(ref_path)
+    if raw_path.is_absolute():
+        return raw_path
+
+    packet_relative = (packet_path.parent / raw_path).resolve()
+    if packet_relative.exists():
+        return packet_relative
+
+    repo_relative = (REPO_ROOT / raw_path).resolve()
+    if repo_relative.exists():
+        return repo_relative
+
+    return packet_relative
+
+
+def _parse_coverage_ref(coverage_ref: str) -> tuple[str, tuple[str, str, str]]:
+    raw_ref = _to_text(coverage_ref).strip()
+    if "#" not in raw_ref:
+        raise ValueError("coverage_ref must include '<ledger_path>#<promise_id>|<interaction_family>|<consistency_boundary>'")
+
+    ledger_path_raw, key_raw = raw_ref.split("#", 1)
+    key_parts = [part.strip() for part in key_raw.split("|")]
+    if len(key_parts) != 3 or any(not part for part in key_parts):
+        raise ValueError(
+            "coverage_ref must include exactly three key parts: promise_id|interaction_family|consistency_boundary"
+        )
+    return ledger_path_raw.strip(), (key_parts[0], key_parts[1], key_parts[2])
+
+
+def _load_coverage_cell_from_ref(coverage_ref: str, *, packet_path: Path) -> dict[str, Any]:
+    ledger_ref, target_key = _parse_coverage_ref(coverage_ref)
+    ledger_path = _resolve_artifact_ref_path(ledger_ref, packet_path=packet_path)
+    ledger = load_promise_coverage_ledger_v1(ledger_path)
+
+    coverage = ledger.get("coverage")
+    if not isinstance(coverage, list):
+        raise ValueError("coverage ledger is malformed: coverage must be an array")
+
+    for raw_cell in coverage:
+        if not isinstance(raw_cell, dict):
+            continue
+        cell_key = _coverage_key(raw_cell)
+        if cell_key == target_key:
+            return dict(raw_cell)
+
+    raise ValueError(
+        "coverage_ref key not found in ledger: "
+        f"{target_key[0]} | {target_key[1]} | {target_key[2]}"
+    )
+
+
+def _find_accepted_slice_candidate(
+    touch_map: dict[str, Any], interaction_family: str, consistency_boundary: str
+) -> dict[str, Any] | None:
+    for raw_slice in touch_map.get("slice_candidates", []):
+        if not isinstance(raw_slice, dict):
+            continue
+        if _to_text(raw_slice.get("status")).strip() != "accepted":
+            continue
+        if _to_text(raw_slice.get("interaction_family")).strip() != interaction_family:
+            continue
+        if _to_text(raw_slice.get("consistency_boundary")).strip() != consistency_boundary:
+            continue
+        return raw_slice
+    return None
+
+
+def _validate_promise_work_packet_linkage(
+    packet: dict[str, Any],
+    *,
+    frame: dict[str, Any],
+    task: dict[str, Any],
+    touch_map: dict[str, Any],
+    coverage_cell: dict[str, Any],
+    prior_outcomes: list[dict[str, Any]],
+    check_libraries: list[dict[str, Any]],
+) -> list[str]:
+    errors: list[str] = []
+    packet_promise_id = _to_text(packet.get("promise_id")).strip()
+    packet_incident_id = _to_text(packet.get("incident_id")).strip()
+
+    packet_slice = packet.get("slice")
+    packet_slice_family = _to_text(packet_slice.get("interaction_family")).strip() if isinstance(packet_slice, dict) else ""
+    packet_slice_boundary = _to_text(packet_slice.get("consistency_boundary")).strip() if isinstance(packet_slice, dict) else ""
+
+    promise_ids = {
+        "packet.promise_id": packet_promise_id,
+        "frame.promise_id": _to_text(frame.get("promise_id")).strip(),
+        "task.promise_id": _to_text(task.get("promise_id")).strip(),
+        "touch_map.promise_id": _to_text(touch_map.get("promise_id")).strip(),
+        "coverage.promise_id": _to_text(coverage_cell.get("promise_id")).strip(),
+    }
+    for idx, outcome in enumerate(prior_outcomes, start=1):
+        promise_ids[f"prior_outcomes[{idx}].promise_id"] = _to_text(outcome.get("promise_id")).strip()
+
+    unique_promise_ids = {value for value in promise_ids.values() if value}
+    if len(unique_promise_ids) != 1:
+        errors.append("malformed linkage: promise mismatch across refs")
+
+    if _to_text(frame.get("incident_id")).strip() != packet_incident_id:
+        errors.append("malformed linkage: frame.incident_id does not match packet incident_id")
+
+    if _to_text(task.get("assigned_frame_id")).strip() != _to_text(frame.get("frame_id")).strip():
+        errors.append("malformed linkage: task.assigned_frame_id does not match frame.frame_id")
+
+    slice_scopes: dict[str, tuple[str, str]] = {
+        "frame": (
+            _to_text(frame.get("interaction_family")).strip(),
+            _to_text(frame.get("consistency_boundary")).strip(),
+        ),
+        "task": (
+            _to_text(task.get("interaction_family")).strip(),
+            _to_text(task.get("consistency_boundary")).strip(),
+        ),
+        "coverage": (
+            _to_text(coverage_cell.get("interaction_family")).strip(),
+            _to_text(coverage_cell.get("consistency_boundary")).strip(),
+        ),
+    }
+    for idx, outcome in enumerate(prior_outcomes, start=1):
+        slice_scopes[f"prior_outcomes[{idx}]"] = (
+            _to_text(outcome.get("interaction_family")).strip(),
+            _to_text(outcome.get("consistency_boundary")).strip(),
+        )
+
+    unique_slice_scopes = {scope for scope in slice_scopes.values() if all(scope)}
+    if len(unique_slice_scopes) != 1:
+        errors.append("malformed linkage: slice mismatch across refs")
+
+    for idx, outcome in enumerate(prior_outcomes, start=1):
+        if _to_text(outcome.get("incident_id")).strip() != packet_incident_id:
+            errors.append(
+                f"malformed linkage: prior_outcomes[{idx}].incident_id does not match packet incident_id"
+            )
+        if _to_text(outcome.get("task_id")).strip() != _to_text(task.get("task_id")).strip():
+            errors.append(
+                f"malformed linkage: prior_outcomes[{idx}].task_id does not match task.task_id"
+            )
+        if _to_text(outcome.get("frame_id")).strip() != _to_text(frame.get("frame_id")).strip():
+            errors.append(
+                f"malformed linkage: prior_outcomes[{idx}].frame_id does not match frame.frame_id"
+            )
+
+    accepted_slice = _find_accepted_slice_candidate(
+        touch_map,
+        packet_slice_family,
+        packet_slice_boundary,
+    )
+    if accepted_slice is None:
+        errors.append("malformed linkage: packet slice must reference an accepted touch-map slice")
+        return errors
+
+    compatible_check_ids: set[str] = set()
+    for library in check_libraries:
+        for check in suggest_checks_for_accepted_slice_candidate(touch_map, accepted_slice, library):
+            check_id = _to_text(check.get("check_id")).strip()
+            if check_id:
+                compatible_check_ids.add(check_id)
+
+    for check_id in _normalize_string_list(packet.get("check_ids")):
+        if check_id not in compatible_check_ids:
+            errors.append(f"incompatible check_id for packet slice: {check_id}")
+
+    return errors
+
+
+def _normalize_promise_work_packet(payload: dict[str, Any]) -> dict[str, Any]:
+    normalized = dict(payload)
+
+    for field in PROMISE_WORK_PACKET_REQUIRED_STRING_FIELDS:
+        normalized[field] = _to_text(payload.get(field)).strip()
+    normalized["status"] = _to_text(payload.get("status")).strip()
+
+    raw_slice = payload.get("slice")
+    normalized["slice"] = {
+        "interaction_family": _to_text(raw_slice.get("interaction_family")).strip() if isinstance(raw_slice, dict) else "",
+        "consistency_boundary": _to_text(raw_slice.get("consistency_boundary")).strip() if isinstance(raw_slice, dict) else "",
+    }
+
+    normalized["check_ids"] = sorted(_normalize_string_list(payload.get("check_ids")))
+    normalized["prior_outcome_refs"] = sorted(_normalize_string_list(payload.get("prior_outcome_refs")))
+
+    raw_current_pressure = payload.get("current_pressure")
+    current_pressure = dict(raw_current_pressure) if isinstance(raw_current_pressure, dict) else {}
+    current_pressure["focus_statement"] = _to_text(current_pressure.get("focus_statement")).strip()
+    current_pressure["violation_shape"] = _to_text(current_pressure.get("violation_shape")).strip()
+    current_pressure["unresolved_questions"] = _normalize_string_list(current_pressure.get("unresolved_questions"))
+    current_pressure["next_check"] = _to_text(current_pressure.get("next_check")).strip()
+    normalized["current_pressure"] = current_pressure
+
+    raw_budget = payload.get("budget")
+    normalized["budget"] = dict(raw_budget) if isinstance(raw_budget, dict) else {}
+    return normalized
+
+
+def load_promise_work_packet_v1(
+    path: Path,
+    *,
+    check_libraries: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    payload = json.loads(path.read_text())
+    if not isinstance(payload, dict):
+        raise ValueError(f"promise work packet must be an object: {path}")
+    if payload.get("schema_version") != "PromiseWorkPacket.v1":
+        raise ValueError(f"{path} schema_version must be PromiseWorkPacket.v1")
+
+    errors = validate_promise_work_packet_v1(payload, context="work_packet")
+    if errors:
+        raise ValueError(f"{path} invalid promise work packet: {'; '.join(errors)}")
+
+    normalized = _normalize_promise_work_packet(payload)
+
+    frame_path = _resolve_artifact_ref_path(normalized["frame_ref"], packet_path=path)
+    task_path = _resolve_artifact_ref_path(normalized["task_ref"], packet_path=path)
+    touch_map_path = _resolve_artifact_ref_path(normalized["touch_map_ref"], packet_path=path)
+
+    frame = load_promise_frame_checkpoint_v1(frame_path)
+    task = load_promise_traversal_task_v1(task_path)
+    touch_map = load_promise_touch_map_v1(touch_map_path)
+
+    coverage_ref_promise_id = _parse_coverage_ref(normalized["coverage_ref"])[1][0]
+    if coverage_ref_promise_id != normalized["promise_id"]:
+        raise ValueError(f"{path} malformed linkage: coverage_ref promise key does not match promise_id")
+    coverage_cell = _load_coverage_cell_from_ref(normalized["coverage_ref"], packet_path=path)
+
+    prior_outcomes: list[dict[str, Any]] = []
+    for prior_ref in normalized["prior_outcome_refs"]:
+        prior_path = _resolve_artifact_ref_path(prior_ref, packet_path=path)
+        prior_outcomes.append(load_promise_scan_outcome_v1(prior_path))
+
+    active_check_libraries = check_libraries
+    if active_check_libraries is None:
+        active_check_libraries = load_promise_check_libraries_from_dir_v1(
+            REPO_ROOT / "diagnostics/memory/promise_check_libraries"
+        )
+
+    linkage_errors = _validate_promise_work_packet_linkage(
+        normalized,
+        frame=frame,
+        task=task,
+        touch_map=touch_map,
+        coverage_cell=coverage_cell,
+        prior_outcomes=prior_outcomes,
+        check_libraries=active_check_libraries,
+    )
+    if linkage_errors:
+        raise ValueError(f"{path} invalid promise work packet linkage: {'; '.join(linkage_errors)}")
+
+    return normalized
+
+
+def load_promise_work_packets_for_incident_v1(
+    work_packets_root: Path,
+    incident_id: str,
+    *,
+    check_libraries: list[dict[str, Any]] | None = None,
+) -> list[dict[str, Any]]:
+    normalized_incident_id = _to_text(incident_id).strip()
+    if not normalized_incident_id:
+        raise ValueError("incident_id must be non-empty")
+
+    incident_dir = work_packets_root / normalized_incident_id
+    if not incident_dir.exists():
+        return []
+    if not incident_dir.is_dir():
+        raise ValueError(f"incident promise work packet path is not a directory: {incident_dir}")
+
+    deduped_by_work_packet_id: dict[str, dict[str, Any]] = {}
+    for path in sorted(incident_dir.glob("*.json")):
+        packet = load_promise_work_packet_v1(path, check_libraries=check_libraries)
+        if _to_text(packet.get("incident_id")).strip() != normalized_incident_id:
+            raise ValueError(f"{path} incident_id must match directory incident: {normalized_incident_id}")
+        work_packet_id = _to_text(packet.get("work_packet_id")).strip()
+        if work_packet_id in deduped_by_work_packet_id:
+            raise ValueError(f"duplicate work_packet_id in incident directory: {work_packet_id}")
+        deduped_by_work_packet_id[work_packet_id] = packet
+
+    return [deduped_by_work_packet_id[packet_id] for packet_id in sorted(deduped_by_work_packet_id)]
+
+
+def assemble_promise_work_packet(
+    *,
+    work_packet_id: str,
+    incident_id: str,
+    promise: dict[str, Any],
+    touch_map: dict[str, Any],
+    accepted_slice: dict[str, Any],
+    frame: dict[str, Any],
+    task: dict[str, Any],
+    coverage: dict[str, Any],
+    candidate_checks: list[dict[str, Any]],
+    prior_outcomes: list[dict[str, Any]],
+    frame_ref: str,
+    task_ref: str,
+    touch_map_ref: str,
+    coverage_ref: str,
+    prior_outcome_refs: list[str] | None = None,
+    objective: str | None = None,
+    unresolved_questions: list[str] | None = None,
+    next_check: str | None = None,
+    budget: dict[str, Any] | None = None,
+    status: str = "ready",
+    produced_by: str = "manual:promise-work-packet",
+    created_at: str | None = None,
+    updated_at: str | None = None,
+) -> dict[str, Any]:
+    if not isinstance(promise, dict):
+        raise ValueError("promise must be an object")
+    if not isinstance(accepted_slice, dict):
+        raise ValueError("accepted_slice must be an object")
+    if not isinstance(frame, dict):
+        raise ValueError("frame must be an object")
+    if not isinstance(task, dict):
+        raise ValueError("task must be an object")
+    if not isinstance(coverage, dict):
+        raise ValueError("coverage must be an object")
+
+    if _to_text(accepted_slice.get("status")).strip() != "accepted":
+        raise ValueError("accepted_slice.status must be accepted")
+
+    check_library = {
+        "checks": candidate_checks,
+    }
+    compatible_checks = suggest_checks_for_accepted_slice_candidate(
+        touch_map,
+        accepted_slice,
+        check_library,
+    )
+    check_ids = sorted(
+        {
+            _to_text(check.get("check_id")).strip()
+            for check in compatible_checks
+            if _to_text(check.get("check_id")).strip()
+        }
+    )
+
+    prior_refs = _normalize_string_list(prior_outcome_refs)
+    if not prior_refs:
+        prior_refs = sorted(
+            {
+                _to_text(outcome.get("outcome_id")).strip()
+                for outcome in prior_outcomes
+                if isinstance(outcome, dict) and _to_text(outcome.get("outcome_id")).strip()
+            }
+        )
+
+    next_check_prompt = _to_text(next_check).strip()
+    if not next_check_prompt:
+        frame_next_check = frame.get("next_check")
+        if isinstance(frame_next_check, dict):
+            next_check_prompt = _to_text(frame_next_check.get("prompt")).strip()
+
+    created_at_value = _to_text(created_at).strip() or utc_now_iso()
+    updated_at_value = _to_text(updated_at).strip() or created_at_value
+    promise_id = _to_text(promise.get("promise_id")).strip()
+
+    packet: dict[str, Any] = {
+        "schema_version": "PromiseWorkPacket.v1",
+        "produced_by": _to_text(produced_by).strip() or "manual:promise-work-packet",
+        "work_packet_id": _to_text(work_packet_id).strip(),
+        "incident_id": _to_text(incident_id).strip(),
+        "promise_id": promise_id,
+        "slice": {
+            "interaction_family": _to_text(accepted_slice.get("interaction_family")).strip(),
+            "consistency_boundary": _to_text(accepted_slice.get("consistency_boundary")).strip(),
+        },
+        "frame_ref": _to_text(frame_ref).strip(),
+        "task_ref": _to_text(task_ref).strip(),
+        "touch_map_ref": _to_text(touch_map_ref).strip(),
+        "coverage_ref": _to_text(coverage_ref).strip(),
+        "check_ids": check_ids,
+        "prior_outcome_refs": prior_refs,
+        "objective": _to_text(objective).strip() or _to_text(task.get("objective")).strip(),
+        "current_pressure": {
+            "focus_statement": _to_text(frame.get("focus_statement")).strip(),
+            "violation_shape": _to_text(frame.get("violation_shape")).strip(),
+            "unresolved_questions": _normalize_string_list(unresolved_questions),
+            "next_check": next_check_prompt,
+        },
+        "budget": dict(budget) if isinstance(budget, dict) else dict(task.get("budget", {})),
+        "status": _to_text(status).strip() or "ready",
+        "created_at": created_at_value,
+        "updated_at": updated_at_value,
+    }
+
+    packet_errors = validate_promise_work_packet_v1(packet, context="work_packet")
+    if packet_errors:
+        raise ValueError(f"invalid assembled promise work packet: {'; '.join(packet_errors)}")
+
+    linkage_errors = _validate_promise_work_packet_linkage(
+        packet,
+        frame=frame,
+        task=task,
+        touch_map=touch_map,
+        coverage_cell=coverage,
+        prior_outcomes=prior_outcomes,
+        check_libraries=[check_library],
+    )
+    if linkage_errors:
+        raise ValueError(f"invalid assembled promise work packet linkage: {'; '.join(linkage_errors)}")
+
+    return packet
 
 
 WITNESS_TYPES = {
