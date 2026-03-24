@@ -506,6 +506,292 @@ def load_promise_frames_for_incident_v1(frames_root: Path, incident_id: str) -> 
     return [deduped_by_frame_id[frame_id] for frame_id in sorted(deduped_by_frame_id)]
 
 
+PROMISE_COVERAGE_REQUIRED_FIELDS = (
+    "promise_id",
+    "interaction_family",
+    "consistency_boundary",
+    "status",
+    "last_session_ref",
+    "notes",
+    "updated_at",
+)
+
+PROMISE_COVERAGE_REQUIRED_NON_EMPTY_STRING_FIELDS = (
+    "promise_id",
+    "interaction_family",
+    "consistency_boundary",
+    "status",
+    "last_session_ref",
+    "updated_at",
+)
+
+PROMISE_COVERAGE_ALLOWED_STATUSES = {
+    "unseen",
+    "mapped",
+    "scanned",
+    "anomaly_found",
+    "killed",
+    "survives",
+}
+
+PROMISE_COVERAGE_KEY_FIELDS = (
+    "promise_id",
+    "interaction_family",
+    "consistency_boundary",
+)
+
+FRAME_TO_COVERAGE_STATUS = {
+    "active": "scanned",
+    "blocked": "scanned",
+    "anomaly_found": "anomaly_found",
+    "killed": "killed",
+    "survives": "survives",
+    "exhausted": "scanned",
+}
+
+
+def validate_promise_coverage_cell(cell: dict[str, Any], *, context: str = "coverage_cell") -> list[str]:
+    if not isinstance(cell, dict):
+        return [f"{context} must be an object"]
+
+    errors: list[str] = []
+    missing = [field for field in PROMISE_COVERAGE_REQUIRED_FIELDS if field not in cell]
+    if missing:
+        errors.append(f"{context} missing required keys: {', '.join(missing)}")
+        return errors
+
+    for field in PROMISE_COVERAGE_REQUIRED_NON_EMPTY_STRING_FIELDS:
+        if not _to_text(cell.get(field)).strip():
+            errors.append(f"{context}.{field} must be a non-empty string")
+
+    if not isinstance(cell.get("notes"), str):
+        errors.append(f"{context}.notes must be a string")
+
+    status = _to_text(cell.get("status")).strip()
+    if status not in PROMISE_COVERAGE_ALLOWED_STATUSES:
+        errors.append(
+            f"{context}.status must be one of {', '.join(sorted(PROMISE_COVERAGE_ALLOWED_STATUSES))}"
+        )
+
+    return errors
+
+
+def _coverage_key(cell: dict[str, Any]) -> tuple[str, str, str]:
+    return (
+        _to_text(cell.get("promise_id")).strip(),
+        _to_text(cell.get("interaction_family")).strip(),
+        _to_text(cell.get("consistency_boundary")).strip(),
+    )
+
+
+def load_promise_coverage_ledger_v1(path: Path) -> dict[str, Any]:
+    payload = json.loads(path.read_text())
+    if not isinstance(payload, dict):
+        raise ValueError(f"promise coverage ledger must be an object: {path}")
+
+    required_top_level = ("schema_version", "produced_by", "ledger_version", "coverage")
+    missing = [key for key in required_top_level if key not in payload]
+    if missing:
+        raise ValueError(f"{path} missing required keys: {', '.join(missing)}")
+    if payload.get("schema_version") != "PromiseCoverageLedger.v1":
+        raise ValueError(f"{path} schema_version must be PromiseCoverageLedger.v1")
+
+    ledger_version = payload.get("ledger_version")
+    if not isinstance(ledger_version, int) or ledger_version < 1:
+        raise ValueError(f"{path} ledger_version must be an integer >= 1")
+
+    coverage = payload.get("coverage")
+    if not isinstance(coverage, list):
+        raise ValueError(f"{path} coverage must be an array")
+
+    normalized_coverage: list[dict[str, Any]] = []
+    seen_keys: set[tuple[str, str, str]] = set()
+    for idx, raw_cell in enumerate(coverage, start=1):
+        if not isinstance(raw_cell, dict):
+            raise ValueError(f"{path} coverage[{idx}] must be an object")
+
+        errors = validate_promise_coverage_cell(raw_cell, context=f"coverage[{idx}]")
+        if errors:
+            raise ValueError(f"{path} invalid coverage cell: {'; '.join(errors)}")
+
+        key = _coverage_key(raw_cell)
+        if key in seen_keys:
+            raise ValueError(f"{path} duplicate coverage key: {key[0]} | {key[1]} | {key[2]}")
+        seen_keys.add(key)
+
+        normalized_cell = dict(raw_cell)
+        for field in PROMISE_COVERAGE_REQUIRED_NON_EMPTY_STRING_FIELDS:
+            normalized_cell[field] = _to_text(raw_cell.get(field)).strip()
+        normalized_cell["notes"] = _to_text(raw_cell.get("notes"))
+        normalized_coverage.append(normalized_cell)
+
+    normalized_coverage.sort(key=_coverage_key)
+    normalized_payload = dict(payload)
+    normalized_payload["coverage"] = normalized_coverage
+    return normalized_payload
+
+
+def update_coverage_cell_from_frame_outcome(
+    ledger: dict[str, Any],
+    frame_outcome: dict[str, Any],
+    *,
+    notes: str | None = None,
+    updated_at: str | None = None,
+) -> dict[str, Any]:
+    if not isinstance(ledger, dict):
+        raise ValueError("ledger must be an object")
+    if not isinstance(frame_outcome, dict):
+        raise ValueError("frame_outcome must be an object")
+
+    promise_id = _to_text(frame_outcome.get("promise_id")).strip()
+    interaction_family = _to_text(frame_outcome.get("interaction_family")).strip()
+    consistency_boundary = _to_text(frame_outcome.get("consistency_boundary")).strip()
+    frame_id = _to_text(frame_outcome.get("frame_id")).strip()
+    frame_status = _to_text(frame_outcome.get("status")).strip()
+
+    if not promise_id or not interaction_family or not consistency_boundary:
+        raise ValueError("frame_outcome must include promise_id, interaction_family, and consistency_boundary")
+    if frame_status not in FRAME_TO_COVERAGE_STATUS:
+        raise ValueError(f"unsupported frame outcome status: {frame_status}")
+
+    target_key = (promise_id, interaction_family, consistency_boundary)
+    coverage = ledger.get("coverage")
+    if not isinstance(coverage, list):
+        raise ValueError("ledger.coverage must be an array")
+
+    next_status = FRAME_TO_COVERAGE_STATUS[frame_status]
+    terminal_statuses = {"anomaly_found", "killed", "survives"}
+    normalized_cells: list[dict[str, Any]] = []
+    found = False
+
+    for raw_cell in coverage:
+        if not isinstance(raw_cell, dict):
+            raise ValueError("ledger.coverage entries must be objects")
+        cell = dict(raw_cell)
+        if _coverage_key(cell) == target_key:
+            found = True
+            current_status = _to_text(cell.get("status")).strip()
+            if current_status in terminal_statuses and next_status == "scanned":
+                resolved_status = current_status
+            else:
+                resolved_status = next_status
+            cell["status"] = resolved_status
+            cell["last_session_ref"] = frame_id or _to_text(cell.get("last_session_ref")).strip()
+            if notes is not None:
+                cell["notes"] = notes
+            else:
+                cell["notes"] = _to_text(cell.get("notes"))
+            cell["updated_at"] = (
+                _to_text(updated_at).strip()
+                or _to_text(frame_outcome.get("updated_at")).strip()
+                or utc_now_iso()
+            )
+        normalized_cells.append(cell)
+
+    if not found:
+        raise ValueError(
+            "no coverage cell found for frame outcome key: "
+            f"{target_key[0]} | {target_key[1]} | {target_key[2]}"
+        )
+
+    normalized_cells.sort(key=_coverage_key)
+    normalized_ledger = dict(ledger)
+    normalized_ledger["coverage"] = normalized_cells
+    return normalized_ledger
+
+
+PROMISE_TASK_REQUIRED_FIELDS = (
+    "task_id",
+    "promise_id",
+    "interaction_family",
+    "consistency_boundary",
+    "assigned_frame_id",
+    "objective",
+    "status",
+    "budget",
+    "created_at",
+    "updated_at",
+)
+
+PROMISE_TASK_REQUIRED_STRING_FIELDS = (
+    "task_id",
+    "promise_id",
+    "interaction_family",
+    "consistency_boundary",
+    "assigned_frame_id",
+    "objective",
+    "status",
+    "created_at",
+    "updated_at",
+)
+
+PROMISE_TASK_ALLOWED_STATUSES = {"queued", "active", "blocked", "done"}
+
+
+def validate_promise_traversal_task(task: dict[str, Any], *, context: str = "promise_task") -> list[str]:
+    if not isinstance(task, dict):
+        return [f"{context} must be an object"]
+
+    errors: list[str] = []
+    missing = [field for field in PROMISE_TASK_REQUIRED_FIELDS if field not in task]
+    if missing:
+        errors.append(f"{context} missing required keys: {', '.join(missing)}")
+        return errors
+
+    for field in PROMISE_TASK_REQUIRED_STRING_FIELDS:
+        if not _to_text(task.get(field)).strip():
+            errors.append(f"{context}.{field} must be a non-empty string")
+
+    if not isinstance(task.get("budget"), dict):
+        errors.append(f"{context}.budget must be an object")
+
+    status = _to_text(task.get("status")).strip()
+    if status not in PROMISE_TASK_ALLOWED_STATUSES:
+        errors.append(
+            f"{context}.status must be one of {', '.join(sorted(PROMISE_TASK_ALLOWED_STATUSES))}"
+        )
+
+    return errors
+
+
+def load_promise_traversal_task_v1(path: Path) -> dict[str, Any]:
+    payload = json.loads(path.read_text())
+    if not isinstance(payload, dict):
+        raise ValueError(f"promise traversal task must be an object: {path}")
+    if payload.get("schema_version") != "PromiseTraversalTask.v1":
+        raise ValueError(f"{path} schema_version must be PromiseTraversalTask.v1")
+
+    errors = validate_promise_traversal_task(payload, context="task")
+    if errors:
+        raise ValueError(f"{path} invalid promise traversal task: {'; '.join(errors)}")
+
+    normalized = dict(payload)
+    for field in PROMISE_TASK_REQUIRED_STRING_FIELDS:
+        normalized[field] = _to_text(payload.get(field)).strip()
+    normalized["status"] = _to_text(payload.get("status")).strip()
+
+    raw_budget = payload.get("budget")
+    normalized["budget"] = dict(raw_budget) if isinstance(raw_budget, dict) else {}
+    return normalized
+
+
+def load_promise_tasks_from_dir_v1(tasks_dir: Path) -> list[dict[str, Any]]:
+    if not tasks_dir.exists():
+        return []
+    if not tasks_dir.is_dir():
+        raise ValueError(f"promise tasks path is not a directory: {tasks_dir}")
+
+    deduped_by_task_id: dict[str, dict[str, Any]] = {}
+    for path in sorted(tasks_dir.glob("*.json")):
+        task = load_promise_traversal_task_v1(path)
+        task_id = _to_text(task.get("task_id")).strip()
+        if task_id in deduped_by_task_id:
+            raise ValueError(f"duplicate task_id in directory: {task_id}")
+        deduped_by_task_id[task_id] = task
+
+    return [deduped_by_task_id[task_id] for task_id in sorted(deduped_by_task_id)]
+
+
 WITNESS_TYPES = {
     "observed_state",
     "missing_event",

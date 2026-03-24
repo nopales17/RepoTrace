@@ -1,0 +1,18 @@
+{
+  "schema_version": "PromiseTraversalTask.v1",
+  "produced_by": "manual:promise-coverage-ledger",
+  "task_id": "task-repotrace-queue-lookup-scan",
+  "promise_id": "promise-repotrace-queue-preview-reflects-selected-collection",
+  "interaction_family": "queue lookup",
+  "consistency_boundary": "screenCollection/runtimeCollection/ruleCollection agreement",
+  "assigned_frame_id": "frame-repotrace-queue-preview-20260324T101500Z",
+  "objective": "Capture one deterministic lookup-key normalization trace for ROAD_TRIP_MIX and confirm whether rule table resolution diverges.",
+  "status": "active",
+  "budget": {
+    "checks_remaining": 1,
+    "max_minutes": 20
+  },
+  "fixture_ref": "eval/fixtures/repotrace-current-incident.yaml",
+  "created_at": "2026-03-24T12:00:00Z",
+  "updated_at": "2026-03-24T12:00:00Z"
+}

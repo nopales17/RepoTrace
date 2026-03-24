@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://repotrace.local/diagnostics/schemas/PromiseCoverageLedger.v1.json",
+  "title": "PromiseCoverageLedger.v1",
+  "description": "Durable or semi-durable semantic coverage ledger for promise interaction/boundary cells.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "produced_by",
+    "ledger_version",
+    "coverage"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "PromiseCoverageLedger.v1"
+    },
+    "produced_by": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ledger_version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "generated_at": {
+      "type": "string",
+      "minLength": 1
+    },
+    "coverage": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "promise_id",
+          "interaction_family",
+          "consistency_boundary",
+          "status",
+          "last_session_ref",
+          "notes",
+          "updated_at"
+        ],
+        "properties": {
+          "promise_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "interaction_family": {
+            "type": "string",
+            "minLength": 1
+          },
+          "consistency_boundary": {
+            "type": "string",
+            "minLength": 1
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "unseen",
+              "mapped",
+              "scanned",
+              "anomaly_found",
+              "killed",
+              "survives"
+            ]
+          },
+          "last_session_ref": {
+            "type": "string",
+            "minLength": 1
+          },
+          "notes": {
+            "type": "string"
+          },
+          "updated_at": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

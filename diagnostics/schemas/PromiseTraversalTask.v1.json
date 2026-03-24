@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://repotrace.local/diagnostics/schemas/PromiseTraversalTask.v1.json",
+  "title": "PromiseTraversalTask.v1",
+  "description": "Manual promise-scoped traversal task artifact used for explicit slice assignment.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "produced_by",
+    "task_id",
+    "promise_id",
+    "interaction_family",
+    "consistency_boundary",
+    "assigned_frame_id",
+    "objective",
+    "status",
+    "budget",
+    "created_at",
+    "updated_at"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "PromiseTraversalTask.v1"
+    },
+    "produced_by": {
+      "type": "string",
+      "minLength": 1
+    },
+    "task_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "promise_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "interaction_family": {
+      "type": "string",
+      "minLength": 1
+    },
+    "consistency_boundary": {
+      "type": "string",
+      "minLength": 1
+    },
+    "assigned_frame_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "objective": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "queued",
+        "active",
+        "blocked",
+        "done"
+      ]
+    },
+    "budget": {
+      "type": "object"
+    },
+    "created_at": {
+      "type": "string",
+      "minLength": 1
+    },
+    "updated_at": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "additionalProperties": true
+}

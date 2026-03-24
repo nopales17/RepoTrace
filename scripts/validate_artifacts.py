@@ -93,6 +93,22 @@ REQUIRED_BY_SCHEMA: dict[str, list[str]] = {
         "budget",
         "status",
     ],
+    "PromiseCoverageLedger.v1": [
+        "ledger_version",
+        "coverage",
+    ],
+    "PromiseTraversalTask.v1": [
+        "task_id",
+        "promise_id",
+        "interaction_family",
+        "consistency_boundary",
+        "assigned_frame_id",
+        "objective",
+        "status",
+        "budget",
+        "created_at",
+        "updated_at",
+    ],
 }
 
 VALID_VERDICTS = {"motif_match", "motif_non_match", "ambiguous"}
@@ -149,6 +165,29 @@ PROMISE_ALLOWED_STATUSES = {"hypothesized", "accepted", "formalized"}
 PROMISE_FRAME_ALLOWED_STATUSES = {"active", "blocked", "anomaly_found", "killed", "survives", "exhausted"}
 PROMISE_FRAME_WITNESS_BUCKETS = ("support", "pressure", "contradiction")
 PROMISE_FRAME_NEXT_CHECK_REQUIRED_FIELDS = ("kind", "prompt")
+PROMISE_COVERAGE_REQUIRED_FIELDS = {
+    "promise_id",
+    "interaction_family",
+    "consistency_boundary",
+    "status",
+    "last_session_ref",
+    "notes",
+    "updated_at",
+}
+PROMISE_COVERAGE_ALLOWED_STATUSES = {"unseen", "mapped", "scanned", "anomaly_found", "killed", "survives"}
+PROMISE_TASK_REQUIRED_FIELDS = {
+    "task_id",
+    "promise_id",
+    "interaction_family",
+    "consistency_boundary",
+    "assigned_frame_id",
+    "objective",
+    "status",
+    "budget",
+    "created_at",
+    "updated_at",
+}
+PROMISE_TASK_ALLOWED_STATUSES = {"queued", "active", "blocked", "done"}
 
 
 def default_targets() -> list[Path]:
@@ -166,6 +205,8 @@ def default_targets() -> list[Path]:
     promise_registry = Path("diagnostics/memory/promise_registry.json")
     if promise_registry.exists():
         targets.append(promise_registry)
+    targets.extend(sorted(Path("diagnostics/memory/promise_coverage_ledgers").glob("*.json")))
+    targets.extend(sorted(Path("diagnostics/session/promise_tasks").glob("*.json")))
 
     research_state = Path("research/research_state.yaml")
     if research_state.exists():
@@ -501,6 +542,84 @@ def validate_special_cases(path: Path, payload: dict[str, Any]) -> list[str]:
             checks_remaining = budget.get("checks_remaining")
             if not isinstance(checks_remaining, int) or checks_remaining < 0:
                 errors.append("PromiseFrameCheckpoint.v1 budget.checks_remaining must be an integer >= 0")
+
+    if schema_version == "PromiseCoverageLedger.v1":
+        ledger_version = payload.get("ledger_version")
+        if not isinstance(ledger_version, int) or ledger_version < 1:
+            errors.append("PromiseCoverageLedger.v1 ledger_version must be an integer >= 1")
+
+        coverage = payload.get("coverage")
+        if not isinstance(coverage, list):
+            errors.append("PromiseCoverageLedger.v1 coverage must be an array")
+        else:
+            seen_keys: set[tuple[str, str, str]] = set()
+            for idx, cell in enumerate(coverage, start=1):
+                label = f"PromiseCoverageLedger.v1 coverage[{idx}]"
+                if not isinstance(cell, dict):
+                    errors.append(f"{label} must be an object")
+                    continue
+
+                missing = sorted(PROMISE_COVERAGE_REQUIRED_FIELDS - set(cell.keys()))
+                if missing:
+                    errors.append(f"{label} missing required keys: {', '.join(missing)}")
+                    continue
+
+                promise_id = str(cell.get("promise_id", "")).strip()
+                interaction_family = str(cell.get("interaction_family", "")).strip()
+                consistency_boundary = str(cell.get("consistency_boundary", "")).strip()
+                coverage_key = (promise_id, interaction_family, consistency_boundary)
+                if not all(coverage_key):
+                    errors.append(
+                        f"{label} promise_id/interaction_family/consistency_boundary must be non-empty"
+                    )
+                elif coverage_key in seen_keys:
+                    errors.append(
+                        "PromiseCoverageLedger.v1 duplicate coverage key: "
+                        f"{promise_id} | {interaction_family} | {consistency_boundary}"
+                    )
+                else:
+                    seen_keys.add(coverage_key)
+
+                status = str(cell.get("status", "")).strip()
+                if status not in PROMISE_COVERAGE_ALLOWED_STATUSES:
+                    errors.append(
+                        f"{label}.status must be one of {', '.join(sorted(PROMISE_COVERAGE_ALLOWED_STATUSES))}"
+                    )
+
+                if not isinstance(cell.get("notes"), str):
+                    errors.append(f"{label}.notes must be a string")
+                if not str(cell.get("last_session_ref", "")).strip():
+                    errors.append(f"{label}.last_session_ref must be non-empty")
+                if not str(cell.get("updated_at", "")).strip():
+                    errors.append(f"{label}.updated_at must be non-empty")
+
+    if schema_version == "PromiseTraversalTask.v1":
+        missing = sorted(PROMISE_TASK_REQUIRED_FIELDS - set(payload.keys()))
+        if missing:
+            errors.append(f"PromiseTraversalTask.v1 missing required keys: {', '.join(missing)}")
+        else:
+            status = str(payload.get("status", "")).strip()
+            if status not in PROMISE_TASK_ALLOWED_STATUSES:
+                errors.append(
+                    "PromiseTraversalTask.v1 status must be one of "
+                    f"{'/'.join(sorted(PROMISE_TASK_ALLOWED_STATUSES))}"
+                )
+
+            for key in (
+                "task_id",
+                "promise_id",
+                "interaction_family",
+                "consistency_boundary",
+                "assigned_frame_id",
+                "objective",
+                "created_at",
+                "updated_at",
+            ):
+                if not str(payload.get(key, "")).strip():
+                    errors.append(f"PromiseTraversalTask.v1 {key} must be a non-empty string")
+
+            if not isinstance(payload.get("budget"), dict):
+                errors.append("PromiseTraversalTask.v1 budget must be an object")
 
     if path.name == "research_state.yaml" and schema_version != "ResearchState.v1":
         errors.append("research_state.yaml must have schema_version ResearchState.v1")

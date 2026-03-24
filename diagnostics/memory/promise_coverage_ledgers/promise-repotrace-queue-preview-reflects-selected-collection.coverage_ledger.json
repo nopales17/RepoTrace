@@ -1,0 +1,35 @@
+{
+  "schema_version": "PromiseCoverageLedger.v1",
+  "produced_by": "manual:promise-coverage-ledger",
+  "ledger_version": 1,
+  "generated_at": "2026-03-24T12:00:00Z",
+  "coverage": [
+    {
+      "promise_id": "promise-repotrace-queue-preview-reflects-selected-collection",
+      "interaction_family": "pick collection",
+      "consistency_boundary": "queue rule lookup key normalization",
+      "status": "mapped",
+      "last_session_ref": "frame-repotrace-queue-preview-20260324T101500Z",
+      "notes": "Boundary is mapped from current witness set and awaits targeted probe.",
+      "updated_at": "2026-03-24T12:00:00Z"
+    },
+    {
+      "promise_id": "promise-repotrace-queue-preview-reflects-selected-collection",
+      "interaction_family": "queue lookup",
+      "consistency_boundary": "screenCollection/runtimeCollection/ruleCollection agreement",
+      "status": "scanned",
+      "last_session_ref": "frame-repotrace-queue-preview-20260324T101500Z",
+      "notes": "Frame-level inspection already run for aligned selection with lookup miss pressure.",
+      "updated_at": "2026-03-24T12:00:00Z"
+    },
+    {
+      "promise_id": "promise-repotrace-queue-preview-reflects-selected-collection",
+      "interaction_family": "preview render",
+      "consistency_boundary": "preview count equals selected collection library count",
+      "status": "unseen",
+      "last_session_ref": "frame-repotrace-queue-preview-20260324T101500Z",
+      "notes": "No dedicated render-boundary check has been assigned yet.",
+      "updated_at": "2026-03-24T12:00:00Z"
+    }
+  ]
+}

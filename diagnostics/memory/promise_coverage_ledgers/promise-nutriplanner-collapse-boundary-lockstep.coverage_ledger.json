@@ -1,0 +1,35 @@
+{
+  "schema_version": "PromiseCoverageLedger.v1",
+  "produced_by": "manual:promise-coverage-ledger",
+  "ledger_version": 1,
+  "generated_at": "2026-03-24T12:00:00Z",
+  "coverage": [
+    {
+      "promise_id": "promise-nutriplanner-collapse-boundary-lockstep",
+      "interaction_family": "cell reuse during animated transitions",
+      "consistency_boundary": "collapsed gate ownership updates do not lag child reconciliation",
+      "status": "mapped",
+      "last_session_ref": "frame-nutriplanner-collapse-20260324T101900Z",
+      "notes": "Ownership handoff seam is mapped and queued for focused follow-up.",
+      "updated_at": "2026-03-24T12:00:00Z"
+    },
+    {
+      "promise_id": "promise-nutriplanner-collapse-boundary-lockstep",
+      "interaction_family": "row collapse",
+      "consistency_boundary": "firstChildToDetailDeltaY remains near lockstep envelope",
+      "status": "anomaly_found",
+      "last_session_ref": "frame-nutriplanner-collapse-20260324T101900Z",
+      "notes": "Current frame reports seam drift under transition probe pressure.",
+      "updated_at": "2026-03-24T12:00:00Z"
+    },
+    {
+      "promise_id": "promise-nutriplanner-collapse-boundary-lockstep",
+      "interaction_family": "row expand/collapse toggling",
+      "consistency_boundary": "detailRegionHeight and boundary child transition ordering",
+      "status": "scanned",
+      "last_session_ref": "frame-nutriplanner-collapse-20260324T101900Z",
+      "notes": "Transition ordering has scan coverage but no terminal outcome yet.",
+      "updated_at": "2026-03-24T12:00:00Z"
+    }
+  ]
+}
