@@ -332,6 +332,342 @@ def load_promise_registry_v1(path: Path) -> dict[str, Any]:
     return normalized_payload
 
 
+PROMISE_DERIVATION_WORKSHEET_REQUIRED_FIELDS = (
+    "worksheet_id",
+    "system_name",
+    "purpose",
+    "actors",
+    "assets_or_rights",
+    "transition_families",
+    "representations",
+    "consistency_boundaries",
+    "settlement_horizons",
+    "admin_or_external_surfaces",
+    "candidate_promises",
+    "open_questions",
+    "evidence_refs",
+    "status",
+    "created_at",
+    "updated_at",
+)
+
+PROMISE_DERIVATION_WORKSHEET_REQUIRED_STRING_FIELDS = (
+    "worksheet_id",
+    "system_name",
+    "purpose",
+    "status",
+    "created_at",
+    "updated_at",
+)
+
+PROMISE_DERIVATION_WORKSHEET_REQUIRED_NON_EMPTY_LIST_FIELDS = (
+    "actors",
+    "assets_or_rights",
+    "transition_families",
+    "representations",
+    "consistency_boundaries",
+    "settlement_horizons",
+    "admin_or_external_surfaces",
+)
+
+PROMISE_DERIVATION_WORKSHEET_ALLOWED_STATUSES = {"draft", "in_review", "accepted"}
+
+PROMISE_DERIVATION_CANDIDATE_REQUIRED_FIELDS = (
+    "candidate_id",
+    "statement",
+    "actor_scope",
+    "protected_state",
+    "interaction_families",
+    "consistency_boundaries",
+    "rationale",
+    "priority",
+    "confidence",
+    "status",
+)
+
+PROMISE_DERIVATION_CANDIDATE_REQUIRED_STRING_FIELDS = (
+    "candidate_id",
+    "statement",
+    "actor_scope",
+    "protected_state",
+    "rationale",
+    "priority",
+    "status",
+)
+
+PROMISE_DERIVATION_CANDIDATE_ALLOWED_STATUSES = {"proposed", "accepted", "rejected", "deferred"}
+
+
+def _normalize_evidence_refs(raw_refs: Any) -> dict[str, Any]:
+    if not isinstance(raw_refs, dict):
+        return {}
+    normalized: dict[str, Any] = {}
+    for key in sorted(raw_refs):
+        value = raw_refs[key]
+        if isinstance(value, list):
+            normalized[_to_text(key)] = _normalize_string_list(value)
+            continue
+        normalized[_to_text(key)] = value
+    return normalized
+
+
+def validate_promise_derivation_worksheet_v1(
+    worksheet: dict[str, Any], *, context: str = "promise_derivation_worksheet"
+) -> list[str]:
+    if not isinstance(worksheet, dict):
+        return [f"{context} must be an object"]
+
+    errors: list[str] = []
+    missing = [field for field in PROMISE_DERIVATION_WORKSHEET_REQUIRED_FIELDS if field not in worksheet]
+    if missing:
+        errors.append(f"{context} missing required keys: {', '.join(missing)}")
+        return errors
+
+    _ensure_non_empty_string_fields(
+        worksheet,
+        fields=PROMISE_DERIVATION_WORKSHEET_REQUIRED_STRING_FIELDS,
+        context=context,
+        errors=errors,
+    )
+
+    for field in PROMISE_DERIVATION_WORKSHEET_REQUIRED_NON_EMPTY_LIST_FIELDS:
+        if not _normalize_string_list(worksheet.get(field)):
+            errors.append(f"{context}.{field} must be a non-empty array of strings")
+
+    open_questions = worksheet.get("open_questions")
+    if not isinstance(open_questions, list):
+        errors.append(f"{context}.open_questions must be an array of strings")
+    else:
+        if any(not _to_text(question).strip() for question in open_questions):
+            errors.append(f"{context}.open_questions must contain only non-empty strings")
+
+    evidence_refs = worksheet.get("evidence_refs")
+    if not isinstance(evidence_refs, dict):
+        errors.append(f"{context}.evidence_refs must be an object")
+
+    worksheet_status = _to_text(worksheet.get("status")).strip()
+    if worksheet_status not in PROMISE_DERIVATION_WORKSHEET_ALLOWED_STATUSES:
+        errors.append(
+            f"{context}.status must be one of {', '.join(sorted(PROMISE_DERIVATION_WORKSHEET_ALLOWED_STATUSES))}"
+        )
+
+    transition_families = set(_normalize_string_list(worksheet.get("transition_families")))
+    consistency_boundaries = set(_normalize_string_list(worksheet.get("consistency_boundaries")))
+
+    candidate_promises = worksheet.get("candidate_promises")
+    if not isinstance(candidate_promises, list) or not candidate_promises:
+        errors.append(f"{context}.candidate_promises must be a non-empty array")
+    else:
+        seen_candidate_ids: set[str] = set()
+        for idx, raw_candidate in enumerate(candidate_promises, start=1):
+            candidate_context = f"{context}.candidate_promises[{idx}]"
+            if not isinstance(raw_candidate, dict):
+                errors.append(f"{candidate_context} must be an object")
+                continue
+
+            missing_candidate_fields = [
+                field for field in PROMISE_DERIVATION_CANDIDATE_REQUIRED_FIELDS if field not in raw_candidate
+            ]
+            if missing_candidate_fields:
+                errors.append(f"{candidate_context} missing required keys: {', '.join(missing_candidate_fields)}")
+                continue
+
+            _ensure_non_empty_string_fields(
+                raw_candidate,
+                fields=PROMISE_DERIVATION_CANDIDATE_REQUIRED_STRING_FIELDS,
+                context=candidate_context,
+                errors=errors,
+            )
+
+            interaction_refs = _normalize_string_list(raw_candidate.get("interaction_families"))
+            if not interaction_refs:
+                errors.append(f"{candidate_context}.interaction_families must be a non-empty array of strings")
+            else:
+                for family in interaction_refs:
+                    if family not in transition_families:
+                        errors.append(
+                            f"{candidate_context}.interaction_families references unknown transition_family: {family}"
+                        )
+
+            boundary_refs = _normalize_string_list(raw_candidate.get("consistency_boundaries"))
+            if not boundary_refs:
+                errors.append(f"{candidate_context}.consistency_boundaries must be a non-empty array of strings")
+            else:
+                for boundary in boundary_refs:
+                    if boundary not in consistency_boundaries:
+                        errors.append(
+                            f"{candidate_context}.consistency_boundaries references unknown consistency_boundary: {boundary}"
+                        )
+
+            confidence = raw_candidate.get("confidence")
+            if not isinstance(confidence, (int, float)) or not (0.0 <= float(confidence) <= 1.0):
+                errors.append(f"{candidate_context}.confidence must be a number between 0 and 1")
+
+            candidate_status = _to_text(raw_candidate.get("status")).strip()
+            if candidate_status not in PROMISE_DERIVATION_CANDIDATE_ALLOWED_STATUSES:
+                errors.append(
+                    f"{candidate_context}.status must be one of "
+                    f"{', '.join(sorted(PROMISE_DERIVATION_CANDIDATE_ALLOWED_STATUSES))}"
+                )
+
+            candidate_id = _to_text(raw_candidate.get("candidate_id")).strip()
+            if candidate_id:
+                if candidate_id in seen_candidate_ids:
+                    errors.append(f"{context}.candidate_promises duplicate candidate_id: {candidate_id}")
+                seen_candidate_ids.add(candidate_id)
+
+    return errors
+
+
+def _normalize_promise_derivation_worksheet_v1_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    normalized = dict(payload)
+
+    for field in PROMISE_DERIVATION_WORKSHEET_REQUIRED_STRING_FIELDS:
+        normalized[field] = _to_text(payload.get(field)).strip()
+
+    for field in PROMISE_DERIVATION_WORKSHEET_REQUIRED_NON_EMPTY_LIST_FIELDS:
+        normalized[field] = _normalize_string_list(payload.get(field))
+
+    normalized["open_questions"] = _normalize_string_list(payload.get("open_questions"))
+    normalized["evidence_refs"] = _normalize_evidence_refs(payload.get("evidence_refs"))
+    normalized["status"] = _to_text(payload.get("status")).strip()
+
+    normalized_candidates: list[dict[str, Any]] = []
+    raw_candidates = payload.get("candidate_promises")
+    if isinstance(raw_candidates, list):
+        for raw_candidate in raw_candidates:
+            if not isinstance(raw_candidate, dict):
+                continue
+            candidate = dict(raw_candidate)
+            for field in PROMISE_DERIVATION_CANDIDATE_REQUIRED_STRING_FIELDS:
+                candidate[field] = _to_text(raw_candidate.get(field)).strip()
+            candidate["interaction_families"] = _normalize_string_list(raw_candidate.get("interaction_families"))
+            candidate["consistency_boundaries"] = _normalize_string_list(raw_candidate.get("consistency_boundaries"))
+            candidate["confidence"] = float(raw_candidate.get("confidence"))
+            normalized_candidates.append(candidate)
+    normalized_candidates.sort(key=lambda candidate: _to_text(candidate.get("candidate_id")).strip())
+    normalized["candidate_promises"] = normalized_candidates
+    return normalized
+
+
+def load_promise_derivation_worksheet_v1(path: Path) -> dict[str, Any]:
+    payload = json.loads(path.read_text())
+    if not isinstance(payload, dict):
+        raise ValueError(f"promise derivation worksheet must be an object: {path}")
+
+    required_top_level = ("schema_version", "produced_by", *PROMISE_DERIVATION_WORKSHEET_REQUIRED_FIELDS)
+    missing = [key for key in required_top_level if key not in payload]
+    if missing:
+        raise ValueError(f"{path} missing required keys: {', '.join(missing)}")
+    if payload.get("schema_version") != "PromiseDerivationWorksheet.v1":
+        raise ValueError(f"{path} schema_version must be PromiseDerivationWorksheet.v1")
+
+    errors = validate_promise_derivation_worksheet_v1(payload, context="worksheet")
+    if errors:
+        raise ValueError(f"{path} invalid promise derivation worksheet: {'; '.join(errors)}")
+
+    return _normalize_promise_derivation_worksheet_v1_payload(payload)
+
+
+def load_promise_derivation_worksheets_from_dir_v1(worksheets_dir: Path) -> list[dict[str, Any]]:
+    if not worksheets_dir.exists():
+        return []
+    if not worksheets_dir.is_dir():
+        raise ValueError(f"promise derivation worksheet path is not a directory: {worksheets_dir}")
+
+    deduped_by_worksheet_id: dict[str, dict[str, Any]] = {}
+    for path in sorted(worksheets_dir.glob("*.json")):
+        worksheet = load_promise_derivation_worksheet_v1(path)
+        worksheet_id = _to_text(worksheet.get("worksheet_id")).strip()
+        if worksheet_id in deduped_by_worksheet_id:
+            raise ValueError(f"duplicate worksheet_id in directory: {worksheet_id}")
+        deduped_by_worksheet_id[worksheet_id] = worksheet
+
+    return [deduped_by_worksheet_id[worksheet_id] for worksheet_id in sorted(deduped_by_worksheet_id)]
+
+
+def _normalize_stub_evidence_refs(raw_refs: Any, *, worksheet_id: str) -> dict[str, list[str]]:
+    refs = _normalize_evidence_refs(raw_refs)
+
+    source_incident_ids = _normalize_string_list(refs.get("source_incident_ids"))
+    retrieval_refs = _normalize_string_list(refs.get("retrieval_refs"))
+    witness_refs = _normalize_string_list(refs.get("witness_refs"))
+    fixture_refs = _normalize_string_list(refs.get("fixture_refs"))
+    verifier_refs = _normalize_string_list(refs.get("verifier_refs"))
+
+    worksheet_ref = f"manual:worksheet:{worksheet_id or 'unknown'}"
+    if worksheet_ref not in verifier_refs:
+        verifier_refs.append(worksheet_ref)
+
+    return {
+        "source_incident_ids": source_incident_ids or ["manual:incident-id-pending"],
+        "retrieval_refs": retrieval_refs or [worksheet_ref],
+        "witness_refs": witness_refs or [worksheet_ref],
+        "fixture_refs": fixture_refs or [worksheet_ref],
+        "verifier_refs": verifier_refs or [worksheet_ref],
+    }
+
+
+def derive_promise_card_stubs_from_accepted_candidates(
+    worksheet: dict[str, Any],
+    *,
+    produced_by: str = "manual:promise-derivation-worksheet",
+) -> list[dict[str, Any]]:
+    errors = validate_promise_derivation_worksheet_v1(worksheet, context="worksheet")
+    if errors:
+        raise ValueError(f"invalid promise derivation worksheet: {'; '.join(errors)}")
+
+    normalized = _normalize_promise_derivation_worksheet_v1_payload(worksheet)
+    worksheet_id = _to_text(normalized.get("worksheet_id")).strip()
+    system_name = _to_text(normalized.get("system_name")).strip()
+    settlement_horizons = _normalize_string_list(normalized.get("settlement_horizons"))
+    stress_axes = _normalize_string_list(normalized.get("open_questions")) or ["manual stress-axis derivation pending"]
+    base_actors = _normalize_string_list(normalized.get("actors"))
+    evidence_refs = _normalize_stub_evidence_refs(normalized.get("evidence_refs"), worksheet_id=worksheet_id)
+
+    suggestions: list[dict[str, Any]] = []
+    for candidate in normalized.get("candidate_promises", []):
+        if not isinstance(candidate, dict):
+            continue
+        if _to_text(candidate.get("status")).strip() != "accepted":
+            continue
+
+        candidate_id = _to_text(candidate.get("candidate_id")).strip()
+        candidate_actor_scope = _to_text(candidate.get("actor_scope")).strip()
+        actors = [candidate_actor_scope] if candidate_actor_scope else []
+        for actor in base_actors:
+            if actor not in actors:
+                actors.append(actor)
+
+        suggestions.append(
+            {
+                "promise_id": f"promise-{_slugify(system_name)}-{_slugify(candidate_id)}",
+                "statement": _to_text(candidate.get("statement")).strip(),
+                "why_it_exists": _to_text(candidate.get("rationale")).strip(),
+                "actors": actors,
+                "assets_or_rights": _normalize_string_list(normalized.get("assets_or_rights")),
+                "protected_state": _to_text(candidate.get("protected_state")).strip(),
+                "interaction_families": _normalize_string_list(candidate.get("interaction_families")),
+                "consistency_boundaries": _normalize_string_list(candidate.get("consistency_boundaries")),
+                "settlement_horizon": settlement_horizons[0] if settlement_horizons else "manual settlement horizon pending",
+                "representations": _normalize_string_list(normalized.get("representations")),
+                "admin_or_external_surfaces": _normalize_string_list(normalized.get("admin_or_external_surfaces")),
+                "stress_axes": stress_axes,
+                "evidence_refs": evidence_refs,
+                "priority": _to_text(candidate.get("priority")).strip(),
+                "confidence": float(candidate.get("confidence")),
+                "status": "hypothesized",
+                "source_worksheet_id": worksheet_id,
+                "source_candidate_id": candidate_id,
+                "source_stage": "promise-derivation-stage-1",
+                "suggested_by": _to_text(produced_by).strip() or "manual:promise-derivation-worksheet",
+            }
+        )
+
+    suggestions.sort(key=lambda suggestion: _to_text(suggestion.get("promise_id")).strip())
+    return suggestions
+
+
 PROMISE_TOUCH_MAP_REQUIRED_FIELDS = (
     "touch_map_id",
     "promise_id",

@@ -1,0 +1,102 @@
+{
+  "schema_version": "PromiseDerivationWorksheet.v1",
+  "produced_by": "manual:promise-derivation-stage-1",
+  "worksheet_id": "worksheet-nutriplanner-collapse-lockstep-v1",
+  "system_name": "Nutriplanner estimate row collapse transition",
+  "purpose": "Derive collapse/edit promise candidates from fixture evidence before manual promise-scoped scan creation.",
+  "actors": [
+    "user",
+    "estimate row view",
+    "collapse animation pipeline",
+    "layout boundary owner"
+  ],
+  "assets_or_rights": [
+    "stable collapse animation",
+    "detail-to-boundary visual continuity",
+    "predictable editing feedback"
+  ],
+  "transition_families": [
+    "row collapse",
+    "row expand/collapse toggling",
+    "cell reuse during animated transitions"
+  ],
+  "representations": [
+    "witness set",
+    "retrieval result",
+    "fixture lineage commits",
+    "displayLink probe logs"
+  ],
+  "consistency_boundaries": [
+    "detailRegionHeight and boundary child transition ordering",
+    "firstChildToDetailDeltaY remains near lockstep envelope",
+    "collapsed gate ownership updates do not lag child reconciliation"
+  ],
+  "settlement_horizons": [
+    "collapse start to collapse end",
+    "ownership handoff to first post-handoff reconciliation tick"
+  ],
+  "admin_or_external_surfaces": [
+    "eval fixture nutriplanner-collapse-case",
+    "cross-repo retrieval lineage comparison"
+  ],
+  "candidate_promises": [
+    {
+      "candidate_id": "cand-nutriplanner-collapse-delta-lockstep",
+      "statement": "During row collapse, firstChildToDetailDeltaY remains inside the expected lockstep envelope.",
+      "actor_scope": "estimate row view + collapse animation pipeline",
+      "protected_state": "detail region and first boundary child geometry stay synchronized through collapse transition phases",
+      "interaction_families": [
+        "row collapse",
+        "row expand/collapse toggling"
+      ],
+      "consistency_boundaries": [
+        "firstChildToDetailDeltaY remains near lockstep envelope",
+        "detailRegionHeight and boundary child transition ordering"
+      ],
+      "rationale": "Current evidence and active frame both point to seam divergence during collapse; this candidate is directly testable.",
+      "priority": "high",
+      "confidence": 0.84,
+      "status": "accepted"
+    },
+    {
+      "candidate_id": "cand-nutriplanner-ownership-handoff-order",
+      "statement": "Collapsed gate ownership settles before boundary child reconciliation consumes the new owner.",
+      "actor_scope": "collapse animation pipeline + layout boundary owner",
+      "protected_state": "ownership handoff ordering does not lag child reconciliation under reuse pressure",
+      "interaction_families": [
+        "cell reuse during animated transitions"
+      ],
+      "consistency_boundaries": [
+        "collapsed gate ownership updates do not lag child reconciliation"
+      ],
+      "rationale": "Likely second-order source of seam spikes if lockstep boundary appears intermittently healthy.",
+      "priority": "medium",
+      "confidence": 0.69,
+      "status": "deferred"
+    }
+  ],
+  "open_questions": [
+    "Do seam spikes cluster only around ownership-handoff ticks or throughout the collapse sequence?",
+    "Is reuse pressure necessary to reproduce delta lockstep breaks?"
+  ],
+  "evidence_refs": {
+    "source_incident_ids": [
+      "incident-20260313-235921"
+    ],
+    "retrieval_refs": [
+      "diagnostics/retrieval_results/incident-20260313-logs-boundary-seam.json"
+    ],
+    "witness_refs": [
+      "diagnostics/evidence/witness_sets/nutriplanner-collapse-case.witness_set.json"
+    ],
+    "fixture_refs": [
+      "eval/fixtures/nutriplanner-collapse-case.yaml"
+    ],
+    "verifier_refs": [
+      "manual:promise-derivation-stage-1"
+    ]
+  },
+  "status": "in_review",
+  "created_at": "2026-03-24T16:02:00Z",
+  "updated_at": "2026-03-24T16:02:00Z"
+}

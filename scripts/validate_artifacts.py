@@ -112,6 +112,24 @@ REQUIRED_BY_SCHEMA: dict[str, list[str]] = {
         "created_at",
         "updated_at",
     ],
+    "PromiseDerivationWorksheet.v1": [
+        "worksheet_id",
+        "system_name",
+        "purpose",
+        "actors",
+        "assets_or_rights",
+        "transition_families",
+        "representations",
+        "consistency_boundaries",
+        "settlement_horizons",
+        "admin_or_external_surfaces",
+        "candidate_promises",
+        "open_questions",
+        "evidence_refs",
+        "status",
+        "created_at",
+        "updated_at",
+    ],
     "PromiseTraversalTask.v1": [
         "task_id",
         "promise_id",
@@ -265,6 +283,8 @@ PROMISE_TASK_ALLOWED_STATUSES = {"queued", "active", "blocked", "done"}
 PROMISE_SCAN_OUTCOME_ALLOWED_OUTCOMES = {"killed", "anomaly_found", "survives", "exhausted", "blocked"}
 PROMISE_WORK_PACKET_ALLOWED_STATUSES = {"draft", "ready", "active", "blocked", "completed", "stale"}
 PROMISE_TOUCH_SLICE_ALLOWED_STATUSES = {"proposed", "accepted", "deferred", "exhausted"}
+PROMISE_DERIVATION_ALLOWED_STATUSES = {"draft", "in_review", "accepted"}
+PROMISE_DERIVATION_CANDIDATE_ALLOWED_STATUSES = {"proposed", "accepted", "rejected", "deferred"}
 CHECK_CARD_REQUIRED_FIELDS = {
     "check_id",
     "statement",
@@ -333,6 +353,7 @@ def default_targets() -> list[Path]:
         targets.append(promise_registry)
     targets.extend(sorted(Path("diagnostics/memory/promise_coverage_ledgers").glob("*.json")))
     targets.extend(sorted(Path("diagnostics/memory/promise_touch_maps").glob("*.json")))
+    targets.extend(sorted(Path("diagnostics/memory/promise_derivation_worksheets").glob("*.json")))
     targets.extend(sorted(Path("diagnostics/memory/promise_check_libraries").glob("*.json")))
     targets.extend(sorted(Path("diagnostics/session/promise_tasks").glob("*.json")))
 
@@ -882,6 +903,121 @@ def validate_special_cases(path: Path, payload: dict[str, Any]) -> list[str]:
                 boundary_ref = str(candidate.get("consistency_boundary", "")).strip()
                 if boundary_ref and boundary_ids and boundary_ref not in boundary_ids:
                     errors.append(f"{label}.consistency_boundary references unknown boundary_id: {boundary_ref}")
+
+    if schema_version == "PromiseDerivationWorksheet.v1":
+        for key in ("worksheet_id", "system_name", "purpose", "status", "created_at", "updated_at"):
+            if not str(payload.get(key, "")).strip():
+                errors.append(f"PromiseDerivationWorksheet.v1 {key} must be a non-empty string")
+
+        status = str(payload.get("status", "")).strip()
+        if status not in PROMISE_DERIVATION_ALLOWED_STATUSES:
+            errors.append(
+                "PromiseDerivationWorksheet.v1 status must be one of "
+                f"{'/'.join(sorted(PROMISE_DERIVATION_ALLOWED_STATUSES))}"
+            )
+
+        for key in (
+            "actors",
+            "assets_or_rights",
+            "transition_families",
+            "representations",
+            "consistency_boundaries",
+            "settlement_horizons",
+            "admin_or_external_surfaces",
+        ):
+            if not _non_empty_strings(payload.get(key)):
+                errors.append(f"PromiseDerivationWorksheet.v1 {key} must be a non-empty array of strings")
+
+        open_questions = payload.get("open_questions")
+        if not isinstance(open_questions, list):
+            errors.append("PromiseDerivationWorksheet.v1 open_questions must be an array")
+        elif any(not str(item).strip() for item in open_questions):
+            errors.append("PromiseDerivationWorksheet.v1 open_questions must contain only non-empty strings")
+
+        if not isinstance(payload.get("evidence_refs"), dict):
+            errors.append("PromiseDerivationWorksheet.v1 evidence_refs must be an object")
+
+        transition_families = {str(item).strip() for item in _non_empty_strings(payload.get("transition_families"))}
+        consistency_boundaries = {
+            str(item).strip() for item in _non_empty_strings(payload.get("consistency_boundaries"))
+        }
+
+        candidate_promises = payload.get("candidate_promises")
+        if not isinstance(candidate_promises, list) or not candidate_promises:
+            errors.append("PromiseDerivationWorksheet.v1 candidate_promises must be a non-empty array")
+        else:
+            seen_candidate_ids: set[str] = set()
+            for idx, candidate in enumerate(candidate_promises, start=1):
+                label = f"PromiseDerivationWorksheet.v1 candidate_promises[{idx}]"
+                if not isinstance(candidate, dict):
+                    errors.append(f"{label} must be an object")
+                    continue
+
+                required = {
+                    "candidate_id",
+                    "statement",
+                    "actor_scope",
+                    "protected_state",
+                    "interaction_families",
+                    "consistency_boundaries",
+                    "rationale",
+                    "priority",
+                    "confidence",
+                    "status",
+                }
+                missing = sorted(required - set(candidate.keys()))
+                if missing:
+                    errors.append(f"{label} missing required keys: {', '.join(missing)}")
+                    continue
+
+                for key in (
+                    "candidate_id",
+                    "statement",
+                    "actor_scope",
+                    "protected_state",
+                    "rationale",
+                    "priority",
+                    "status",
+                ):
+                    if not str(candidate.get(key, "")).strip():
+                        errors.append(f"{label}.{key} must be a non-empty string")
+
+                interaction_refs = _non_empty_strings(candidate.get("interaction_families"))
+                if not interaction_refs:
+                    errors.append(f"{label}.interaction_families must be a non-empty array of strings")
+                else:
+                    for family in interaction_refs:
+                        if family not in transition_families:
+                            errors.append(
+                                f"{label}.interaction_families references unknown transition_family: {family}"
+                            )
+
+                boundary_refs = _non_empty_strings(candidate.get("consistency_boundaries"))
+                if not boundary_refs:
+                    errors.append(f"{label}.consistency_boundaries must be a non-empty array of strings")
+                else:
+                    for boundary in boundary_refs:
+                        if boundary not in consistency_boundaries:
+                            errors.append(
+                                f"{label}.consistency_boundaries references unknown consistency_boundary: {boundary}"
+                            )
+
+                confidence = candidate.get("confidence")
+                if not isinstance(confidence, (int, float)) or not (0.0 <= float(confidence) <= 1.0):
+                    errors.append(f"{label}.confidence must be a number between 0 and 1")
+
+                candidate_status = str(candidate.get("status", "")).strip()
+                if candidate_status not in PROMISE_DERIVATION_CANDIDATE_ALLOWED_STATUSES:
+                    errors.append(
+                        f"{label}.status must be one of "
+                        f"{'/'.join(sorted(PROMISE_DERIVATION_CANDIDATE_ALLOWED_STATUSES))}"
+                    )
+
+                candidate_id = str(candidate.get("candidate_id", "")).strip()
+                if candidate_id:
+                    if candidate_id in seen_candidate_ids:
+                        errors.append(f"PromiseDerivationWorksheet.v1 duplicate candidate_id: {candidate_id}")
+                    seen_candidate_ids.add(candidate_id)
 
     if schema_version == "PromiseTraversalTask.v1":
         missing = sorted(PROMISE_TASK_REQUIRED_FIELDS - set(payload.keys()))
