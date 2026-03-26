@@ -1,0 +1,32 @@
+# Architecture Delta
+
+- branch: `codex/chore/example-branch`
+- initial changed dimensions:
+  - frontier
+- actual changed dimensions:
+  - frontier
+- allowed dimension values:
+  - canonical architecture state
+  - frontier
+  - notes
+  - decisions
+  - program hypothesis / authority / stage map
+  - no architecture state
+- architecture files updated:
+  - `research/ARCHITECTURE_FRONTIER.md`
+- reason for each update:
+  - Updated current leverage queue after evaluating stale branch item.
+- no-state-change declaration (if applicable):
+  - n/a
+- decision-log posture (relies/challenges/new/no-change):
+  - no-change
+- any new decision entry required:
+  - no
+- any frontier shift detected:
+  - yes
+- any program-model shift detected:
+  - no
+- governance check status (`python3 scripts/check_architecture_governance.py`):
+  - passed
+- governance test status (`python3 -m unittest tests/test_architecture_governance.py`):
+  - passed

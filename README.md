@@ -13,6 +13,8 @@ It is reconstructing the right promise, holding it fixed, and scanning the right
 
 RepoTrace is built to preserve that reasoning state.
 
+Architecture-affecting branches should start at `research/CODEX_ARCHITECTURE_PROTOCOL.md`; compact map: `research/ARCHITECTURE_INDEX.md`.
+
 ---
 
 ## Why this exists

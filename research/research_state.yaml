@@ -1,38 +1,21 @@
 schema_version: ResearchState.v1
-produced_by: repotrace-architecture-freeze
-architecture_version: 0.1.0
+produced_by: repotrace-architecture-freeze-legacy-archive
+architecture_version: legacy-archived
 mechanistic_bet: >-
-  Separating immutable evidence from revisable retrieval/session lineage and durable
-  memory reduces repeated inference and prevents interpretation drift from mutating facts.
+  Legacy bootstrap artifact archived for historical context only. Do not use this file
+  as architecture control-plane state. Start architecture-affecting work from
+  `research/CODEX_ARCHITECTURE_PROTOCOL.md` and related ARCHITECTURE_* docs.
 current_invariants:
-  - no high-level belief without downward evidence link
-  - no frame without motif_id and incident_id
-  - no retrieval attempt without verdict and discriminating check or gap description
-  - no durable claim without concrete provenance
-  - every new-layer artifact has schema_version and produced_by
-  - incident evidence is append-only
-  - investigation state is versioned separately from evidence
+  - legacy bootstrap file retained only for backward compatibility and historical reference
 known_fractures:
-  - legacy retrieval artifacts use multiple shapes and are missing schema_version/produced_by
-  - legacy incident markdown acts as primary view in existing workflow
-  - durable claims currently live in diagnostics/claims.json without concrete provenance fields
+  - this file previously mixed architecture-program context with implementation migration context
 active_questions:
-  - when to flip retrieval tooling default from legacy compatibility write to session-only write
-  - whether to require commit_refs for every durable claim update
-  - how to attach witness_ids at capture time from mobile diagnostics UI
-  - how to formalize frame/procedure runtime once lineage quality is stable
+  - none; architecture authority now lives in ARCHITECTURE_STATE/PROGRAM/FRONTIER/DECISIONS
 deferred_features:
-  - predictive routing
-  - frame engine runtime
-  - graph database
-  - learned weighting
-  - broad refactors
-  - app bug solving
+  - none
 evaluation_fixtures:
-  - fixture_id: nutriplanner-collapse-case
-    path: eval/fixtures/nutriplanner-collapse-case.yaml
-    purpose: validate evidence/session separation under interpretation drift
+  - fixture_id: archived-bootstrap-state
+    path: research/research_state.yaml
+    purpose: preserve legacy bootstrap record without control-plane authority
 next_actions:
-  - wire validator into CI as non-blocking forward-only check
-  - add migration command to backfill optional v1 mirrors for legacy retrieval fixtures
-  - define durable memory write path after provenance producers are available
+  - use research/IMPLEMENTATION_STATE.yaml for implementation and migration tracking only

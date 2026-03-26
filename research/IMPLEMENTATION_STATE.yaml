@@ -1,0 +1,34 @@
+schema_version: ImplementationState.v1
+produced_by: codex-governance-finalize
+scope: implementation-and-migration-only
+status_summary: >
+  Tracks implementation and migration progress that should not redefine canonical
+  architecture state, frontier, notes, decisions, or program hypothesis.
+update_rule: >
+  Update only for implementation or migration status changes. Never use this file
+  to store canonical architecture state, frontier posture, notes/disconfirmation,
+  program hypothesis, or architecture decisions.
+schema_migration_status:
+  - legacy ResearchState.v1 retained as archived bootstrap note in research/research_state.yaml
+  - architecture control-plane docs are authoritative for architecture-level state
+known_fractures:
+  - some legacy tooling references ResearchState.v1 naming and may require migration cleanup
+  - implementation migration status has no dedicated validator yet
+deferred_implementation_features:
+  - predictive routing
+  - frame engine runtime
+  - graph database
+  - learned weighting
+  - broad refactors
+fixture_inventory:
+  - fixture_id: nutriplanner-collapse-case
+    path: eval/fixtures/nutriplanner-collapse-case.yaml
+    purpose: validate evidence/session separation under interpretation drift
+immediate_next_actions:
+  - keep implementation migration notes here; keep architecture truth in ARCHITECTURE_* docs
+  - add or update implementation-state validator only if migration work resumes
+must_never_contain:
+  - canonical architecture thesis or ontology changes
+  - frontier bet, branch queue, or falsifier decisions
+  - architecture notes or disconfirmation authority
+  - durable architecture decision records
