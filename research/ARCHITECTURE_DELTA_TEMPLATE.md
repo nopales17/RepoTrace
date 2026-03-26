@@ -17,6 +17,9 @@
 - any new decision entry required:
 - any frontier shift detected:
 - any program-model shift detected:
+- capture decision (no capture/spark/hypothesis/direct promotion):
+- hypothesis ingest summary (hypothesis_id added/updated, if any):
+- hypothesis outcome (matured/stayed unchanged/promoted/rejected):
 - governance check status (`python3 scripts/check_architecture_governance.py`):
 - governance test status (`python3 -m unittest tests/test_architecture_governance.py`):
 

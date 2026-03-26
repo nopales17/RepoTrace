@@ -10,6 +10,7 @@ from scripts.check_architecture_governance import (
     check_closeout_artifact,
     check_closeout_requirements,
     check_decisions,
+    check_hypotheses_structure,
     check_preamble_read_order,
     check_protocol,
     check_required_files,
@@ -32,6 +33,7 @@ def _write_valid_tree(root: Path) -> None:
         - research/ARCHITECTURE_PROGRAM.md
         - research/ARCHITECTURE_DECISIONS.md
         - research/ARCHITECTURE_FRONTIER.md
+        - research/ARCHITECTURE_HYPOTHESES.md
         - research/ARCHITECTURE_NOTES.md
         - research/IMPLEMENTATION_STATE.yaml
         - research/architecture_deltas/
@@ -80,6 +82,36 @@ def _write_valid_tree(root: Path) -> None:
         """,
     )
     _write(
+        root / ARCH_FILES["hypotheses"],
+        """
+        # Architecture Hypotheses
+        ## A. Purpose
+        ## B. Promotion Rules
+        ## C. Active Hypotheses
+        - hypothesis_id: HYP-001
+        - claim: x
+        - why_it_matters: x
+        - mechanism: x
+        - success_signal: x
+        - falsifier: x
+        - influence_surfaces: search
+        - next_proving_move: x
+        - possible_promotion_surfaces: FRONTIER
+        - current_maturity: active
+        - seed
+        - shaped
+        - promoted
+        - rejected
+        ## D. Sparks / Early Ideas
+        - spark_id: SPK-001
+        - idea: x
+        - possible_surfaces: search
+        ## E. Parked / Lower-Priority Hypotheses
+        ## F. Rejected / Falsified
+        ## G. Update Rule
+        """,
+    )
+    _write(
         root / ARCH_FILES["notes"],
         """
         # Architecture Notes
@@ -114,6 +146,7 @@ def _write_valid_tree(root: Path) -> None:
         - research/ARCHITECTURE_PROGRAM.md
         - research/ARCHITECTURE_FRONTIER.md
         - research/ARCHITECTURE_DECISIONS.md
+        - research/ARCHITECTURE_HYPOTHESES.md
         - research/ARCHITECTURE_NOTES.md
 
         Classify changed dimensions:
@@ -128,6 +161,13 @@ def _write_valid_tree(root: Path) -> None:
         Run: python3 scripts/check_architecture_governance.py
         Run: python3 -m unittest tests/test_architecture_governance.py
         Use: research/architecture_deltas/
+        soft convergence layer
+        no capture
+        spark
+        hypothesis
+        direct promotion
+        high-level architectural dialogue
+        matured, stayed unchanged, promoted, or rejected
 
         ## Phase 2: End-of-Branch Reconciliation
         """,
@@ -142,6 +182,7 @@ def _write_valid_tree(root: Path) -> None:
         - research/ARCHITECTURE_PROGRAM.md
         - research/ARCHITECTURE_FRONTIER.md
         - research/ARCHITECTURE_DECISIONS.md
+        - research/ARCHITECTURE_HYPOTHESES.md
         - research/ARCHITECTURE_NOTES.md
         - canonical architecture state
         - frontier
@@ -168,6 +209,7 @@ def _write_valid_tree(root: Path) -> None:
         - python3 -m unittest tests/test_architecture_governance.py
         - pass/fail
         - research/architecture_deltas/
+        - matured, stayed unchanged, promoted, or rejected
         """,
     )
     _write(
@@ -241,6 +283,7 @@ class ArchitectureGovernanceTests(unittest.TestCase):
                 - research/ARCHITECTURE_FRONTIER.md
                 - research/ARCHITECTURE_PROGRAM.md
                 - research/ARCHITECTURE_DECISIONS.md
+                - research/ARCHITECTURE_HYPOTHESES.md
                 - research/ARCHITECTURE_NOTES.md
                 - canonical architecture state
                 - frontier
@@ -251,6 +294,9 @@ class ArchitectureGovernanceTests(unittest.TestCase):
                 default assumption: no architecture state
                 python3 scripts/check_architecture_governance.py
                 research/architecture_deltas/
+                soft convergence layer
+                high-level architectural dialogue
+                matured, stayed unchanged, promoted, or rejected
                 ## Phase 2: End-of-Branch Reconciliation
                 """,
             )
@@ -270,6 +316,7 @@ class ArchitectureGovernanceTests(unittest.TestCase):
                 - research/ARCHITECTURE_FRONTIER.md
                 - research/ARCHITECTURE_PROGRAM.md
                 - research/ARCHITECTURE_DECISIONS.md
+                - research/ARCHITECTURE_HYPOTHESES.md
                 - research/ARCHITECTURE_NOTES.md
                 - canonical architecture state
                 - frontier
@@ -316,10 +363,47 @@ class ArchitectureGovernanceTests(unittest.TestCase):
                 - no architecture state
                 - python3 scripts/check_architecture_governance.py
                 - research/architecture_deltas/
+                - matured, stayed unchanged, promoted, or rejected
                 """,
             )
             errors = check_closeout_requirements(root)
             self.assertTrue(any("unittest command" in e for e in errors))
+
+    def test_hypotheses_section_detection(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _write_valid_tree(root)
+            _write(
+                root / ARCH_FILES["hypotheses"],
+                """
+                # Architecture Hypotheses
+                ## A. Purpose
+                ## B. Promotion Rules
+                """,
+            )
+            errors = check_required_sections(root)
+            self.assertTrue(any("Active Hypotheses" in e for e in errors))
+
+    def test_hypotheses_card_field_detection(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            _write_valid_tree(root)
+            _write(
+                root / ARCH_FILES["hypotheses"],
+                """
+                # Architecture Hypotheses
+                ## A. Purpose
+                ## B. Promotion Rules
+                ## C. Active Hypotheses
+                - hypothesis_id: HYP-001
+                ## D. Sparks / Early Ideas
+                ## E. Parked / Lower-Priority Hypotheses
+                ## F. Rejected / Falsified
+                ## G. Update Rule
+                """,
+            )
+            errors = check_hypotheses_structure(root)
+            self.assertTrue(any("missing card field" in e for e in errors))
 
     def test_architecture_index_reference_detection(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

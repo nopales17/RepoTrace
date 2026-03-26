@@ -7,7 +7,8 @@ Before implementation, read in order:
 2. `research/ARCHITECTURE_PROGRAM.md`
 3. `research/ARCHITECTURE_FRONTIER.md`
 4. `research/ARCHITECTURE_DECISIONS.md`
-5. `research/ARCHITECTURE_NOTES.md` (context only)
+5. `research/ARCHITECTURE_HYPOTHESES.md`
+6. `research/ARCHITECTURE_NOTES.md` (context only)
 
 Then classify branch impact dimensions (mark changed dimensions only):
 - canonical architecture state
@@ -19,6 +20,21 @@ Then classify branch impact dimensions (mark changed dimensions only):
 
 Default assumption: `no architecture state` unless justified.
 Update only the minimum files required by the selected changed dimensions.
+Hard-role files are `STATE`, `FRONTIER`, `PROGRAM`, and `DECISIONS`; `ARCHITECTURE_HYPOTHESES.md` is the soft convergence layer.
+For high-level architectural dialogue, explicitly choose one capture path:
+- no capture
+- spark
+- hypothesis
+- direct promotion (exceptional)
+
+Default bias:
+- no capture or spark
+- not full hypothesis
+- not direct promotion
+
+Full hypothesis threshold requires bounded mechanism, success signal, falsifier, and a real next proving move.
+Spark threshold requires only idea, why it matters, possible surfaces, and next question.
+Direct promotion into hard-role files is exceptional and requires strong evidence or explicit architectural review.
 
 For architecture-affecting branches, run:
 - `python3 scripts/check_architecture_governance.py`
@@ -42,6 +58,7 @@ Before commit:
 5. Record whether each governance command passed or failed in closeout.
 6. For architecture-affecting branches, produce one durable closeout artifact in `research/architecture_deltas/` using `research/ARCHITECTURE_DELTA_TEMPLATE.md`.
 7. Non-architecture branches may skip closeout artifacts but must explicitly state `no architecture state change`.
+8. In closeout, state capture decision (`no capture/spark/hypothesis/direct promotion`) and hypothesis outcomes for touched hypothesis_id values (`matured/stayed unchanged/promoted/rejected`).
 
 Fresh conversations may inspect recent files under `research/architecture_deltas/` for short branch-level architecture memory.
 
@@ -52,6 +69,8 @@ Fresh conversations may inspect recent files under `research/architecture_deltas
   Update only when leverage point, risk posture, falsifiers, or decision boundary changes.
 - `ARCHITECTURE_NOTES.md`:
   Update only for meaningful pressure/tension/disconfirmation changes.
+- `ARCHITECTURE_HYPOTHESES.md`:
+  Update for important not-yet-promoted hypotheses and maturity transitions (seed/shaped/active/promoted/rejected). Keep the active set small.
 - `ARCHITECTURE_DECISIONS.md`:
   Update only when a durable architectural choice is accepted, superseded, reversed, or clarified.
 - `ARCHITECTURE_PROGRAM.md`:

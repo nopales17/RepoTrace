@@ -10,6 +10,7 @@ Canonical architecture control-plane files:
 
 Operational / volatile files:
 - `research/ARCHITECTURE_FRONTIER.md`
+- `research/ARCHITECTURE_HYPOTHESES.md`
 - `research/ARCHITECTURE_NOTES.md`
 - `research/CODEX_BRANCH_PREAMBLE.md`
 - `research/CODEX_BRANCH_CLOSEOUT.md`

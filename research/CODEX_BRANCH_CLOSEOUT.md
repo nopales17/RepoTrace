@@ -16,3 +16,5 @@ Before commit:
 5. Record pass/fail for both governance commands in closeout.
 6. If branch is architecture-affecting, write one closeout artifact under `research/architecture_deltas/` using `research/ARCHITECTURE_DELTA_TEMPLATE.md`.
 7. If branch is not architecture-affecting, explicitly state `no architecture state change`.
+8. State capture decision for high-level dialogue (`no capture/spark/hypothesis/direct promotion`).
+9. State hypothesis outcomes for this branch (matured, stayed unchanged, promoted, or rejected) and include hypothesis_id where applicable.

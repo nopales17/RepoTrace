@@ -14,6 +14,7 @@ ARCH_FILES = {
     "state": Path("research/ARCHITECTURE_STATE.md"),
     "program": Path("research/ARCHITECTURE_PROGRAM.md"),
     "frontier": Path("research/ARCHITECTURE_FRONTIER.md"),
+    "hypotheses": Path("research/ARCHITECTURE_HYPOTHESES.md"),
     "notes": Path("research/ARCHITECTURE_NOTES.md"),
     "decisions": Path("research/ARCHITECTURE_DECISIONS.md"),
     "protocol": Path("research/CODEX_ARCHITECTURE_PROTOCOL.md"),
@@ -53,6 +54,15 @@ REQUIRED_SECTIONS = {
         "Branch Queue",
         "Current Decision Boundary",
     ],
+    "hypotheses": [
+        "Purpose",
+        "Promotion Rules",
+        "Active Hypotheses",
+        "Sparks / Early Ideas",
+        "Parked / Lower-Priority Hypotheses",
+        "Rejected / Falsified",
+        "Update Rule",
+    ],
     "notes": [
         "Supports Current Architecture",
         "Active Tensions",
@@ -75,6 +85,7 @@ REQUIRED_READ_ORDER = [
     "research/architecture_program.md",
     "research/architecture_frontier.md",
     "research/architecture_decisions.md",
+    "research/architecture_hypotheses.md",
     "research/architecture_notes.md",
 ]
 
@@ -104,6 +115,7 @@ INDEX_REQUIRED_REFERENCES = [
     "research/architecture_program.md",
     "research/architecture_decisions.md",
     "research/architecture_frontier.md",
+    "research/architecture_hypotheses.md",
     "research/architecture_notes.md",
     "research/implementation_state.yaml",
     "research/architecture_deltas/",
@@ -121,6 +133,21 @@ DELTA_REQUIRED_FIELDS = [
     "- governance check status",
     "- governance test status",
 ]
+
+HYPOTHESIS_CARD_FIELDS = [
+    "hypothesis_id:",
+    "claim:",
+    "why_it_matters:",
+    "mechanism:",
+    "success_signal:",
+    "falsifier:",
+    "influence_surfaces:",
+    "next_proving_move:",
+    "possible_promotion_surfaces:",
+    "current_maturity:",
+]
+
+HYPOTHESIS_MATURITY_VALUES = ["seed", "shaped", "active", "promoted", "rejected"]
 
 
 def _norm(value: str) -> str:
@@ -198,6 +225,20 @@ def check_protocol(root: Path) -> list[str]:
         errors.append("protocol missing governance unittest command")
     if "research/architecture_deltas/" not in text:
         errors.append("protocol missing branch closeout artifact directory reference")
+    if "research/architecture_hypotheses.md" not in text:
+        errors.append("protocol missing hypotheses file reference")
+    if "high-level architectural dialogue" not in text:
+        errors.append("protocol missing hypothesis ingest behavior")
+    if "soft convergence layer" not in text:
+        errors.append("protocol missing hard/soft hypothesis distinction")
+    for capture_mode in ["no capture", "spark", "hypothesis", "direct promotion"]:
+        if capture_mode not in text:
+            errors.append(f"protocol missing capture-threshold mode: {capture_mode}")
+    if (
+        "matured, stayed unchanged, promoted, or rejected" not in text
+        and "matured/stayed unchanged/promoted/rejected" not in text
+    ):
+        errors.append("protocol missing hypothesis outcome requirement")
 
     return errors
 
@@ -238,6 +279,27 @@ def check_closeout_requirements(root: Path) -> list[str]:
         errors.append("closeout missing governance pass/fail recording requirement")
     if "research/architecture_deltas/" not in text:
         errors.append("closeout missing branch closeout artifact directory reference")
+    if (
+        "matured, stayed unchanged, promoted, or rejected" not in text
+        and "matured/stayed unchanged/promoted/rejected" not in text
+    ):
+        errors.append("closeout missing hypothesis outcome recording requirement")
+    return errors
+
+
+def check_hypotheses_structure(root: Path) -> list[str]:
+    path = root / ARCH_FILES["hypotheses"]
+    if not path.is_file():
+        return []
+
+    text = _norm(_read(path))
+    errors: list[str] = []
+    for field in HYPOTHESIS_CARD_FIELDS:
+        if _norm(field) not in text:
+            errors.append(f"hypotheses file missing card field: {field}")
+    for value in HYPOTHESIS_MATURITY_VALUES:
+        if _norm(value) not in text:
+            errors.append(f"hypotheses file missing maturity value reference: {value}")
     return errors
 
 
@@ -310,6 +372,7 @@ def run_all_checks(root: Path, closeout_artifact: Path | None = None) -> list[st
     errors.extend(check_preamble_read_order(root))
     errors.extend(check_closeout_requirements(root))
     errors.extend(check_architecture_index(root))
+    errors.extend(check_hypotheses_structure(root))
     errors.extend(check_decisions(root))
     if closeout_artifact is not None:
         errors.extend(check_closeout_artifact(root, closeout_artifact))
