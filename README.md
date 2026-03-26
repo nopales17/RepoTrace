@@ -13,7 +13,22 @@ It is reconstructing the right promise, holding it fixed, and scanning the right
 
 RepoTrace is built to preserve that reasoning state.
 
-Architecture-affecting branches should start at `research/CODEX_ARCHITECTURE_PROTOCOL.md`; compact map: `research/ARCHITECTURE_INDEX.md`.
+## Architecture control plane
+
+For architecture-affecting work, start with:
+- `research/CODEX_ARCHITECTURE_PROTOCOL.md`
+
+Compact architecture map:
+- `research/ARCHITECTURE_INDEX.md`
+
+Canonical architecture memory:
+- `research/ARCHITECTURE_STATE.md`
+- `research/ARCHITECTURE_PROGRAM.md`
+- `research/ARCHITECTURE_DECISIONS.md`
+
+Operational planning/context:
+- `research/ARCHITECTURE_FRONTIER.md`
+- `research/ARCHITECTURE_NOTES.md`
 
 ---
 
@@ -134,6 +149,9 @@ RepoTrace already includes:
 - promise scan outcomes
 - promise-manual evaluation
 - promise touch maps for slice decomposition
+- architecture control-plane docs (state, program, frontier, notes, decisions)
+- Codex branch protocol/preamble/closeout + architecture delta template
+- governance checks for architecture-doc structure and protocol compliance
 
 This means the project is already past the “debugging notes + retrieval” phase.
 
@@ -159,9 +177,9 @@ RepoTrace is built around that bottleneck.
 
 The current frontier is:
 
-**make promise-slice probing repeatable, discriminating, and measurable without jumping too early to full automation**
+**upstream promise derivation quality and stability before deep probing, with explicit governance over architecture-state drift**
 
-That is why the next layer is a reusable check / probe library rather than predictive routing or full orchestration.
+That is why current work prioritizes promise-derivation aid, closure quality, and control-plane discipline rather than predictive routing or full orchestration.
 
 ---
 
